@@ -24,7 +24,7 @@ public class ScriptMove : MonoBehaviour
     public GameObject[] waypointsBallWrongMoveOwnArea;
     public float speed = 1;
     Vector2 originalPosition;
-    int waypointIterator = 0;
+    public int waypointIterator = 0;
     public float distance = 0.375f;
 
     public GameObject titleTextObject, descriptionTextObject;
@@ -68,41 +68,41 @@ public class ScriptMove : MonoBehaviour
                 break;
             case 2:
                 // Show ball movement
-                HandleMovement(ballChip, waypointsBallMovement, defaultBallPosition);
+                //HandleMovement(ballChip, waypointsBallMovement, defaultBallPosition);
                 break;
             case 3:
                 // Show ball throw
-                HandleMovement(ballChip, waypointsBallPassing, positionStartBallPassing);
+                //HandleMovement(ballChip, waypointsBallPassing, positionStartBallPassing);
                 break;
             case 4:
                 // Show goals
-                HandleMovement(ballChip, waypointsBallGoal, positionStartBallGoal);
+                //HandleMovement(ballChip, waypointsBallGoal, positionStartBallGoal);
                 break;
             case 5:
                 // Show passing 
-                HandleMovement(ballChip, waypointsBallPassingBetweenPlayers, positionStartBallPassing);
+                //HandleMovement(ballChip, waypointsBallPassingBetweenPlayers, positionStartBallPassing);
                 break;
             case 6:
                 // Show ball passing above a player
                 // TODO: Look up this answer to wait a while and then continue
                 // https://gamedev.stackexchange.com/questions/182912/moving-a-gameobject-to-a-position-waiting-and-then-moving-it-again
-                HandleMovement(ballChip, waypointsBallPassingBetweenPlayers, positionStartBallPassing);
+                //HandleMovement(ballChip, waypointsBallPassingBetweenPlayers, positionStartBallPassing);
                 break;
             case 8:
                 // Show neutral position breaking
-                HandleMovement(ballChip, waypointsBallNeutralPositionBreak, new Vector2(-1.5f, 0));
+                //HandleMovement(ballChip, waypointsBallNeutralPositionBreak, new Vector2(-1.5f, 0));
                 break;
             case 9:
                 // Show ball moving to corner
-                HandleMovement(ballChip, waypointsBallWrongMoveCorner, new Vector2(-1.875f, 1.125f));
+                //HandleMovement(ballChip, waypointsBallWrongMoveCorner, new Vector2(-1.875f, 1.125f));
                 break;
             case 10:
                 // Show ball ownership at the end of turn
-                HandleMovement(ballChip, waypointsBallWrongMovePosession, new Vector2(-0.375f, 1.125f));
+                //HandleMovement(ballChip, waypointsBallWrongMovePosession, new Vector2(-0.375f, 1.125f));
                 break;
             case 11:
                 // Show ball in own player area
-                HandleMovement(ballChip, waypointsBallWrongMoveOwnArea, new Vector2(-0.375f, 0));
+                //HandleMovement(ballChip, waypointsBallWrongMoveOwnArea, new Vector2(-0.375f, 0));
                 break;
 
         }
@@ -111,7 +111,24 @@ public class ScriptMove : MonoBehaviour
         nextButton.gameObject.SetActive(stepTutorial != 11);
     }
 
-    void HandleMovement(GameObject chip, GameObject[] destinations, Vector2 originalPos, float time = 0.015f)
+    IEnumerator MoveAndWait(GameObject chip, GameObject[] destinations, Vector2 originalPos, float time = 0.02f)
+    {
+        while (chip.transform.position != destinations[waypointIterator].transform.position)
+        {
+            Vector2 velocity = Vector2.zero;
+            chip.transform.position = Vector2.SmoothDamp(chip.transform.position, destinations[waypointIterator].transform.position, ref velocity, time);
+            yield return null;
+        }
+        if (chip.transform.position == destinations[waypointIterator].transform.position)
+        {
+            chip.transform.position = originalPos;
+            waypointIterator = waypointIterator == destinations.Length - 1 ? 0 : waypointIterator + 1;
+            yield return new WaitForSeconds(1);
+        }
+        yield return MoveAndWait(chip, destinations, originalPos);
+    }
+
+    void HandleMovement(GameObject chip, GameObject[] destinations, Vector2 originalPos, float time = 0.02f)
     {
         Vector2 velocity = Vector2.zero;
         chip.transform.position = Vector2.SmoothDamp(chip.transform.position, destinations[waypointIterator].transform.position, ref velocity, time);
@@ -190,6 +207,7 @@ public class ScriptMove : MonoBehaviour
 
     void ResetState()
     {
+        StopAllCoroutines();
         ResetPositions();
         UpdateText();
         waypointIterator = 0;
@@ -198,20 +216,27 @@ public class ScriptMove : MonoBehaviour
             case 1:
                 playerChips[0].transform.position = positionStartPlayerMovement;
                 break;
+            case 2:
+                StartCoroutine(MoveAndWait(ballChip, waypointsBallMovement, defaultBallPosition));
+                break;
             case 3:
                 playerChips[0].transform.position = positionStartPlayerMovement;
                 ballChip.transform.position = positionStartBallPassing;
+                StartCoroutine(MoveAndWait(ballChip, waypointsBallPassing, positionStartBallPassing));
                 break;
             case 4:
                 playerChips[0].transform.position = new Vector2(-1.875f, -1.5f);
                 ballChip.transform.position = positionStartBallGoal;
+                StartCoroutine(MoveAndWait(ballChip, waypointsBallGoal, positionStartBallGoal));
                 break;
             case 5:
                 ballChip.transform.position = new Vector2(-0.375f, 1.875f);
+                StartCoroutine(MoveAndWait(ballChip, waypointsBallPassingBetweenPlayers, positionStartBallPassing));
                 break;
             case 6:
                 ballChip.transform.position = new Vector2(-0.375f, 1.875f);
                 playerChips[2].transform.position = new Vector2(-0.375f, 0.375f);
+                StartCoroutine(MoveAndWait(ballChip, waypointsBallPassingBetweenPlayers, positionStartBallPassing));
                 break;
             case 7:
                 playerChips[1].transform.position = new Vector2(-1.125f, 0);
@@ -223,22 +248,26 @@ public class ScriptMove : MonoBehaviour
                 playerChips[2].transform.position = new Vector2(-1.5f, -0.375f);
                 playerChips[3].transform.position = new Vector2(-1.125f, -0.375f);
                 ballChip.transform.position = new Vector2(-1.5f, 0);
+                StartCoroutine(MoveAndWait(ballChip, waypointsBallNeutralPositionBreak, new Vector2(-1.5f, 0)));
                 break;
             case 9:
                 cross.transform.position = waypointsBallWrongMoveCorner[0].transform.position;
                 playerChips[1].transform.position = new Vector2(-1.5f, 1.125f);
                 ballChip.transform.position = new Vector2(-1.875f, 1.125f);
+                StartCoroutine(MoveAndWait(ballChip, waypointsBallWrongMoveCorner, new Vector2(-1.875f, 1.125f)));
                 break;
             case 10:
                 cross.transform.position = waypointsBallWrongMovePosession[0].transform.position;
                 playerChips[1].transform.position = new Vector2(-0.75f, 0);
                 ballChip.transform.position = new Vector2(-0.375f, 1.125f);
+                StartCoroutine(MoveAndWait(ballChip, waypointsBallWrongMovePosession, new Vector2(-0.375f, 1.125f)));
                 break;
             case 11:
                 cross.transform.position = waypointsBallWrongMoveOwnArea[0].transform.position;
                 playerChips[0].transform.position = new Vector2(-0.75f, 0);
                 playerChips[1].transform.position = new Vector2(-0.75f, 1.125f);
                 ballChip.transform.position = new Vector2(-0.375f, 0);
+                StartCoroutine(MoveAndWait(ballChip, waypointsBallWrongMoveOwnArea, new Vector2(-0.375f, 0)));
                 break;
             default:
                 break;
