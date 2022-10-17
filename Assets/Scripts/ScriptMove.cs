@@ -52,7 +52,7 @@ public class ScriptMove : MonoBehaviour
         nextButton.gameObject.SetActive(stepTutorial != 11);
     }
 
-    IEnumerator MoveAndWait(GameObject chip, GameObject[] destinations, Vector2 originalPos, bool changeOriginalPos = false, float time = 0.02f)
+    IEnumerator MoveAndWait(GameObject chip, GameObject[] destinations, Vector2 originalPos, bool changeOriginalPos = false, float time = 0.05f)
     {
         // The whole changeOriginalPos thing is probably not the best idea but it is what it is
         while (chip.transform.position != destinations[waypointIterator].transform.position)
@@ -77,7 +77,7 @@ public class ScriptMove : MonoBehaviour
                 }
                 waypointIterator = waypointIterator == destinations.Length - 2 ? 0 : waypointIterator + 1;
             }
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(1f);
         }
         if (changeOriginalPos)
         {
