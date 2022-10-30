@@ -6,7 +6,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ScriptMove : MonoBehaviour
+public class ScriptTutorial : MonoBehaviour
 {
 
     public GameObject[] playerChips;
