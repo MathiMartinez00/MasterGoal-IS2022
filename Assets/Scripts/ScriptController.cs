@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 
-public class ScriptController : MonoBehaviour, IPointerDownHandler
+public class ScriptController : MonoBehaviour
 {
     public Tilemap tilemapBoard;
     public Tilemap tilemapHighlight;
@@ -197,8 +197,9 @@ public class ScriptController : MonoBehaviour, IPointerDownHandler
 
     List<Vector3> destinationsPlayer = new List<Vector3>();
 
-    public void OnPointerDown(PointerEventData eventData)
+    public void UpdateBoard(PointerEventData eventData)
     {
+        /// Updates board based on player input given by the IPointerHandlerEvent on the tilemap gameobject.
         Vector2 worldPoint = Camera.main.ScreenToWorldPoint(eventData.position);
         var point = tilemapBoard.WorldToCell(worldPoint);
         var tile = tilemapBoard.GetTile(point);
