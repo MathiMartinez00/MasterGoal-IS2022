@@ -1,6 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Net;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
@@ -11,8 +14,6 @@ public class ScriptController : MonoBehaviour
     public Tilemap tilemapHighlight;
     public Tile tileHighlight;
     public BoxCollider2D boardBoxCollider;
-    // TODO: Probably make this an array
-    public GameObject playerChip;
     public GameObject[] playerChips;
     public GameObject ballChip;
     // TODO: Look up list comprehension?
@@ -156,11 +157,13 @@ public class ScriptController : MonoBehaviour
             }
             yield return null;
         }
+        yield return StartCoroutine();
     }
 
-    bool IsFieldValid(Vector3 destinationCenter)
+    bool IsFieldValidForPlayerChip(Vector3 destinationCenter)
     {
-        /// Checks and returns if a field is valid for player (chip) movement.
+        /// Checks and returns if field at destinationCenter is valid for player chip movement.
+        // TODO: This probably can be refactored using IsPlayerChipInField and IsBallChipInField
         // Is there a chip in destinationCenter?
         foreach (var chip in playerChips)
         {
@@ -169,7 +172,12 @@ public class ScriptController : MonoBehaviour
                 return false;
             }
         }
-        // Is field out of bounds?
+        // Is the ball at the destination?
+        if (destinationCenter == ballChip.transform.position)
+        {
+            return false;
+        }
+        // Is the field out of bounds?
         if (Math.Abs(destinationCenter.x) > 5 || Math.Abs(destinationCenter.y) > 6)
         {
             return false;
@@ -186,7 +194,7 @@ public class ScriptController : MonoBehaviour
             {
                 Vector3Int destination = point + direction * i;
                 Vector3 destinationCenter = tilemapBoard.GetCellCenterWorld(destination);
-                if (IsFieldValid(destinationCenter))
+                if (IsFieldValidForPlayerChip(destinationCenter))
                 {
                     tilemapHighlight.SetTile(destination, tileHighlight);
                     destinations.Add(destinationCenter);
@@ -195,11 +203,108 @@ public class ScriptController : MonoBehaviour
         }
     }
 
+    private bool IsPlayerChipInField(Vector3 point)
+    {
+        /// Gets a point and returns true if there is a chip in that space (player or ball), else returns false.
+        foreach(var chip in playerChips)
+        {
+            if (chip.transform.position == point)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool IsBallChipInField(Vector3 point)
+    {
+        /// Gets a point and returns true if the ball is at that point.
+        if (point == ballChip.transform.position)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private bool IsFieldOutOfBounds(Vector3 point)
+    {
+        /// Gets a point and returns true if the point is within the bounds of the board.
+        if (Math.Abs(point.x) > 5 || Math.Abs(point.y) > 6)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private GameObject GetChipInField(Vector3 point)
+    {
+        foreach (var chip in playerChips)
+        {
+            Debug.Log("chip: " + chip.transform.position);
+            if (chip.transform.position == point)
+            {
+                return chip;
+            }
+        }
+        return null;
+    }
+
+    private bool IsBallNextToPlayerChip(Vector3 point)
+    {
+        foreach(var dir in playerDirections)
+        {
+            if (point + dir == ballChip.transform.position)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void CalculateMovesBallChip(List<Vector3> destinations)
+    {
+        var point = tilemapBoard.WorldToCell(ballChip.transform.position);
+        /// Calculates all possible fields the ball can move to and writes their positions to destinations.
+        for (int i = 1; i <= 4; i++)
+        {
+            foreach (Vector3Int direction in playerDirections)
+            {
+                Vector3Int destination = point + direction * i;
+                Vector3 destinationCenter = tilemapBoard.GetCellCenterWorld(destination);
+                if (IsFieldValidForBallChip(destinationCenter))
+                {
+                    tilemapHighlight.SetTile(destination, tileHighlight);
+                    destinations.Add(destinationCenter);
+                }
+            }
+        }
+    }
+
+    private bool IsFieldValidForBallChip(Vector3 destinationCenter)
+    {
+        // TODO: Literally add the rest of the rules, corner checks, player checks, player area checks.
+        if (IsPlayerChipInField(destinationCenter))
+        {
+            return false;
+        }
+        if (IsBallChipInField(destinationCenter))
+        {
+            return false;
+        }
+        if (IsFieldOutOfBounds(destinationCenter))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    // List containing all possible player destinations when moving, gets reset when player moves.
     List<Vector3> destinationsPlayer = new List<Vector3>();
+    List<Vector3> destinationsBall = new List<Vector3>();
 
     public void UpdateBoard(PointerEventData eventData)
     {
-        /// Updates board based on player input given by the IPointerHandlerEvent on the tilemap gameobject.
+        /// Updates board based on player input given by the IPointerHandlerEvent on the tilemap board gameobject.
         Vector2 worldPoint = Camera.main.ScreenToWorldPoint(eventData.position);
         var point = tilemapBoard.WorldToCell(worldPoint);
         var tile = tilemapBoard.GetTile(point);
@@ -212,9 +317,9 @@ public class ScriptController : MonoBehaviour
 
             switch (currentState) {
                 case PlayerStates.WaitingPlayerInputChip:
-                    if (pointCenter == playerChip.transform.position)
+                    if (IsPlayerChipInField(pointCenter))
                     {
-                        selectedChip = playerChip;
+                        selectedChip = GetChipInField(pointCenter);
                         currentState = PlayerStates.WaitingPlayerInputChipDestination;
                         CalculateMovesPlayer(selectedChip, point, destinationsPlayer);
                     }
@@ -226,14 +331,22 @@ public class ScriptController : MonoBehaviour
                     {
                         StartCoroutine(MoveChip(selectedChip, pointCenter));
                         //selectedChip.transform.position = pointCenter;
-                        currentState = PlayerStates.WaitingPlayerInputChip;
+                        currentState = IsBallNextToPlayerChip(pointCenter) ? PlayerStates.WaitingPlayerInputBallDestination : PlayerStates.WaitingPlayerInputChip;
                         tilemapHighlight.ClearAllTiles();
+                        if (IsBallNextToPlayerChip(pointCenter))
+                        {
+                            currentState = PlayerStates.WaitingPlayerInputBallDestination;
+                            //CalculateMovesBallChip(destinationsBall);
+                        }
                         destinationsPlayer.Clear();
                     }
                     break;
 
                 case PlayerStates.WaitingPlayerInputBallDestination:
-
+                    if (destinationsBall.Contains(pointCenter))
+                    {
+                        tilemapHighlight.ClearAllTiles();
+                    }
                     break;
             }
 
