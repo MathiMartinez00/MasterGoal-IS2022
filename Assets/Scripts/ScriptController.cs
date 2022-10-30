@@ -7,12 +7,14 @@ using UnityEngine.Tilemaps;
 
 public class ScriptController : MonoBehaviour, IPointerDownHandler
 {
-    public Tilemap tileMap;
-    public BoxCollider2D boxCollider;
-    public GameObject highlight;
+    public Tilemap tilemapBoard;
+    public Tilemap tilemapHighlight;
+    public Tile tileHighlight;
+    public BoxCollider2D boardBoxCollider;
     // TODO: Probably make this an array
     public GameObject playerChip;
     public GameObject[] playerChips;
+    public GameObject ballChip;
     // TODO: Look up list comprehension?
     private readonly Vector3[] goalWorldPoints = { 
         new Vector3(-2, -7, 0),
@@ -125,13 +127,11 @@ public class ScriptController : MonoBehaviour, IPointerDownHandler
     public float smoothDampTime = .02f;
     public float distanceToSnap = .05f;
 
-    public Tilemap tilemapHighlight;
-    public Tile tileHighlight;
-
     public enum PlayerStates
     {
         WaitingPlayerInputChip,
-        WaitingPlayerInputDestination,
+        WaitingPlayerInputChipDestination,
+        WaitingPlayerInputBallDestination,
     }
     public PlayerStates currentState;
     private GameObject selectedChip;
@@ -140,12 +140,7 @@ public class ScriptController : MonoBehaviour, IPointerDownHandler
     void Start()
     {
         currentState = PlayerStates.WaitingPlayerInputChip;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        boardBoxCollider = tilemapBoard.gameObject.GetComponent<BoxCollider2D>();
     }
 
     IEnumerator MoveChip(GameObject chip, Vector3 destination)
@@ -190,7 +185,7 @@ public class ScriptController : MonoBehaviour, IPointerDownHandler
             foreach(Vector3Int direction in playerDirections)
             {
                 Vector3Int destination = point + direction * i;
-                Vector3 destinationCenter = tileMap.GetCellCenterWorld(destination);
+                Vector3 destinationCenter = tilemapBoard.GetCellCenterWorld(destination);
                 if (IsFieldValid(destinationCenter))
                 {
                     tilemapHighlight.SetTile(destination, tileHighlight);
@@ -205,13 +200,13 @@ public class ScriptController : MonoBehaviour, IPointerDownHandler
     public void OnPointerDown(PointerEventData eventData)
     {
         Vector2 worldPoint = Camera.main.ScreenToWorldPoint(eventData.position);
-        var point = tileMap.WorldToCell(worldPoint);
-        var tile = tileMap.GetTile(point);
+        var point = tilemapBoard.WorldToCell(worldPoint);
+        var tile = tilemapBoard.GetTile(point);
 
         // Check if tile clicked is not blank (like the spaces next to the goals)
         if (tile != null)
         {
-            var pointCenter = tileMap.GetCellCenterWorld(point);
+            var pointCenter = tilemapBoard.GetCellCenterWorld(point);
             //Debug.Log(pointCenter);
 
             switch (currentState) {
@@ -219,12 +214,13 @@ public class ScriptController : MonoBehaviour, IPointerDownHandler
                     if (pointCenter == playerChip.transform.position)
                     {
                         selectedChip = playerChip;
-                        currentState = PlayerStates.WaitingPlayerInputDestination;
+                        currentState = PlayerStates.WaitingPlayerInputChipDestination;
                         CalculateMovesPlayer(selectedChip, point, destinationsPlayer);
                     }
                     break;
 
-                case PlayerStates.WaitingPlayerInputDestination:
+                case PlayerStates.WaitingPlayerInputChipDestination:
+                    // Did the player choose a valid destination?
                     if (destinationsPlayer.Contains(pointCenter)) 
                     {
                         StartCoroutine(MoveChip(selectedChip, pointCenter));
@@ -233,6 +229,10 @@ public class ScriptController : MonoBehaviour, IPointerDownHandler
                         tilemapHighlight.ClearAllTiles();
                         destinationsPlayer.Clear();
                     }
+                    break;
+
+                case PlayerStates.WaitingPlayerInputBallDestination:
+
                     break;
             }
 
