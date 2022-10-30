@@ -157,7 +157,7 @@ public class ScriptController : MonoBehaviour
             }
             yield return null;
         }
-        yield return StartCoroutine();
+        yield return StartCoroutine(CalculateMovesBallChip(destinationsBall));
     }
 
     bool IsFieldValidForPlayerChip(Vector3 destinationCenter)
@@ -261,7 +261,7 @@ public class ScriptController : MonoBehaviour
         return false;
     }
 
-    private void CalculateMovesBallChip(List<Vector3> destinations)
+    IEnumerator CalculateMovesBallChip(List<Vector3> destinations)
     {
         var point = tilemapBoard.WorldToCell(ballChip.transform.position);
         /// Calculates all possible fields the ball can move to and writes their positions to destinations.
@@ -278,6 +278,7 @@ public class ScriptController : MonoBehaviour
                 }
             }
         }
+        yield return null;
     }
 
     private bool IsFieldValidForBallChip(Vector3 destinationCenter)
