@@ -1,21 +1,27 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Net;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 
+public enum Team
+{
+    White,
+    Red,
+}
+
 public class ScriptController : MonoBehaviour
 {
+    // GameObjects for game control
     public Tilemap tilemapBoard;
     public Tilemap tilemapHighlight;
     public Tile tileHighlight;
     public BoxCollider2D boardBoxCollider;
     public GameObject[] playerChips;
     public GameObject ballChip;
+
+    // Special tile coordinates
     // TODO: Look up list comprehension?
     private readonly Vector3[] goalWorldPoints = { 
         new Vector3(-2, -7, 0),
@@ -125,8 +131,17 @@ public class ScriptController : MonoBehaviour
         Vector3Int.left,
         Vector3Int.left + Vector3Int.up,
     };
+    
+    // Movement settings
     public float smoothDampTime = .02f;
     public float distanceToSnap = .05f;
+
+    // Variables for game control used in movement validation
+    private int passCount = 0;
+    List<Vector3> destinationsPlayer = new List<Vector3>();
+    List<Vector3> destinationsBall = new List<Vector3>();
+    private GameObject selectedChip;
+    public Team currentTurn;
 
     public enum PlayerStates
     {
@@ -135,18 +150,19 @@ public class ScriptController : MonoBehaviour
         WaitingPlayerInputBallDestination,
     }
     public PlayerStates currentState;
-    private GameObject selectedChip;
 
     // Start is called before the first frame update
     void Start()
     {
+        currentTurn = Team.White;
         currentState = PlayerStates.WaitingPlayerInputChip;
         boardBoxCollider = tilemapBoard.gameObject.GetComponent<BoxCollider2D>();
     }
 
-    IEnumerator MoveChip(GameObject chip, Vector3 destination)
+    IEnumerator MoveChipAndUpdateState(GameObject chip, Vector3 destination)
     {
-        /// Moves the chip to the destination passed with SmoothDamp. Destination MUST be in world units.
+        /// Moves the chip to the destination passed with SmoothDamp (destination MUST be in world units) and then
+        /// updates the game state.
         while (chip.transform.position != destination)
         {
             Vector2 velocity = Vector2.zero;
@@ -157,7 +173,19 @@ public class ScriptController : MonoBehaviour
             }
             yield return null;
         }
-        yield return StartCoroutine(CalculateMovesBallChip(destinationsBall));
+        // When move is done, check if more moves are available (passes)
+        if (IsBallNextToPlayerChip() && passCount < 4 && chip.GetComponent<ScriptChip>().team == currentTurn)
+        {
+            passCount++;
+            currentState = PlayerStates.WaitingPlayerInputBallDestination;
+            yield return StartCoroutine(CalculateMovesBallChip(destinationsBall));
+        }
+        else
+        {
+            passCount = 0;
+            currentTurn = currentTurn == Team.White ? Team.Red : Team.White;
+            currentState = PlayerStates.WaitingPlayerInputChip;
+        }
     }
 
     bool IsFieldValidForPlayerChip(Vector3 destinationCenter)
@@ -249,13 +277,17 @@ public class ScriptController : MonoBehaviour
         return null;
     }
 
-    private bool IsBallNextToPlayerChip(Vector3 point)
+    private bool IsBallNextToPlayerChip()
     {
+        /// Checks if there's a player chip adyacent to the ball chip, returns true if that's the case.
         foreach(var dir in playerDirections)
         {
-            if (point + dir == ballChip.transform.position)
+            foreach(var chip in playerChips)
             {
-                return true;
+                if (ballChip.transform.position + dir == chip.transform.position)
+                {
+                    return true;
+                }
             }
         }
         return false;
@@ -263,8 +295,9 @@ public class ScriptController : MonoBehaviour
 
     IEnumerator CalculateMovesBallChip(List<Vector3> destinations)
     {
-        var point = tilemapBoard.WorldToCell(ballChip.transform.position);
         /// Calculates all possible fields the ball can move to and writes their positions to destinations.
+        var point = tilemapBoard.WorldToCell(ballChip.transform.position);
+        
         for (int i = 1; i <= 4; i++)
         {
             foreach (Vector3Int direction in playerDirections)
@@ -300,12 +333,11 @@ public class ScriptController : MonoBehaviour
     }
 
     // List containing all possible player destinations when moving, gets reset when player moves.
-    List<Vector3> destinationsPlayer = new List<Vector3>();
-    List<Vector3> destinationsBall = new List<Vector3>();
+    
 
     public void UpdateBoard(PointerEventData eventData)
     {
-        /// Updates board based on player input given by the IPointerHandlerEvent on the tilemap board gameobject.
+        /// Updates board based on player input given by the IPointerHandlerEvent on the tilemap board GameObject.
         Vector2 worldPoint = Camera.main.ScreenToWorldPoint(eventData.position);
         var point = tilemapBoard.WorldToCell(worldPoint);
         var tile = tilemapBoard.GetTile(point);
@@ -318,11 +350,15 @@ public class ScriptController : MonoBehaviour
 
             switch (currentState) {
                 case PlayerStates.WaitingPlayerInputChip:
+                    // Did the player choose a field with a chip?
                     if (IsPlayerChipInField(pointCenter))
                     {
                         selectedChip = GetChipInField(pointCenter);
-                        currentState = PlayerStates.WaitingPlayerInputChipDestination;
-                        CalculateMovesPlayer(selectedChip, point, destinationsPlayer);
+                        if (selectedChip.GetComponent<ScriptChip>().team == currentTurn)
+                        {
+                            currentState = PlayerStates.WaitingPlayerInputChipDestination;
+                            CalculateMovesPlayer(selectedChip, point, destinationsPlayer);
+                        }
                     }
                     break;
 
@@ -330,28 +366,25 @@ public class ScriptController : MonoBehaviour
                     // Did the player choose a valid destination?
                     if (destinationsPlayer.Contains(pointCenter)) 
                     {
-                        StartCoroutine(MoveChip(selectedChip, pointCenter));
-                        //selectedChip.transform.position = pointCenter;
-                        currentState = IsBallNextToPlayerChip(pointCenter) ? PlayerStates.WaitingPlayerInputBallDestination : PlayerStates.WaitingPlayerInputChip;
+                        StartCoroutine(MoveChipAndUpdateState(selectedChip, pointCenter));
                         tilemapHighlight.ClearAllTiles();
-                        if (IsBallNextToPlayerChip(pointCenter))
-                        {
-                            currentState = PlayerStates.WaitingPlayerInputBallDestination;
-                            //CalculateMovesBallChip(destinationsBall);
-                        }
                         destinationsPlayer.Clear();
                     }
                     break;
 
                 case PlayerStates.WaitingPlayerInputBallDestination:
+                    // Did the player choose a valid destination?
                     if (destinationsBall.Contains(pointCenter))
                     {
+                        StartCoroutine(MoveChipAndUpdateState(ballChip, pointCenter));
                         tilemapHighlight.ClearAllTiles();
+                        destinationsBall.Clear();
                     }
                     break;
             }
 
-            if (Array.IndexOf(goalWorldPoints, pointCenter) > -1) {
+            if (Array.IndexOf(goalWorldPoints, pointCenter) > -1) 
+            {
                 Debug.Log("Clicked a goal!");
             }
         }
