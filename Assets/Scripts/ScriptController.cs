@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
@@ -34,6 +35,22 @@ public class ScriptController : MonoBehaviour
         new Vector3(0, 7, 0),
         new Vector3(1, 7, 0),
         new Vector3(2, 7, 0),
+    };
+    private readonly Vector3[] whiteGoals =
+    {
+        new Vector3(-2, 7, 0),
+        new Vector3(-1, 7, 0),
+        new Vector3(0, 7, 0),
+        new Vector3(1, 7, 0),
+        new Vector3(2, 7, 0),
+    };
+    private readonly Vector3[] redGoals =
+    {
+        new Vector3(-2, -7, 0),
+        new Vector3(-1, -7, 0),
+        new Vector3(0, -7, 0),
+        new Vector3(1, -7, 0),
+        new Vector3(2, -7, 0),
     };
     private readonly Vector3[] corners =
     {
@@ -259,7 +276,39 @@ public class ScriptController : MonoBehaviour
     private bool IsFieldOutOfBounds(Vector3 point)
     {
         /// Gets a point and returns true if the point is within the bounds of the board.
-        if (Math.Abs(point.x) > 5 || Math.Abs(point.y) > 6)
+        if (Math.Abs(point.x) >= 6)
+        {
+            return true;
+        }
+        if (Math.Abs(point.y) >= 8)
+        {
+            return true;
+        }
+        if (Math.Abs(point.y) == 7)
+        {
+            if (currentTurn == Team.Red && Array.IndexOf(whiteGoals, point) > -1)
+            {
+                return false;
+            }
+            else if (currentTurn == Team.White && Array.IndexOf(redGoals, point) > -1)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool IsFieldAValidGoal(Vector3 point)
+    {
+        if (currentTurn == Team.White && Array.IndexOf(redGoals, point) > -1)
+        {
+            return true;
+        }
+        if (currentTurn == Team.Red && Array.IndexOf(whiteGoals, point) > -1)
         {
             return true;
         }
