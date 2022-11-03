@@ -175,7 +175,7 @@ public class ScriptController : MonoBehaviour
             yield return null;
         }
         // When move is done, check if more moves are available (passes)
-        if (IsBallPassable() && passCount < 4)
+        if (IsBallPassable())
         {
             passCount++;
             currentState = PlayerStates.WaitingPlayerInputBallDestination;
@@ -188,11 +188,6 @@ public class ScriptController : MonoBehaviour
             ballChip.GetComponent<ScriptBall>().teamPossession = currentTurn;
             currentState = PlayerStates.WaitingPlayerInputChip;
         }
-    }
-
-    IEnumerator PassBallAndUpdateState(GameObject chip, Vector3 destination)
-    {
-        yield return null;
     }
 
     bool IsFieldValidForPlayerChip(Vector3 destinationCenter)
@@ -308,7 +303,9 @@ public class ScriptController : MonoBehaviour
                 }
             }
         }
-        return redCount != whiteCount && ((redCount > whiteCount && currentTurn == Team.Red) || (whiteCount > redCount && currentTurn == Team.White));
+        return redCount != whiteCount && 
+            ((redCount > whiteCount && currentTurn == Team.Red) || (whiteCount > redCount && currentTurn == Team.White)) &&
+            passCount < 4;
     }
 
     IEnumerator CalculateMovesBallChip(List<Vector3> destinations)
