@@ -24,18 +24,6 @@ public class ScriptController : MonoBehaviour
 
     // Special tile coordinates
     // TODO: Look up list comprehension?
-    private readonly Vector3[] goalWorldPoints = { 
-        new Vector3(-2, -7, 0),
-        new Vector3(-1, -7, 0),
-        new Vector3(0, -7, 0),
-        new Vector3(1, -7, 0),
-        new Vector3(2, -7, 0),
-        new Vector3(-2, 7, 0),
-        new Vector3(-1, 7, 0),
-        new Vector3(0, 7, 0),
-        new Vector3(1, 7, 0),
-        new Vector3(2, 7, 0),
-    };
     private readonly Vector3[] whiteGoals =
     {
         new Vector3(-2, 7, 0),
@@ -445,11 +433,6 @@ public class ScriptController : MonoBehaviour
                         destinationsBall.Clear();
                     }
                     break;
-            }
-
-            if (Array.IndexOf(goalWorldPoints, pointCenter) > -1) 
-            {
-                Debug.Log("Clicked a goal!");
             }
         }
         //boxCollider.enabled = false;
