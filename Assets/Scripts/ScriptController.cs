@@ -155,6 +155,7 @@ public class ScriptController : MonoBehaviour
     void Start()
     {
         currentTurn = Team.White;
+        ballChip.GetComponent<ScriptBall>().teamPossession = currentTurn;
         currentState = PlayerStates.WaitingPlayerInputChip;
         boardBoxCollider = tilemapBoard.gameObject.GetComponent<BoxCollider2D>();
     }
@@ -174,7 +175,7 @@ public class ScriptController : MonoBehaviour
             yield return null;
         }
         // When move is done, check if more moves are available (passes)
-        if (IsBallNextToPlayerChip() && passCount < 4 && chip.GetComponent<ScriptChip>().team == currentTurn)
+        if (IsBallPassable() && passCount < 4)
         {
             passCount++;
             currentState = PlayerStates.WaitingPlayerInputBallDestination;
@@ -184,8 +185,14 @@ public class ScriptController : MonoBehaviour
         {
             passCount = 0;
             currentTurn = currentTurn == Team.White ? Team.Red : Team.White;
+            ballChip.GetComponent<ScriptBall>().teamPossession = currentTurn;
             currentState = PlayerStates.WaitingPlayerInputChip;
         }
+    }
+
+    IEnumerator PassBallAndUpdateState(GameObject chip, Vector3 destination)
+    {
+        yield return null;
     }
 
     bool IsFieldValidForPlayerChip(Vector3 destinationCenter)
@@ -277,20 +284,31 @@ public class ScriptController : MonoBehaviour
         return null;
     }
 
-    private bool IsBallNextToPlayerChip()
+    private bool IsBallPassable()
     {
-        /// Checks if there's a player chip adyacent to the ball chip, returns true if that's the case.
-        foreach(var dir in playerDirections)
+        /// Checks if it's possible to pass the ball from it's position by checking for player chips in adyacent
+        /// fields, if found, counts them to check for neutral spaces.
+        /// If no neutral spaces were found, returns true.
+        int redCount = 0, whiteCount = 0;
+        foreach (var dir in playerDirections)
         {
-            foreach(var chip in playerChips)
+            foreach (var chip in playerChips)
             {
                 if (ballChip.transform.position + dir == chip.transform.position)
                 {
-                    return true;
+                    if (chip.GetComponent<ScriptChip>().team == Team.White)
+                    {
+                        whiteCount++;
+                    }
+                    else
+                    {
+                        redCount++;
+                    }
+                    break;
                 }
             }
         }
-        return false;
+        return redCount != whiteCount && ((redCount > whiteCount && currentTurn == Team.Red) || (whiteCount > redCount && currentTurn == Team.White));
     }
 
     IEnumerator CalculateMovesBallChip(List<Vector3> destinations)
