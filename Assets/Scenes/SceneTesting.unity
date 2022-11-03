@@ -352,6 +352,7 @@ GameObject:
   m_Component:
   - component: {fileID: 570439593}
   - component: {fileID: 570439594}
+  - component: {fileID: 570439595}
   m_Layer: 0
   m_Name: ChipRed1
   m_TagString: Untagged
@@ -426,6 +427,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &570439595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 570439592}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c4ddd266448db843a1c087b736a0acb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: 1
 --- !u!1 &721146561
 GameObject:
   m_ObjectHideFlags: 0
@@ -436,6 +450,7 @@ GameObject:
   m_Component:
   - component: {fileID: 721146564}
   - component: {fileID: 721146563}
+  - component: {fileID: 721146565}
   m_Layer: 0
   m_Name: ChipBall
   m_TagString: Untagged
@@ -510,6 +525,19 @@ Transform:
   m_Father: {fileID: 174100779}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &721146565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 721146561}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66f30b487ca68684e998615f985e2f63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  teamPossession: 0
 --- !u!1 &863969266
 GameObject:
   m_ObjectHideFlags: 0
@@ -762,6 +790,7 @@ MonoBehaviour:
   ballChip: {fileID: 721146561}
   smoothDampTime: 0.02
   distanceToSnap: 0.05
+  currentTurn: 0
   currentState: 0
 --- !u!1 &1142989026
 GameObject:
@@ -3135,6 +3164,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1821952875}
   - component: {fileID: 1821952874}
+  - component: {fileID: 1821952876}
   m_Layer: 0
   m_Name: ChipRed0
   m_TagString: Untagged
@@ -3209,3 +3239,16 @@ Transform:
   m_Father: {fileID: 174100779}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1821952876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1821952873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c4ddd266448db843a1c087b736a0acb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: 1

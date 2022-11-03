@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
@@ -23,17 +24,21 @@ public class ScriptController : MonoBehaviour
 
     // Special tile coordinates
     // TODO: Look up list comprehension?
-    private readonly Vector3[] goalWorldPoints = { 
-        new Vector3(-2, -7, 0),
-        new Vector3(-1, -7, 0),
-        new Vector3(0, -7, 0),
-        new Vector3(1, -7, 0),
-        new Vector3(2, -7, 0),
+    private readonly Vector3[] whiteGoals =
+    {
         new Vector3(-2, 7, 0),
         new Vector3(-1, 7, 0),
         new Vector3(0, 7, 0),
         new Vector3(1, 7, 0),
         new Vector3(2, 7, 0),
+    };
+    private readonly Vector3[] redGoals =
+    {
+        new Vector3(-2, -7, 0),
+        new Vector3(-1, -7, 0),
+        new Vector3(0, -7, 0),
+        new Vector3(1, -7, 0),
+        new Vector3(2, -7, 0),
     };
     private readonly Vector3[] corners =
     {
@@ -155,6 +160,7 @@ public class ScriptController : MonoBehaviour
     void Start()
     {
         currentTurn = Team.White;
+        ballChip.GetComponent<ScriptBall>().teamPossession = currentTurn;
         currentState = PlayerStates.WaitingPlayerInputChip;
         boardBoxCollider = tilemapBoard.gameObject.GetComponent<BoxCollider2D>();
     }
@@ -174,7 +180,7 @@ public class ScriptController : MonoBehaviour
             yield return null;
         }
         // When move is done, check if more moves are available (passes)
-        if (IsBallNextToPlayerChip() && passCount < 4 && chip.GetComponent<ScriptChip>().team == currentTurn)
+        if (IsBallPassable())
         {
             passCount++;
             currentState = PlayerStates.WaitingPlayerInputBallDestination;
@@ -184,6 +190,7 @@ public class ScriptController : MonoBehaviour
         {
             passCount = 0;
             currentTurn = currentTurn == Team.White ? Team.Red : Team.White;
+            ballChip.GetComponent<ScriptBall>().teamPossession = currentTurn;
             currentState = PlayerStates.WaitingPlayerInputChip;
         }
     }
@@ -257,7 +264,39 @@ public class ScriptController : MonoBehaviour
     private bool IsFieldOutOfBounds(Vector3 point)
     {
         /// Gets a point and returns true if the point is within the bounds of the board.
-        if (Math.Abs(point.x) > 5 || Math.Abs(point.y) > 6)
+        if (Math.Abs(point.x) >= 6)
+        {
+            return true;
+        }
+        if (Math.Abs(point.y) >= 8)
+        {
+            return true;
+        }
+        if (Math.Abs(point.y) == 7)
+        {
+            if (currentTurn == Team.Red && Array.IndexOf(whiteGoals, point) > -1)
+            {
+                return false;
+            }
+            else if (currentTurn == Team.White && Array.IndexOf(redGoals, point) > -1)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool IsFieldAValidGoal(Vector3 point)
+    {
+        if (currentTurn == Team.White && Array.IndexOf(redGoals, point) > -1)
+        {
+            return true;
+        }
+        if (currentTurn == Team.Red && Array.IndexOf(whiteGoals, point) > -1)
         {
             return true;
         }
@@ -277,20 +316,33 @@ public class ScriptController : MonoBehaviour
         return null;
     }
 
-    private bool IsBallNextToPlayerChip()
+    private bool IsBallPassable()
     {
-        /// Checks if there's a player chip adyacent to the ball chip, returns true if that's the case.
-        foreach(var dir in playerDirections)
+        /// Checks if it's possible to pass the ball from it's position by checking for player chips in adyacent
+        /// fields, if found, counts them to check for neutral spaces.
+        /// If no neutral spaces were found, returns true.
+        int redCount = 0, whiteCount = 0;
+        foreach (var dir in playerDirections)
         {
-            foreach(var chip in playerChips)
+            foreach (var chip in playerChips)
             {
                 if (ballChip.transform.position + dir == chip.transform.position)
                 {
-                    return true;
+                    if (chip.GetComponent<ScriptChip>().team == Team.White)
+                    {
+                        whiteCount++;
+                    }
+                    else
+                    {
+                        redCount++;
+                    }
+                    break;
                 }
             }
         }
-        return false;
+        return redCount != whiteCount && 
+            ((redCount > whiteCount && currentTurn == Team.Red) || (whiteCount > redCount && currentTurn == Team.White)) &&
+            passCount < 4;
     }
 
     IEnumerator CalculateMovesBallChip(List<Vector3> destinations)
@@ -381,11 +433,6 @@ public class ScriptController : MonoBehaviour
                         destinationsBall.Clear();
                     }
                     break;
-            }
-
-            if (Array.IndexOf(goalWorldPoints, pointCenter) > -1) 
-            {
-                Debug.Log("Clicked a goal!");
             }
         }
         //boxCollider.enabled = false;
