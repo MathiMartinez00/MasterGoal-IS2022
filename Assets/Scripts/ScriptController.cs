@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -40,12 +41,15 @@ public class ScriptController : MonoBehaviour
         new Vector3(1, -7, 0),
         new Vector3(2, -7, 0),
     };
-    private readonly Vector3[] corners =
+    private readonly Vector3[] redCorners =
+    {
+        new Vector3(-5, -6, 0),
+        new Vector3(5, -6, 0),
+    };
+    private readonly Vector3[] whiteCorners =
     {
         new Vector3(-5, 6, 0),
         new Vector3(5, 6, 0),
-        new Vector3(-5, -6, 0),
-        new Vector3(5, -6, 0),
     };
     private readonly Vector3[] whiteArea =
     {
@@ -263,7 +267,7 @@ public class ScriptController : MonoBehaviour
 
     private bool IsFieldOutOfBounds(Vector3 point)
     {
-        /// Gets a point and returns true if the point is within the bounds of the board.
+        /// Gets a point and returns true if the point is out of the bounds of the board.
         if (Math.Abs(point.x) >= 6)
         {
             return true;
@@ -272,20 +276,9 @@ public class ScriptController : MonoBehaviour
         {
             return true;
         }
-        if (Math.Abs(point.y) == 7)
+        if (Math.Abs(point.y) == 7 && (Array.IndexOf(redGoals, point) == -1 || Array.IndexOf(whiteGoals, point) == -1))
         {
-            if (currentTurn == Team.Red && Array.IndexOf(whiteGoals, point) > -1)
-            {
-                return false;
-            }
-            else if (currentTurn == Team.White && Array.IndexOf(redGoals, point) > -1)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return true;
         }
         return false;
     }
@@ -297,6 +290,19 @@ public class ScriptController : MonoBehaviour
             return true;
         }
         if (currentTurn == Team.Red && Array.IndexOf(whiteGoals, point) > -1)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private bool IsFieldAValidCorner(Vector3 point)
+    {
+        if (currentTurn == Team.White && Array.IndexOf(redCorners, point) > -1)
+        {
+            return true;
+        }
+        if (currentTurn == Team.Red && Array.IndexOf(whiteCorners, point) > -1)
         {
             return true;
         }
@@ -380,6 +386,14 @@ public class ScriptController : MonoBehaviour
         if (IsFieldOutOfBounds(destinationCenter))
         {
             return false;
+        }
+        if (Array.IndexOf(whiteCorners, destinationCenter) > -1 || Array.IndexOf(redCorners, destinationCenter) > -1)
+        {
+            return IsFieldAValidCorner(destinationCenter);
+        }
+        if (Array.IndexOf(whiteGoals, destinationCenter) > -1 || Array.IndexOf(redGoals, destinationCenter) > -1)
+        {
+            return IsFieldAValidGoal(destinationCenter);
         }
         return true;
     }
