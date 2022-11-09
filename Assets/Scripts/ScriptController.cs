@@ -241,6 +241,20 @@ public class ScriptController : MonoBehaviour
         }
     }
 
+    private GameObject GetChipInField(Vector3 point)
+    {
+        foreach (var chip in playerChips)
+        {
+            Debug.Log("chip: " + chip.transform.position);
+            if (chip.transform.position == point)
+            {
+                return chip;
+            }
+        }
+        return null;
+    }
+
+    // Checker functions, these are mostly used in CalculateMovesBallChip()
     private bool IsPlayerChipInField(Vector3 point)
     {
         /// Gets a point and returns true if there is a chip in that space (player or ball), else returns false.
@@ -308,19 +322,6 @@ public class ScriptController : MonoBehaviour
         return false;
     }
 
-    private GameObject GetChipInField(Vector3 point)
-    {
-        foreach (var chip in playerChips)
-        {
-            Debug.Log("chip: " + chip.transform.position);
-            if (chip.transform.position == point)
-            {
-                return chip;
-            }
-        }
-        return null;
-    }
-
     private bool IsBallPassable()
     {
         /// Checks if it's possible to pass the ball from its position by checking for player chips in adyacent
@@ -362,6 +363,7 @@ public class ScriptController : MonoBehaviour
     {
         /// Checks if a field at point is a valid destination for the ball by checking the fields around it.
         /// If so, returns true.
+        // TODO: Test the fuck out of this because the rules make me want to kms.
         GameObject passerCandidate = null;
         int redCount = 0, whiteCount = 0;
         foreach (var dir in playerDirections)
@@ -393,10 +395,19 @@ public class ScriptController : MonoBehaviour
         // Players can kick to neutral spaces, but the players around it can only move around that field.
         if (redCount == whiteCount)
         {
+            // Players can only kick the ball to their area if there's a player there to kick elsewhere.
+            if (currentTurn == Team.White && Array.IndexOf(whiteArea, point) > -1)
+            {
+                return false;
+            }
+            if (currentTurn == Team.Red && Array.IndexOf(redArea, point) > -1)
+            {
+                return false;
+            }
             return true;
         }
-        // If it's red's turn and there's more red chips than white ones, check for passer because a chip can't pass to itself
-        if (redCount > whiteCount && currentTurn == Team.Red)
+        // If it's red's turn and there's more red chips than white ones, check for passer because a chip can't pass to itself.
+        if (redCount > whiteCount && currentTurn == Team.Red && passCount <= 3)
         {
             if (passerCandidate == ballChipPasser)
             {
@@ -404,8 +415,8 @@ public class ScriptController : MonoBehaviour
             }
             return true;
         }
-        // Do the same for white chips
-        if (whiteCount > redCount && currentTurn == Team.White)
+        // Do the same for white chips.
+        if (whiteCount > redCount && currentTurn == Team.White && passCount <= 3)
         {
             if (passerCandidate == ballChipPasser)
             {
@@ -414,27 +425,6 @@ public class ScriptController : MonoBehaviour
             return true;
         }
         return false;
-    }
-
-    IEnumerator CalculateMovesBallChip(List<Vector3> destinations)
-    {
-        /// Calculates all possible fields the ball can move to and writes their positions to destinations.
-        var point = tilemapBoard.WorldToCell(ballChip.transform.position);
-        
-        for (int i = 1; i <= 4; i++)
-        {
-            foreach (Vector3Int direction in playerDirections)
-            {
-                Vector3Int destination = point + direction * i;
-                Vector3 destinationCenter = tilemapBoard.GetCellCenterWorld(destination);
-                if (IsFieldValidForBallChip(destinationCenter))
-                {
-                    tilemapHighlight.SetTile(destination, tileHighlight);
-                    destinations.Add(destinationCenter);
-                }
-            }
-        }
-        yield return null;
     }
 
     private bool IsFieldValidForBallChip(Vector3 destinationCenter)
@@ -465,6 +455,27 @@ public class ScriptController : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+    IEnumerator CalculateMovesBallChip(List<Vector3> destinations)
+    {
+        /// Calculates all possible fields the ball can move to and writes their positions to destinations.
+        var point = tilemapBoard.WorldToCell(ballChip.transform.position);
+        
+        for (int i = 1; i <= 4; i++)
+        {
+            foreach (Vector3Int direction in playerDirections)
+            {
+                Vector3Int destination = point + direction * i;
+                Vector3 destinationCenter = tilemapBoard.GetCellCenterWorld(destination);
+                if (IsFieldValidForBallChip(destinationCenter))
+                {
+                    tilemapHighlight.SetTile(destination, tileHighlight);
+                    destinations.Add(destinationCenter);
+                }
+            }
+        }
+        yield return null;
     }
 
     public void UpdateBoard(PointerEventData eventData)
