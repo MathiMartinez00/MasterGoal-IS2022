@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
@@ -146,11 +144,12 @@ public class ScriptController : MonoBehaviour
     public float distanceToSnap = .05f;
 
     // Variables for game control used in movement validation
-    private int passCount = 0;
+    [SerializeField] private int passCount = 0;
     List<Vector3> destinationsPlayer = new List<Vector3>();
     List<Vector3> destinationsBall = new List<Vector3>();
-    private GameObject selectedChip;
+    [SerializeField] private GameObject selectedChip;
     public Team currentTurn;
+    [SerializeField] private GameObject ballChipPasser;
 
     public enum PlayerStates
     {
@@ -324,9 +323,9 @@ public class ScriptController : MonoBehaviour
 
     private bool IsBallPassable()
     {
-        /// Checks if it's possible to pass the ball from it's position by checking for player chips in adyacent
+        /// Checks if it's possible to pass the ball from its position by checking for player chips in adyacent
         /// fields, if found, counts them to check for neutral spaces.
-        /// If no neutral spaces were found, returns true.
+        /// If no neutral spaces were found and a pass is possible for the team whose turn it is and the pass limit hasn't been passed, return true.
         int redCount = 0, whiteCount = 0;
         foreach (var dir in playerDirections)
         {
@@ -337,10 +336,18 @@ public class ScriptController : MonoBehaviour
                     if (chip.GetComponent<ScriptChip>().team == Team.White)
                     {
                         whiteCount++;
+                        if (currentTurn == Team.White)
+                        {
+                            ballChipPasser = chip;
+                        }
                     }
                     else
                     {
                         redCount++;
+                        if (currentTurn == Team.Red)
+                        {
+                            ballChipPasser = chip;
+                        }
                     }
                     break;
                 }
@@ -349,6 +356,64 @@ public class ScriptController : MonoBehaviour
         return redCount != whiteCount && 
             ((redCount > whiteCount && currentTurn == Team.Red) || (whiteCount > redCount && currentTurn == Team.White)) &&
             passCount < 4;
+    }
+
+    private bool AreAdyacentFieldsValid(Vector3 point)
+    {
+        /// Checks if a field at point is a valid destination for the ball by checking the fields around it.
+        /// If so, returns true.
+        GameObject passerCandidate = null;
+        int redCount = 0, whiteCount = 0;
+        foreach (var dir in playerDirections)
+        {
+            foreach (var chip in playerChips)
+            {
+                if (point + dir == chip.transform.position)
+                {
+                    if (chip.GetComponent<ScriptChip>().team == Team.White)
+                    {
+                        whiteCount++;
+                        if (currentTurn == Team.White)
+                        {
+                            passerCandidate = chip;
+                        }
+                    }
+                    else
+                    {
+                        redCount++;
+                        if (currentTurn == Team.Red)
+                        {
+                            passerCandidate = chip;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        // Players can kick to neutral spaces, but the players around it can only move around that field.
+        if (redCount == whiteCount)
+        {
+            return true;
+        }
+        // If it's red's turn and there's more red chips than white ones, check for passer because a chip can't pass to itself
+        if (redCount > whiteCount && currentTurn == Team.Red)
+        {
+            if (passerCandidate == ballChipPasser)
+            {
+                return false;
+            }
+            return true;
+        }
+        // Do the same for white chips
+        if (whiteCount > redCount && currentTurn == Team.White)
+        {
+            if (passerCandidate == ballChipPasser)
+            {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     IEnumerator CalculateMovesBallChip(List<Vector3> destinations)
@@ -395,11 +460,12 @@ public class ScriptController : MonoBehaviour
         {
             return IsFieldAValidGoal(destinationCenter);
         }
+        if (!AreAdyacentFieldsValid(destinationCenter))
+        {
+            return false;
+        }
         return true;
     }
-
-    // List containing all possible player destinations when moving, gets reset when player moves.
-    
 
     public void UpdateBoard(PointerEventData eventData)
     {
