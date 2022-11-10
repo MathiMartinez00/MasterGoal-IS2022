@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
@@ -149,8 +148,8 @@ public class ScriptController : MonoBehaviour
     List<Vector3> destinationsPlayer = new List<Vector3>();
     List<Vector3> destinationsBall = new List<Vector3>();
     [SerializeField] private GameObject selectedChip;
-    public Team currentTurn;
     [SerializeField] private GameObject ballChipPasser;
+    public Team currentTurn;
 
     public enum PlayerStates
     {
@@ -159,6 +158,8 @@ public class ScriptController : MonoBehaviour
         WaitingPlayerInputBallDestination,
     }
     public PlayerStates currentState;
+    
+    // Default positions
 
     // Start is called before the first frame update
     void Start()
@@ -183,20 +184,41 @@ public class ScriptController : MonoBehaviour
             }
             yield return null;
         }
-        // When move is done, check if more moves are available (passes)
-        if (IsBallPassable())
+        if (IsBallInGoal())
         {
-            passCount++;
-            currentState = PlayerStates.WaitingPlayerInputBallDestination;
-            yield return StartCoroutine(CalculateMovesBallChip(destinationsBall));
+            // TODO: Look up whose turn is it, maybe make it random?
+            currentTurn = Team.White;
+            currentState = PlayerStates.WaitingPlayerInputChip;
+            ballChip.transform.position = new Vector3(0, 0, 0);
+            playerChips[0].transform.position = new Vector3(0, -5, 0);
+            playerChips[1].transform.position = new Vector3(0, -3, 0);
+            playerChips[2].transform.position = new Vector3(0, 5, 0);
+            playerChips[3].transform.position = new Vector3(0, 3, 0);
+            passCount = 0;
+            yield return null;
         }
         else
         {
-            passCount = 0;
-            currentTurn = currentTurn == Team.White ? Team.Red : Team.White;
-            ballChip.GetComponent<ScriptBall>().teamPossession = currentTurn;
-            currentState = PlayerStates.WaitingPlayerInputChip;
+            // When move is done, check if more moves are available (passes)
+            if (IsBallPassable())
+            {
+                passCount++;
+                currentState = PlayerStates.WaitingPlayerInputBallDestination;
+                yield return StartCoroutine(CalculateMovesBallChip(destinationsBall));
+            }
+            else
+            {
+                passCount = 0;
+                currentTurn = currentTurn == Team.White ? Team.Red : Team.White;
+                ballChip.GetComponent<ScriptBall>().teamPossession = currentTurn;
+                currentState = PlayerStates.WaitingPlayerInputChip;
+            }
         }
+    }
+
+    private bool IsBallInGoal()
+    {
+        return Array.IndexOf(whiteGoals, ballChip.transform.position) > -1 || Array.IndexOf(redGoals, ballChip.transform.position) > -1;
     }
 
     // TODO: Add checks if player is in neutral space (they can't move out of it).
@@ -334,7 +356,7 @@ public class ScriptController : MonoBehaviour
         {
             return true;
         }
-        if (Math.Abs(point.y) == 7 && (Array.IndexOf(redGoals, point) == -1 || Array.IndexOf(whiteGoals, point) == -1))
+        if (Math.Abs(point.y) == 7 && Math.Abs(point.x) >= 3)
         {
             return true;
         }
