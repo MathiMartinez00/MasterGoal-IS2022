@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
@@ -198,7 +199,8 @@ public class ScriptController : MonoBehaviour
         }
     }
 
-    bool IsFieldValidForPlayerChip(Vector3 destinationCenter)
+    // TODO: Add checks if player is in neutral space (they can't move out of it).
+    private bool IsFieldValidForPlayerChip(GameObject playerChip, Vector3 destinationCenter)
     {
         /// Checks and returns if field at destinationCenter is valid for player chip movement.
         // TODO: This probably can be refactored using IsPlayerChipInField and IsBallChipInField
@@ -220,10 +222,53 @@ public class ScriptController : MonoBehaviour
         {
             return false;
         }
+        if (!IsFieldAdyacentToNeutralFieldValid(playerChip, destinationCenter))
+        {
+            return false;
+        }
         return true;
     }
 
-    void CalculateMovesPlayer(GameObject playerChip, Vector3Int point, List<Vector3> destinations)
+    private bool IsFieldAdyacentToNeutralFieldValid(GameObject playerChip, Vector3 point)
+    {
+        /// Checks if playerChip is in a neutral space, if not
+        int whiteCount = 0, redCount = 0;
+        List<GameObject> chipsInNeutralField = new List<GameObject>();
+        List<Vector3> pointsInNeutralField = new List<Vector3>();
+        foreach (var dir in playerDirections)
+        {
+            pointsInNeutralField.Add(ballChip.transform.position + dir);
+            foreach (var chip in playerChips)
+            {
+                if (ballChip.transform.position + dir == chip.transform.position)
+                {
+                    if (chip.GetComponent<ScriptChip>().team == Team.White)
+                    {
+                        whiteCount++;
+                    }
+                    else
+                    {
+                        redCount++;
+                    }
+                    chipsInNeutralField.Add(chip);
+                    break;
+                }
+            }
+        }
+        // Ball is in a neutral field but field isn't, therefore field is not valid.
+        if (chipsInNeutralField.Contains(playerChip) && !pointsInNeutralField.Contains(point))
+        {
+            return false;
+        }
+        // Ball is in a neutral field but field isn't, therefore field is valid.
+        if (chipsInNeutralField.Contains(playerChip) && pointsInNeutralField.Contains(point))
+        {
+            return true;
+        }
+        return true;
+    }
+
+    private void CalculateMovesPlayer(GameObject playerChip, Vector3Int point, List<Vector3> destinations)
     {
         /// Calculates all possible fields the player can move to and writes their positions to destinations.
         for (int i = 1; i <= 2; i++)
@@ -232,7 +277,7 @@ public class ScriptController : MonoBehaviour
             {
                 Vector3Int destination = point + direction * i;
                 Vector3 destinationCenter = tilemapBoard.GetCellCenterWorld(destination);
-                if (IsFieldValidForPlayerChip(destinationCenter))
+                if (IsFieldValidForPlayerChip(playerChip, destinationCenter))
                 {
                     tilemapHighlight.SetTile(destination, tileHighlight);
                     destinations.Add(destinationCenter);
