@@ -1,4 +1,4 @@
-using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -29,11 +29,12 @@ public class ScriptTutorial : MonoBehaviour
 
     public GameObject cross;
 
-    public Vector2 positionStartBallPassing = new Vector2(-0.375f, 1.875f);
-    public Vector2 positionStartPlayerMovement = new Vector2(1.125f, 1.125f);
-    public Vector2 positionStartBallGoal = new Vector2(-1.5f, -1.875f);
+    public Vector2 positionStartBallPassing = new Vector2(-1, 5);
+    public Vector2 positionStartPlayerMovement = new Vector2(3, 3);
+    public Vector2 positionStartBallGoal = new Vector2(-4, -5);
 
     public int stepTutorial = 0;
+    public float distanceToSnap = 0.05f;
 
     // Start is called before the first frame update
     void Start()
@@ -52,13 +53,17 @@ public class ScriptTutorial : MonoBehaviour
         nextButton.gameObject.SetActive(stepTutorial != 11);
     }
 
-    IEnumerator MoveAndWait(GameObject chip, GameObject[] destinations, Vector2 originalPos, bool changeOriginalPos = false, float time = 0.05f)
+    IEnumerator MoveAndWait(GameObject chip, GameObject[] destinations, Vector2 originalPos, bool changeOriginalPos = false, float time = 0.02f)
     {
         // The whole changeOriginalPos thing is probably not the best idea but it is what it is
         while (chip.transform.position != destinations[waypointIterator].transform.position)
         {
             Vector2 velocity = Vector2.zero;
             chip.transform.position = Vector2.SmoothDamp(chip.transform.position, destinations[waypointIterator].transform.position, ref velocity, time);
+            if (Math.Abs(Vector2.Distance(chip.transform.position, destinations[waypointIterator].transform.position)) < distanceToSnap)
+            {
+                chip.transform.position = destinations[waypointIterator].transform.position;
+            }
             yield return null;
         }
         if (chip.transform.position == destinations[waypointIterator].transform.position)
@@ -161,7 +166,7 @@ public class ScriptTutorial : MonoBehaviour
                 break;
             case 11:
                 titleText.text = "Movimientos prohibidos";
-                descriptionText.text = "Ni puede dejar la pelota dentro de su propia área.";
+                descriptionText.text = "Ni puede dejar la pelota dentro de su propia área al final del turno.";
                 break;
         }
     }
@@ -179,7 +184,7 @@ public class ScriptTutorial : MonoBehaviour
                 break;
             case 1:
                 playerChips[0].transform.position = positionStartPlayerMovement;
-                StartCoroutine(MoveAndWait(playerChips[0], waypoints, new Vector2(1.125f, 1.125f)));
+                StartCoroutine(MoveAndWait(playerChips[0], waypoints, new Vector2(3, 3)));
                 break;
             case 2:
                 StartCoroutine(MoveAndWait(ballChip, waypointsBallMovement, defaultBallPosition));
@@ -190,49 +195,48 @@ public class ScriptTutorial : MonoBehaviour
                 StartCoroutine(MoveAndWait(ballChip, waypointsBallPassing, positionStartBallPassing));
                 break;
             case 4:
-                playerChips[0].transform.position = new Vector2(-1.875f, -1.5f);
+                playerChips[0].transform.position = new Vector2(-5, -4f);
                 ballChip.transform.position = positionStartBallGoal;
                 StartCoroutine(MoveAndWait(ballChip, waypointsBallGoal, positionStartBallGoal));
                 break;
             case 5:
-                ballChip.transform.position = new Vector2(-0.375f, 1.875f);
+                ballChip.transform.position = new Vector2(-1, 5);
                 StartCoroutine(MoveAndWait(ballChip, waypointsBallPassingBetweenPlayers, positionStartBallPassing, true));
                 break;
             case 6:
-                ballChip.transform.position = new Vector2(-0.375f, 1.875f);
-                playerChips[2].transform.position = new Vector2(-0.375f, 0.375f);
+                ballChip.transform.position = new Vector2(-1, 5);
+                playerChips[2].transform.position = new Vector2(-1, 1);
                 StartCoroutine(MoveAndWait(ballChip, waypointsBallPassingBetweenPlayers, positionStartBallPassing, true));
                 break;
             case 7:
-                playerChips[1].transform.position = new Vector2(-1.125f, 0);
-                playerChips[2].transform.position = new Vector2(-1.5f, -0.375f);
-                ballChip.transform.position = new Vector2(-1.5f, 0);
+                playerChips[1].transform.position = new Vector2(-3, 0);
+                playerChips[2].transform.position = new Vector2(-4, -1);
+                ballChip.transform.position = new Vector2(-4, 0);
                 break;
             case 8:
-                playerChips[1].transform.position = new Vector2(-1.125f, 0);
-                playerChips[2].transform.position = new Vector2(-1.5f, -0.375f);
-                playerChips[3].transform.position = new Vector2(-1.125f, -0.375f);
-                ballChip.transform.position = new Vector2(-1.5f, 0);
-                StartCoroutine(MoveAndWait(ballChip, waypointsBallNeutralPositionBreak, new Vector2(-1.5f, 0)));
+                playerChips[1].transform.position = new Vector2(-3, 0);
+                playerChips[2].transform.position = new Vector2(-4, -1);
+                playerChips[3].transform.position = new Vector2(-3, -1);
+                ballChip.transform.position = new Vector2(-4, 0);
+                StartCoroutine(MoveAndWait(ballChip, waypointsBallNeutralPositionBreak, new Vector2(-4, 0)));
                 break;
             case 9:
                 cross.transform.position = waypointsBallWrongMoveCorner[0].transform.position;
-                playerChips[1].transform.position = new Vector2(-1.5f, 1.125f);
-                ballChip.transform.position = new Vector2(-1.875f, 1.125f);
-                StartCoroutine(MoveAndWait(ballChip, waypointsBallWrongMoveCorner, new Vector2(-1.875f, 1.125f)));
+                playerChips[1].transform.position = new Vector2(-4, 3);
+                ballChip.transform.position = new Vector2(-5, 3);
+                StartCoroutine(MoveAndWait(ballChip, waypointsBallWrongMoveCorner, new Vector2(-5, 3)));
                 break;
             case 10:
                 cross.transform.position = waypointsBallWrongMovePosession[1].transform.position;
-                playerChips[1].transform.position = new Vector2(-0.75f, 0);
-                ballChip.transform.position = new Vector2(-0.375f, 1.125f);
-                StartCoroutine(MoveAndWait(ballChip, waypointsBallWrongMovePosession, new Vector2(-0.375f, 1.125f), true));
+                playerChips[1].transform.position = new Vector2(-2, 0);
+                ballChip.transform.position = new Vector2(-1, 3);
+                StartCoroutine(MoveAndWait(ballChip, waypointsBallWrongMovePosession, new Vector2(-1, 3), true));
                 break;
             case 11:
                 cross.transform.position = waypointsBallWrongMoveOwnArea[0].transform.position;
-                playerChips[0].transform.position = new Vector2(-0.75f, 0);
-                playerChips[1].transform.position = new Vector2(-0.75f, 1.125f);
-                ballChip.transform.position = new Vector2(-0.375f, 0);
-                StartCoroutine(MoveAndWait(ballChip, waypointsBallWrongMoveOwnArea, new Vector2(-0.375f, 0)));
+                playerChips[0].transform.position = new Vector2(-2, 0);
+                ballChip.transform.position = new Vector2(-1, 0);
+                StartCoroutine(MoveAndWait(ballChip, waypointsBallWrongMoveOwnArea, new Vector2(-1, 0)));
                 break;
             default:
                 break;
