@@ -94,17 +94,6 @@ public class ScriptTutorial : MonoBehaviour
         }
     }
 
-    void HandleMovement(GameObject chip, GameObject[] destinations, Vector2 originalPos, float time = 0.02f)
-    {
-        Vector2 velocity = Vector2.zero;
-        chip.transform.position = Vector2.SmoothDamp(chip.transform.position, destinations[waypointIterator].transform.position, ref velocity, time);
-        if (chip.transform.position == destinations[waypointIterator].transform.position)
-        {
-            chip.transform.position = originalPos;
-            waypointIterator = waypointIterator == destinations.Length - 1 ? 0 : waypointIterator + 1;
-        }
-    }
-
     void ResetPositions()
     {
         for (int i = 0; i < playerChips.Length; i++)
