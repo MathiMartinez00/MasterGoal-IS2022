@@ -170,6 +170,7 @@ public class ScriptController : MonoBehaviour
         ballChip.GetComponent<ScriptBall>().teamPossession = currentTurn;
         currentState = PlayerStates.WaitingPlayerInputChip;
         boardBoxCollider = tilemapBoard.gameObject.GetComponent<BoxCollider2D>();
+        ResetState();
     }
 
     IEnumerator MoveChipAndUpdateState(GameObject chip, Vector3 destination)
@@ -209,14 +210,15 @@ public class ScriptController : MonoBehaviour
         else
         {
             // When move is done, check if more moves are available (passes)
-            if (IsBallPassable())
+            if (IsBallPassable(chip))
             {
                 passCount++;
                 currentState = PlayerStates.WaitingPlayerInputBallDestination;
+                /*
                 if (chip != ballChip)
                 {
                     ballChipPasser = chip;
-                }
+                }*/
                 yield return StartCoroutine(CalculateMovesBallChip(destinationsBall));
             }
             else
@@ -414,12 +416,13 @@ public class ScriptController : MonoBehaviour
         return false;
     }
 
-    private bool IsBallPassable()
+    private bool IsBallPassable(GameObject potentialPasser = null)
     {
         /// Checks if it's possible to pass the ball from its position by checking for player chips in adyacent
         /// fields, if found, counts them to check for neutral spaces.
         /// If no neutral spaces were found and a pass is possible for the team whose turn it is and the pass limit hasn't been passed, return true.
         int redCount = 0, whiteCount = 0;
+        bool passerTagged = false;
         foreach (var dir in playerDirections)
         {
             foreach (var chip in playerChips)
@@ -431,7 +434,15 @@ public class ScriptController : MonoBehaviour
                         whiteCount++;
                         if (currentTurn == Team.White)
                         {
-                            ballChipPasser = chip;
+                            if (potentialPasser == chip)
+                            {
+                                ballChipPasser = chip;
+                            }
+                            else if (potentialPasser == ballChip && ballChipPasser != chip && !passerTagged)
+                            {
+                                passerTagged = true;
+                                ballChipPasser = chip;
+                            }
                         }
                     }
                     else
@@ -439,7 +450,15 @@ public class ScriptController : MonoBehaviour
                         redCount++;
                         if (currentTurn == Team.Red)
                         {
-                            ballChipPasser = chip;
+                            if (potentialPasser == chip)
+                            {
+                                ballChipPasser = chip;
+                            }
+                            else if (potentialPasser == ballChip && ballChipPasser != chip && !passerTagged)
+                            {
+                                passerTagged = true;
+                                ballChipPasser = chip;
+                            }
                         }
                     }
                     break;
@@ -469,7 +488,10 @@ public class ScriptController : MonoBehaviour
                         whiteCount++;
                         if (currentTurn == Team.White)
                         {
-                            passerCandidate = chip;
+                            if (ballChipPasser != chip)
+                            {
+                                passerCandidate = chip;
+                            }
                         }
                     }
                     else
@@ -477,7 +499,10 @@ public class ScriptController : MonoBehaviour
                         redCount++;
                         if (currentTurn == Team.Red)
                         {
-                            passerCandidate = chip;
+                            if (ballChipPasser != chip)
+                            {
+                                passerCandidate = chip;
+                            }
                         }
                     }
                     break;
@@ -501,20 +526,20 @@ public class ScriptController : MonoBehaviour
         // If it's red's turn and there's more red chips than white ones, check for passer because a chip can't pass to itself.
         if (redCount > whiteCount && currentTurn == Team.Red && passCount <= 3)
         {
-            if (passerCandidate == ballChipPasser)
+            if (passerCandidate != null)
             {
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
         // Do the same for white chips.
         if (whiteCount > redCount && currentTurn == Team.White && passCount <= 3)
         {
-            if (passerCandidate == ballChipPasser)
+            if (passerCandidate != null)
             {
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
         return false;
     }
