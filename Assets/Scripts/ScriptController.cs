@@ -161,11 +161,14 @@ public class ScriptController : MonoBehaviour
     public PlayerStates currentState;
 
     public TextMeshProUGUI whiteScoreText, redScoreText;
+    public TextMeshProUGUI whiteScoreName, redScoreName;
     public int whiteScore = 0, redScore = 0;
     
     // Start is called before the first frame update
     void Start()
     {
+        whiteScoreName.text = PlayerPrefs.GetString("player1");
+        whiteScoreName.text = PlayerPrefs.GetString("player2");
         currentTurn = Team.White;
         ballChip.GetComponent<ScriptBall>().teamPossession = currentTurn;
         currentState = PlayerStates.WaitingPlayerInputChip;
@@ -214,11 +217,6 @@ public class ScriptController : MonoBehaviour
             {
                 passCount++;
                 currentState = PlayerStates.WaitingPlayerInputBallDestination;
-                /*
-                if (chip != ballChip)
-                {
-                    ballChipPasser = chip;
-                }*/
                 yield return StartCoroutine(CalculateMovesBallChip(destinationsBall));
             }
             else
