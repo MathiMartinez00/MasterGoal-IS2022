@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
@@ -158,9 +159,10 @@ public class ScriptController : MonoBehaviour
         WaitingPlayerInputBallDestination,
     }
     public PlayerStates currentState;
-    
-    // Default positions
 
+    public TextMeshProUGUI whiteScoreText, redScoreText;
+    public int whiteScore = 0, redScore = 0;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -186,15 +188,22 @@ public class ScriptController : MonoBehaviour
         }
         if (IsBallInGoal())
         {
-            // TODO: Look up whose turn is it, maybe make it random?
-            currentTurn = Team.White;
-            currentState = PlayerStates.WaitingPlayerInputChip;
-            ballChip.transform.position = new Vector3(0, 0, 0);
-            playerChips[0].transform.position = new Vector3(0, -5, 0);
-            playerChips[1].transform.position = new Vector3(0, -3, 0);
-            playerChips[2].transform.position = new Vector3(0, 5, 0);
-            playerChips[3].transform.position = new Vector3(0, 3, 0);
-            passCount = 0;
+            // Update score UI and reset variables.
+            if (currentTurn == Team.White)
+            {
+                whiteScore++;
+                whiteScoreText.text = whiteScore.ToString();
+            }
+            else
+            {
+                redScore++;
+                redScoreText.text = redScore.ToString();
+            }
+            if (redScore >= 2 || whiteScore >= 2)
+            {
+                // Place a popup(?)
+            }
+            ResetState();
             yield return null;
         }
         else
@@ -204,6 +213,10 @@ public class ScriptController : MonoBehaviour
             {
                 passCount++;
                 currentState = PlayerStates.WaitingPlayerInputBallDestination;
+                if (chip != ballChip)
+                {
+                    ballChipPasser = chip;
+                }
                 yield return StartCoroutine(CalculateMovesBallChip(destinationsBall));
             }
             else
@@ -216,12 +229,24 @@ public class ScriptController : MonoBehaviour
         }
     }
 
+    private void ResetState()
+    {
+        /// Resets chips positions, changes turn and resets pass count. User when someone scores a goal.
+        currentTurn = currentTurn == Team.White ? Team.Red : Team.White;
+        currentState = PlayerStates.WaitingPlayerInputChip;
+        ballChip.transform.position = new Vector3(0, 0, 0);
+        playerChips[0].transform.position = new Vector3(0, -5, 0);
+        playerChips[1].transform.position = new Vector3(0, -3, 0);
+        playerChips[2].transform.position = new Vector3(0, 5, 0);
+        playerChips[3].transform.position = new Vector3(0, 3, 0);
+        passCount = 0;
+    }
+
     private bool IsBallInGoal()
     {
         return Array.IndexOf(whiteGoals, ballChip.transform.position) > -1 || Array.IndexOf(redGoals, ballChip.transform.position) > -1;
     }
 
-    // TODO: Add checks if player is in neutral space (they can't move out of it).
     private bool IsFieldValidForPlayerChip(GameObject playerChip, Vector3 destinationCenter)
     {
         /// Checks and returns if field at destinationCenter is valid for player chip movement.
