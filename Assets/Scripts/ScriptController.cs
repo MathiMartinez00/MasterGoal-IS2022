@@ -160,16 +160,21 @@ public class ScriptController : MonoBehaviour
     }
     public PlayerStates currentState;
 
+    // UI variables
     public TextMeshProUGUI whiteScoreText, redScoreText;
     public TextMeshProUGUI whiteScoreName, redScoreName;
+    public TextMeshProUGUI winnerName;
+    public string whiteName, redName;
     public int whiteScore = 0, redScore = 0;
     
     // Start is called before the first frame update
     void Start()
     {
-        whiteScoreName.text = PlayerPrefs.GetString("player1");
-        redScoreName.text = PlayerPrefs.GetString("player2");
-        currentTurn = Team.White;
+        whiteName = PlayerPrefs.GetString("player1");
+        redName = PlayerPrefs.GetString("player2");
+        whiteScoreName.text = whiteName;
+        redScoreName.text = redName;
+        currentTurn = Team.Red;
         ballChip.GetComponent<ScriptBall>().teamPossession = currentTurn;
         currentState = PlayerStates.WaitingPlayerInputChip;
         boardBoxCollider = tilemapBoard.gameObject.GetComponent<BoxCollider2D>();
@@ -205,7 +210,7 @@ public class ScriptController : MonoBehaviour
             }
             if (redScore >= 2 || whiteScore >= 2)
             {
-                // Place a popup(?)
+                winnerName.text = currentTurn == Team.White ? whiteName : redName;
             }
             ResetState();
             yield return null;
@@ -231,7 +236,7 @@ public class ScriptController : MonoBehaviour
 
     private void ResetState()
     {
-        /// Resets chips positions, changes turn and resets pass count. User when someone scores a goal.
+        /// Resets chips positions, changes turn and resets pass count. Used when someone scores a goal.
         currentTurn = currentTurn == Team.White ? Team.Red : Team.White;
         currentState = PlayerStates.WaitingPlayerInputChip;
         ballChip.transform.position = new Vector3(0, 0, 0);
@@ -278,7 +283,9 @@ public class ScriptController : MonoBehaviour
 
     private bool IsFieldAdyacentToNeutralFieldValid(GameObject playerChip, Vector3 point)
     {
-        /// Checks if playerChip is in a neutral space, if not
+        /// Checks if field at point is a neutral space and gets all the chips for that
+        /// space, if the field is adyacent to a neutral field and playerChip is part of it, return true.
+        /// Else, return false.
         int whiteCount = 0, redCount = 0;
         List<GameObject> chipsInNeutralField = new List<GameObject>();
         List<Vector3> pointsInNeutralField = new List<Vector3>();
@@ -307,7 +314,7 @@ public class ScriptController : MonoBehaviour
         {
             return false;
         }
-        // Ball is in a neutral field but field isn't, therefore field is valid.
+        // Ball is in a neutral field but field is, therefore field is valid.
         if (chipsInNeutralField.Contains(playerChip) && pointsInNeutralField.Contains(point))
         {
             return true;
@@ -317,7 +324,7 @@ public class ScriptController : MonoBehaviour
 
     private void CalculateMovesPlayer(GameObject playerChip, Vector3Int point, List<Vector3> destinations)
     {
-        /// Calculates all possible fields the player can move to and writes their positions to destinations.
+        /// Calculates all possible fields the player can move to and writes the positions to destinations.
         for (int i = 1; i <= 2; i++)
         {
             foreach(Vector3Int direction in playerDirections)
@@ -390,6 +397,7 @@ public class ScriptController : MonoBehaviour
 
     private bool IsFieldAValidGoal(Vector3 point)
     {
+        /// Gets a point and returns true if it's a valid goal for the current player playing.
         if (currentTurn == Team.White && Array.IndexOf(redGoals, point) > -1)
         {
             return true;
@@ -403,6 +411,7 @@ public class ScriptController : MonoBehaviour
 
     private bool IsFieldAValidCorner(Vector3 point)
     {
+        /// Gets a point and returns true if it's a valid corner for the current player playing.
         if (currentTurn == Team.White && Array.IndexOf(redCorners, point) > -1)
         {
             return true;
@@ -544,6 +553,7 @@ public class ScriptController : MonoBehaviour
 
     private bool IsFieldValidForBallChip(Vector3 destinationCenter)
     {
+        /// Makes all the rule checks for the field at destinationCenter, returns true if the field is a valid destination.
         // TODO: Literally add the rest of the rules, corner checks, player checks, player area checks.
         if (IsPlayerChipInField(destinationCenter))
         {
@@ -574,7 +584,7 @@ public class ScriptController : MonoBehaviour
 
     IEnumerator CalculateMovesBallChip(List<Vector3> destinations)
     {
-        /// Calculates all possible fields the ball can move to and writes their positions to destinations.
+        /// Calculates all possible fields the ball can move to and writes the positions to destinations.
         var point = tilemapBoard.WorldToCell(ballChip.transform.position);
         
         for (int i = 1; i <= 4; i++)

@@ -53,7 +53,7 @@ public class ScriptTutorial : MonoBehaviour
         nextButton.gameObject.SetActive(stepTutorial != 11);
     }
 
-    IEnumerator MoveAndWait(GameObject chip, GameObject[] destinations, Vector2 originalPos, bool changeOriginalPos = false, float time = 0.02f)
+    IEnumerator MoveAndWait(GameObject chip, GameObject[] destinations, Vector2 originalPos, bool changeOriginalPos = false, float time = 0.1f)
     {
         // The whole changeOriginalPos thing is probably not the best idea but it is what it is
         while (chip.transform.position != destinations[waypointIterator].transform.position)
