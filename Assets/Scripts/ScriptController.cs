@@ -210,7 +210,9 @@ public class ScriptController : MonoBehaviour
             }
             if (redScore >= 2 || whiteScore >= 2)
             {
-                winnerName.text = currentTurn == Team.White ? whiteName : redName;
+                string winner = currentTurn == Team.White ? whiteName : redName;
+                winnerName.text = "Gano " + winner;
+                boardBoxCollider.enabled = false;
             }
             ResetState();
             yield return null;

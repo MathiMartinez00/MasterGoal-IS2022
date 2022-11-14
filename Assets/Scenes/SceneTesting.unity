@@ -1374,7 +1374,7 @@ MonoBehaviour:
   redScoreText: {fileID: 1184850327}
   whiteScoreName: {fileID: 1838547762}
   redScoreName: {fileID: 1328258735}
-  winnerName: {fileID: 0}
+  winnerName: {fileID: 425312825}
   whiteName: 
   redName: 
   whiteScore: 0
