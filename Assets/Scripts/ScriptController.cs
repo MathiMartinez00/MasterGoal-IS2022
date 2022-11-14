@@ -168,7 +168,7 @@ public class ScriptController : MonoBehaviour
     void Start()
     {
         whiteScoreName.text = PlayerPrefs.GetString("player1");
-        whiteScoreName.text = PlayerPrefs.GetString("player2");
+        redScoreName.text = PlayerPrefs.GetString("player2");
         currentTurn = Team.White;
         ballChip.GetComponent<ScriptBall>().teamPossession = currentTurn;
         currentState = PlayerStates.WaitingPlayerInputChip;

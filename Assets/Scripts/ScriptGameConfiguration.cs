@@ -72,6 +72,7 @@ public class ScriptGameConfiguration : MonoBehaviour
     }
     void OnDisable()
     {
+        Debug.Log("Hey?");
         PlayerPrefs.SetString("player1", player1Name);
         PlayerPrefs.SetString("player2", player2Name);
     }
