@@ -50,8 +50,8 @@ public class GameState : ScriptController
 
     // Takes a Vector3 object and returns a tuple with its x
     // and y coordinates.
-    private (int, int) VectorToArrayCoordinates(Vector3 position)
+    public (int, int) VectorToArrayCoordinates(Vector3 position)
     {
-        return (position.x, position.y)
+        return (position.x, position.y);
     }
 }

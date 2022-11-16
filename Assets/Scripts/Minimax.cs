@@ -7,22 +7,22 @@ public class Minimax
 {
     public void minimax(Vector3 position, int depth, bool maximizingPlayer)
     {
-        if (depth == 0) or isGameOver()
+        if ((depth == 0) || isGameOver())
         {
-            return evaluateBoard()
+            return evaluateBoard();
         }
 
-        List<Vector3> positions = getChildrenPositions()
+        List<Vector3> positions = getChildrenPositions();
 
-        if maximizingPlayer
+        if (maximizingPlayer)
         {
-            maxEval = int.MaxValue
-            return maxEval
+            maxEval = int.MaxValue;
+            return maxEval;
         }
         else
         {
-            minEval = int.MinValue
-            return minEval
+            minEval = int.MinValue;
+            return minEval;
         }
     }
 
