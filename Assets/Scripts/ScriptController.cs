@@ -612,11 +612,12 @@ public class ScriptController : MonoBehaviour
         var point = tilemapBoard.WorldToCell(worldPoint);
         var tile = tilemapBoard.GetTile(point);
 
-        // Check if tile clicked is not blank (like the spaces next to the goals)
-        if (tile != null)
+        // Check if tile clicked is not blank (like the spaces next to
+        // the goals) and if the user is playing against the AI, check
+        // if it is indeed the AI's turn.
+        if (tile != null and (true and currentTurn == Team.white))
         {
             var pointCenter = tilemapBoard.GetCellCenterWorld(point);
-            //Debug.Log(pointCenter);
 
             switch (currentState) {
                 case PlayerStates.WaitingPlayerInputChip:
@@ -653,6 +654,12 @@ public class ScriptController : MonoBehaviour
                     break;
             }
         }
-        //boxCollider.enabled = false;
+
+        // After the user's turn, if the user is playing against the AI,
+        // the AI should make the next move.
+        MakeAIMove();
     }
+
+    public void MakeAIMove()
+    {}
 }
