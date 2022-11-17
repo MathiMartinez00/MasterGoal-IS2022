@@ -1,3 +1,5 @@
+using System;
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,23 +7,23 @@ using UnityEngine;
 // Abstract representation of the state of the game (it uses a matrix).
 public class GameState : ScriptController
 {
-    char [,] board;
-    (int,int)[] redChips;
-    (int,int)[] whiteChips;
-    (int,int) ballPosition;
-    Team currentTurn;
+    public char [,] board;
+    public (int,int)[] redChips;
+    public (int,int)[] whiteChips;
+    public (int,int) ballPosition;
+    public Team currentTurn;
+
 
     // Class constructor.
     public GameState(
         GameObject[] playerChips, GameObject ballChip,
-        Team currentTurn
-        )
+        Team currentTurn)
     {
-        this.redChips[0] = VectorToArrayCoordinates(playerChips[0]);
-        this.redChips[1] = VectorToArrayCoordinates(playerChips[1]);
-        this.whiteChips[0] = VectorToArrayCoordinates(playerChips[2]);
-        this.whiteChips[1] = VectorToArrayCoordinates(playerChips[3]);
-        this.ballChipCoordinates = VectorToArrayCoordintes(ballChip);
+        this.redChips[0] = VectorToArrayCoordinates(playerChips[0].transform.position);
+        this.redChips[1] = VectorToArrayCoordinates(playerChips[1].transform.position);
+        this.whiteChips[0] = VectorToArrayCoordinates(playerChips[2].transform.position);
+        this.whiteChips[1] = VectorToArrayCoordinates(playerChips[3].transform.position);
+        this.ballPosition = VectorToArrayCoordinates(ballChip.transform.position);
         this.currentTurn = currentTurn;
 
         for (int i = 0; i < 11; i++)
@@ -36,7 +38,7 @@ public class GameState : ScriptController
                 {
                     board[i,j] = 'w';
                 }
-                else if (ballChipCoordinates == (i,j)))
+                else if (ballPosition == (i,j))
                 {
                     board[i,j] = 'b';
                 }
@@ -52,6 +54,7 @@ public class GameState : ScriptController
     // and y coordinates.
     public (int, int) VectorToArrayCoordinates(Vector3 position)
     {
+        // CONVERT TO INT
         return (position.x, position.y);
     }
 }

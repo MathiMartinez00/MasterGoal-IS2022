@@ -615,7 +615,7 @@ public class ScriptController : MonoBehaviour
         // Check if tile clicked is not blank (like the spaces next to
         // the goals) and if the user is playing against the AI, check
         // if it is indeed the AI's turn.
-        if (tile != null && (true && currentTurn == Team.white))
+        if (tile != null && (true && currentTurn == Team.White))
         {
             var pointCenter = tilemapBoard.GetCellCenterWorld(point);
 
@@ -662,13 +662,13 @@ public class ScriptController : MonoBehaviour
 
     public void MakeAIMove()
     {
-        GameState(playerChips, ballChip, currentTurn);
+        GameState newState = new GameState(playerChips, ballChip, currentTurn);
 
         for (int j = 0; j < 13; j++)
         {
             for (int i = 0; i < 11; i++)
             {
-                Debug.Log(board[j][i]);
+                Debug.Log(newState.board[j,i]);
             }
             Debug.Log('\n');
         }

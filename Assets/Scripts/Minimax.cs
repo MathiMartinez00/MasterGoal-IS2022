@@ -5,42 +5,40 @@ using UnityEngine;
 
 public class Minimax
 {
-    public void minimax(Vector3 position, int depth, bool maximizingPlayer)
+    public int minimax(Vector3 position, int depth, bool maximizingPlayer)
     {
         if ((depth == 0) || isGameOver())
         {
             return evaluateBoard();
         }
 
-        List<Vector3> positions = getChildrenPositions();
+        (int,int)[] positions = getChildrenPositions();
 
         if (maximizingPlayer)
         {
-            maxEval = int.MaxValue;
+            int maxEval = int.MaxValue;
             return maxEval;
         }
         else
         {
-            minEval = int.MinValue;
+            int minEval = int.MinValue;
             return minEval;
         }
     }
 
-    private List<Vector3> getChildrenPositions()
+    private (int,int)[] getChildrenPositions()
     {
-        foreach (var chip in playerChips)
-        {
-            Debug.Log("chip: " + chip.transform.position);
-            if (chip.transform.position == point)
-            {
-                return chip;
-            }
-        }
+        (int,int)[] positions = {(0,0), (0,0)};
+        return positions;
     }
 
     private int evaluateBoard()
-    {}
+    {
+        return 0;
+    }
 
-    public void UpdateBoard(PointerEventData eventData)
-    {}
+    public bool isGameOver()
+    {
+        return false;
+    }
 }
