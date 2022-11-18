@@ -1,4 +1,7 @@
 using System;
+
+using System.Text;
+
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -14,6 +17,13 @@ public enum Team
 
 public class ScriptController : MonoBehaviour
 {
+    // Used to get information to and from the AI algorithm.
+    AbstractGameBoard gameState;
+    [SerializeField] GameObject abstractGameBoard;
+
+    public enum GameMode
+    {}
+
     // GameObjects for game control
     public Tilemap tilemapBoard;
     public Tilemap tilemapHighlight;
@@ -166,6 +176,13 @@ public class ScriptController : MonoBehaviour
     public TextMeshProUGUI winnerName;
     public string whiteName, redName;
     public int whiteScore = 0, redScore = 0;
+
+
+    void Awake()
+    {
+        // Getting the GameState script from the AbstractGameBoard GameObject.
+        gameState = abstractGameBoard.GetComponent<AbstractGameBoard>();
+    }
     
     // Start is called before the first frame update
     void Start()
@@ -231,6 +248,10 @@ public class ScriptController : MonoBehaviour
                 passCount = 0;
                 currentTurn = currentTurn == Team.White ? Team.Red : Team.White;
                 ballChip.GetComponent<ScriptBall>().teamPossession = currentTurn;
+
+                // If we're playing against the AI, execute the AI's next
+                // move. Or else, proceed to the next turn.
+                if ()
                 currentState = PlayerStates.WaitingPlayerInputChip;
             }
         }
@@ -615,7 +636,7 @@ public class ScriptController : MonoBehaviour
         // Check if tile clicked is not blank (like the spaces next to
         // the goals) and if the user is playing against the AI, check
         // if it is indeed the AI's turn.
-        if (tile != null && (true && currentTurn == Team.White))
+        if (tile != null) //&& (true && currentTurn == Team.White))
         {
             var pointCenter = tilemapBoard.GetCellCenterWorld(point);
 
@@ -662,15 +683,21 @@ public class ScriptController : MonoBehaviour
 
     public void MakeAIMove()
     {
-        GameState newState = new GameState(playerChips, ballChip, currentTurn);
+        gameState.Initialize(playerChips, ballChip, currentTurn);
 
-        for (int j = 0; j < 13; j++)
+        Debug.Log("\n\nNew board:");
+
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 13; i >= 0; i--)
         {
-            for (int i = 0; i < 11; i++)
+            for (int j = 0; j < 11; j++)
             {
-                Debug.Log(newState.board[j,i]);
+                sb.Append(gameState.board[i,j]);
             }
-            Debug.Log('\n');
+            sb.Append('\n');
         }
+
+        Debug.Log(sb.ToString());
     }
 }
