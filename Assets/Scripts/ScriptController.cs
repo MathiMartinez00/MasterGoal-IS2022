@@ -9,20 +9,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 
-public enum Team
-{
-    White,
-    Red,
-}
 
 public class ScriptController : MonoBehaviour
 {
     // Used to get information to and from the AI algorithm.
     AbstractGameBoard gameState;
     [SerializeField] GameObject abstractGameBoard;
-
-    public enum GameMode
-    {}
 
     // GameObjects for game control
     public Tilemap tilemapBoard;
@@ -251,8 +243,8 @@ public class ScriptController : MonoBehaviour
 
                 // If we're playing against the AI, execute the AI's next
                 // move. Or else, proceed to the next turn.
-                if ()
-                currentState = PlayerStates.WaitingPlayerInputChip;
+                //if ()
+                //currentState = PlayerStates.WaitingPlayerInputChip;
             }
         }
     }
