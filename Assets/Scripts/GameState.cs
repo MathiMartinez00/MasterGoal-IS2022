@@ -103,11 +103,47 @@ public class GameState
             return false;
         }
     }
+    
+    // Takes the position of a player's chip and returns the possible
+    // positions that the chip can move to.
+    public List<(int,int)> CalculateMovesPlayer((int,int) playerChip)
+    {
+        List<(int,int)> possibleMoves = new List<(int,int)>;
+        // A player can move no more than 2 tiles away from its
+        // current position.
+        for (int i = -2; i < 3; i++)
+        {
+            for (int j = -2; j < 3; j++)
+            {
+                // If the tile is valid, add it to the list of moves.
+                if (IsFieldValidForPlayerChip(playerChip, (i,j)))
+                {
+                    possibleMoves.Add((i,j));
+                }
+            }
+        }
+        return possibleMoves;
+    }
+
+    // Checks if a goal has been scored.
+    public bool PlayerScoredGoal()
+    {
+        return (
+            ballChip.Item2 >= 3 && ballChip.Item2 <= 7 &&
+            (ballChip.Item1 == 0 || ballChip.Item1 == 14)
+            )
+    }
+
+    public bool IsBallPassable()
+    {}
+
+    public bool AreAdjacentFieldsValid()
+    {}
 
     // Takes a Vector3 object and returns a tuple with its x
     // and y coordinates plus an offset, so that the board has no
     // negative indices.
-    public (int, int) VectorToArrayCoordinates(Vector3 position)
+    public (int,int) VectorToArrayCoordinates(Vector3 position)
     {
         return ((int)position.x + 5, (int)position.y + 6);
     }
