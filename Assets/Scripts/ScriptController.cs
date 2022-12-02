@@ -251,7 +251,7 @@ public class ScriptController : MonoBehaviour
 
                 // If we're playing against the AI, execute the AI's next
                 // move. Or else, proceed to the next turn.
-                if ()
+                //if ()
                 currentState = PlayerStates.WaitingPlayerInputChip;
             }
         }
