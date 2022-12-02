@@ -3315,6 +3315,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buttonChipPlayer1: {fileID: 1251994093}
   buttonChipPlayer2: {fileID: 1343717754}
+  buttonPlay: {fileID: 1821949534}
   imageChipPlayer1: {fileID: 1542387879}
   imageChipPlayer2: {fileID: 363444726}
   chipSprites:
@@ -3326,6 +3327,7 @@ MonoBehaviour:
   inputFieldPlayer2: {fileID: 1487177383}
   player1Name: 
   player2Name: PC
+  gameMode: 0
 --- !u!1 &2036750096
 GameObject:
   m_ObjectHideFlags: 0
