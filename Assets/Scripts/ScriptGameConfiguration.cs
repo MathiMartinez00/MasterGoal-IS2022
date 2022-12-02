@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 public class ScriptGameConfiguration : MonoBehaviour
 {
-    public Button buttonChipPlayer1, buttonChipPlayer2;
+    public Button buttonChipPlayer1, buttonChipPlayer2, buttonPlay;
     public Image imageChipPlayer1, imageChipPlayer2;
     public Sprite[] chipSprites;
     public Toggle toggleModePlayerVsPlayer;
@@ -21,6 +21,11 @@ public class ScriptGameConfiguration : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (IsTheSameChipColor())
+        {
+            buttonPlay.image.color = Color.red;
+            buttonPlay.interactable = false;
+        }
         buttonChipPlayer1.onClick.AddListener(delegate{ ChangeImageChipPlayer(1); });
         buttonChipPlayer2.onClick.AddListener(delegate{ ChangeImageChipPlayer(2); });
         toggleModePlayerVsPlayer.onValueChanged.AddListener(delegate { SeeToggle(); });
@@ -44,6 +49,16 @@ public class ScriptGameConfiguration : MonoBehaviour
                 }
                 break;
             }
+        }
+        if (IsTheSameChipColor())
+        {
+            buttonPlay.image.color = Color.red;
+            buttonPlay.interactable = false;
+        }
+        else
+        {
+            buttonPlay.image.color = buttonChipPlayer1.image.color;
+            buttonPlay.interactable = true;
         }
     }
     public void SeeToggle()
@@ -81,5 +96,13 @@ public class ScriptGameConfiguration : MonoBehaviour
         PlayerPrefs.SetString("player2", player2Name);
         PlayerPrefs.SetString("color1", imageChipPlayer1.sprite.ToString()); // color 1 for player 1
         PlayerPrefs.SetString("color2", imageChipPlayer1.sprite.ToString());
+    }
+    public bool IsTheSameChipColor()
+    {
+        if (imageChipPlayer1.sprite.ToString() == imageChipPlayer2.sprite.ToString())
+        {
+            return true;
+        }
+        return false;
     }
 }
