@@ -5,7 +5,7 @@ public class UIConfig : MonoBehaviour
 {
 
     public GameObject gameController;
-    Toggle toggle;
+    public Toggle toggle;
 
     // Start is called before the first frame update
     void Start()
