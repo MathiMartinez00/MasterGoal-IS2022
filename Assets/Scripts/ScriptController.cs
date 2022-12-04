@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
+using UnityEditor;
 
 #nullable enable
 
@@ -43,7 +44,10 @@ public class ScriptController : MonoBehaviour
     public GameObject whiteBanner, redBanner;
     public Color defaultBannerColor;
 
-    // Start is called before the first frame update.
+    // Configuration variables
+    public bool isHighlightModeOn;
+
+    // Start is called before the first frame update
     void Start()
     {
         WhiteScore = 0;
