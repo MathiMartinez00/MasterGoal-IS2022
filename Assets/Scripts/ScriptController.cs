@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 #nullable enable
 
@@ -39,6 +40,8 @@ public class ScriptController : MonoBehaviour
     public string BlackName { get; private set; } = default!;
     public int WhiteScore { get; set; } = default!;
     public int BlackScore { get; set; } = default!;
+    public GameObject whiteBanner, redBanner;
+    public Color defaultBannerColor;
 
     // Start is called before the first frame update.
     void Start()
@@ -49,6 +52,8 @@ public class ScriptController : MonoBehaviour
         BlackName = PlayerPrefs.GetString("player2");
         this.whiteScoreName.text = WhiteName;
         this.redScoreName.text = RedName;
+        whiteBanner.GetComponent<Image>().color = currentTurn == Team.White ? Color.white : defaultBannerColor;
+        redBanner.GetComponent<Image>().color = currentTurn == Team.Red ? Color.white : defaultBannerColor;
         BoardBoxCollider =
         TilemapBoard.gameObject.GetComponent<BoxCollider2D>();
         // Create a new abstract game instance.
