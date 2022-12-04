@@ -680,6 +680,12 @@ public class ScriptController : MonoBehaviour
                         tilemapHighlight.ClearAllTiles();
                         destinationsPlayer.Clear();
                     }
+                    else if (selectedChip == GetChipInField(pointCenter))
+                    {
+                        destinationsPlayer.Clear();
+                        tilemapHighlight.ClearAllTiles();
+                        currentState = PlayerStates.WaitingPlayerInputChip;
+                    }
                     break;
 
                 case PlayerStates.WaitingPlayerInputBallDestination:
