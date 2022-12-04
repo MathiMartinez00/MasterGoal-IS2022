@@ -60,6 +60,7 @@ public class ScriptController : MonoBehaviour
         redBanner.GetComponent<Image>().color = currentTurn == Team.Red ? Color.white : defaultBannerColor;
         BoardBoxCollider =
         TilemapBoard.gameObject.GetComponent<BoxCollider2D>();
+        isHighlightModeOn = PlayerPrefs.GetInt("ayuda") == 1;
         // Create a new abstract game instance.
         Game = new Game(Team.White);
         GameMode = GameMode.OnePlayer;
