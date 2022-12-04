@@ -2725,7 +2725,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 387493cf67ffbc049906adccc1abef1d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6ed084b16b62cc842913a53e5f193f4e, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -3319,9 +3319,10 @@ MonoBehaviour:
   imageChipPlayer1: {fileID: 1542387879}
   imageChipPlayer2: {fileID: 363444726}
   chipSprites:
-  - {fileID: 21300000, guid: 387493cf67ffbc049906adccc1abef1d, type: 3}
   - {fileID: 21300000, guid: 6ed084b16b62cc842913a53e5f193f4e, type: 3}
-  - {fileID: 21300000, guid: f0b57c30524a0074facb4bd4a0a1bc7b, type: 3}
+  - {fileID: 21300000, guid: 387493cf67ffbc049906adccc1abef1d, type: 3}
+  - {fileID: 21300000, guid: 2dde26bf79ccb804e8049b1e4b8cbed1, type: 3}
+  - {fileID: 21300000, guid: aaf88883491509b449d75c994a19fa61, type: 3}
   toggleModePlayerVsPlayer: {fileID: 418569658}
   inputFieldPlayer1: {fileID: 1132979202}
   inputFieldPlayer2: {fileID: 1487177383}
