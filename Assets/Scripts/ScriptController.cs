@@ -9,7 +9,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
-using UnityEditor;
 
 public enum Team
 {
@@ -176,6 +175,7 @@ public class ScriptController : MonoBehaviour
     public TextMeshProUGUI whiteScoreName, redScoreName;
     public TextMeshProUGUI winnerName;
     public GameObject whiteBanner, redBanner;
+    public GameObject popupBanner;
     public Color defaultBannerColor;
     public string whiteName, redName;
     public int whiteScore = 0, redScore = 0;
@@ -205,6 +205,11 @@ public class ScriptController : MonoBehaviour
         redBanner.GetComponent<Image>().color = currentTurn == Team.Red ? Color.white : defaultBannerColor;
     }
 
+    public void SetHighlightMode(bool highlightMode)
+    {
+        isHighlightModeOn = highlightMode;
+    }
+
     IEnumerator MoveChipAndUpdateState(GameObject chip, Vector3 destination)
     {
         /// Moves the chip to the destination passed with SmoothDamp (destination MUST be in world units) and then
@@ -226,11 +231,13 @@ public class ScriptController : MonoBehaviour
             {
                 whiteScore++;
                 whiteScoreText.text = whiteScore.ToString();
+                yield return MakePopup("Gol de " + whiteName);
             }
             else
             {
                 redScore++;
                 redScoreText.text = redScore.ToString();
+                yield return MakePopup("Gol de " + redName);
             }
             if (redScore >= 2 || whiteScore >= 2)
             {
@@ -273,6 +280,18 @@ public class ScriptController : MonoBehaviour
         playerChips[3].transform.position = new Vector3(0, 3, 0);
         passCount = 0;
         UpdateBannerColors();
+    }
+
+    private IEnumerator MakePopup(string text)
+    {
+        /// Creates a pop up with text as text.
+        /// While the popup is active, players can't pick chips in board.
+        boardBoxCollider.enabled = false;
+        popupBanner.GetComponentInChildren<TextMeshProUGUI>().text = text;
+        popupBanner.SetActive(true);
+        yield return new WaitForSeconds(1.5f);
+        popupBanner.SetActive(false);
+        boardBoxCollider.enabled = true;
     }
 
     private void UpdateBannerColors()
