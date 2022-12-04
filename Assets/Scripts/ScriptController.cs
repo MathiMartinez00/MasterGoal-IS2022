@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
+using UnityEditor;
 
 public enum Team
 {
@@ -179,6 +180,8 @@ public class ScriptController : MonoBehaviour
     public string whiteName, redName;
     public int whiteScore = 0, redScore = 0;
 
+    // Configuration variables
+    public bool isHighlightModeOn;
     /*
     void Awake()
     {
@@ -365,7 +368,10 @@ public class ScriptController : MonoBehaviour
                 Vector3 destinationCenter = tilemapBoard.GetCellCenterWorld(destination);
                 if (IsFieldValidForPlayerChip(playerChip, destinationCenter))
                 {
-                    tilemapHighlight.SetTile(destination, tileHighlight);
+                    if (isHighlightModeOn)
+                    {
+                        tilemapHighlight.SetTile(destination, tileHighlight);
+                    }
                     destinations.Add(destinationCenter);
                 }
             }
@@ -627,7 +633,10 @@ public class ScriptController : MonoBehaviour
                 Vector3 destinationCenter = tilemapBoard.GetCellCenterWorld(destination);
                 if (IsFieldValidForBallChip(destinationCenter))
                 {
-                    tilemapHighlight.SetTile(destination, tileHighlight);
+                    if (isHighlightModeOn)
+                    {
+                        tilemapHighlight.SetTile(destination, tileHighlight);
+                    }
                     destinations.Add(destinationCenter);
                 }
             }
