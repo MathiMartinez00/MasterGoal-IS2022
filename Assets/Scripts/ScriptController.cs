@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
-using UnityEditor;
 
 #nullable enable
 
@@ -42,6 +41,7 @@ public class ScriptController : MonoBehaviour
     public int WhiteScore { get; set; } = default!;
     public int BlackScore { get; set; } = default!;
     public GameObject whiteBanner, redBanner;
+    public GameObject popupBanner;
     public Color defaultBannerColor;
 
     // Configuration variables
@@ -65,9 +65,11 @@ public class ScriptController : MonoBehaviour
         GameMode = GameMode.OnePlayer;
     }
 
-    // This method is called whenever the user taps on the screen.
-    public void UpdateBoard(PointerEventData eventData)
+    public void SetHighlightMode(bool highlightMode)
     {
+        isHighlightModeOn = highlightMode;
+    }
+
         // Updates board based on player input given by the
         // IPointerHandlerEvent on the tilemap board GameObject.
         Vector2 worldPoint = Camera.main.ScreenToWorldPoint(
