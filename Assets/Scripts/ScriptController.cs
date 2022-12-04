@@ -8,6 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 public enum Team
 {
@@ -19,7 +20,6 @@ public class ScriptController : MonoBehaviour
 {
     // Used to get information to and from the AI algorithm.
     AbstractGameBoard gameState;
-    [SerializeField] GameObject abstractGameBoard;
 
     public enum GameMode
     {}
@@ -174,15 +174,17 @@ public class ScriptController : MonoBehaviour
     public TextMeshProUGUI whiteScoreText, redScoreText;
     public TextMeshProUGUI whiteScoreName, redScoreName;
     public TextMeshProUGUI winnerName;
+    public GameObject whiteBanner, redBanner;
+    public Color defaultBannerColor;
     public string whiteName, redName;
     public int whiteScore = 0, redScore = 0;
 
-
+    /*
     void Awake()
     {
         // Getting the GameState script from the AbstractGameBoard GameObject.
         gameState = abstractGameBoard.GetComponent<AbstractGameBoard>();
-    }
+    }*/
     
     // Start is called before the first frame update
     void Start()
@@ -196,6 +198,8 @@ public class ScriptController : MonoBehaviour
         currentState = PlayerStates.WaitingPlayerInputChip;
         boardBoxCollider = tilemapBoard.gameObject.GetComponent<BoxCollider2D>();
         ResetState();
+        whiteBanner.GetComponent<Image>().color = currentTurn == Team.White ? Color.white : defaultBannerColor;
+        redBanner.GetComponent<Image>().color = currentTurn == Team.Red ? Color.white : defaultBannerColor;
     }
 
     IEnumerator MoveChipAndUpdateState(GameObject chip, Vector3 destination)
@@ -248,11 +252,8 @@ public class ScriptController : MonoBehaviour
                 passCount = 0;
                 currentTurn = currentTurn == Team.White ? Team.Red : Team.White;
                 ballChip.GetComponent<ScriptBall>().teamPossession = currentTurn;
-
-                // If we're playing against the AI, execute the AI's next
-                // move. Or else, proceed to the next turn.
-                //if ()
                 currentState = PlayerStates.WaitingPlayerInputChip;
+                UpdateBannerColors();
             }
         }
     }
@@ -268,6 +269,14 @@ public class ScriptController : MonoBehaviour
         playerChips[2].transform.position = new Vector3(0, 5, 0);
         playerChips[3].transform.position = new Vector3(0, 3, 0);
         passCount = 0;
+        UpdateBannerColors();
+    }
+
+    private void UpdateBannerColors()
+    {
+        /// Updates the banners colors to indicate whose turn is it.
+        whiteBanner.GetComponent<Image>().color = currentTurn == Team.White ? Color.white : defaultBannerColor;
+        redBanner.GetComponent<Image>().color = currentTurn == Team.Red ? Color.white : defaultBannerColor;
     }
 
     private bool IsBallInGoal()
@@ -675,10 +684,6 @@ public class ScriptController : MonoBehaviour
                     break;
             }
         }
-
-        // After the user's turn, if the user is playing against the AI,
-        // the AI should make the next move.
-        MakeAIMove();
     }
 
     public void MakeAIMove()
