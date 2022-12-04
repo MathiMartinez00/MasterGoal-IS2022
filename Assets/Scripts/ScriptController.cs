@@ -680,6 +680,7 @@ public class ScriptController : MonoBehaviour
                         tilemapHighlight.ClearAllTiles();
                         destinationsPlayer.Clear();
                     }
+                    // If the player chose the same chip, undo the selection and let them tap chips again.
                     else if (selectedChip == GetChipInField(pointCenter))
                     {
                         destinationsPlayer.Clear();
