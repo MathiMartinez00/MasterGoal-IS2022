@@ -203,6 +203,7 @@ public class ScriptController : MonoBehaviour
         ResetState();
         whiteBanner.GetComponent<Image>().color = currentTurn == Team.White ? Color.white : defaultBannerColor;
         redBanner.GetComponent<Image>().color = currentTurn == Team.Red ? Color.white : defaultBannerColor;
+        isHighlightModeOn = PlayerPrefs.GetInt("ayuda") == 1;
     }
 
     public void SetHighlightMode(bool highlightMode)
