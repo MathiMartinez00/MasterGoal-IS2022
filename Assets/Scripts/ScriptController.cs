@@ -179,6 +179,9 @@ public class ScriptController : MonoBehaviour
     public Color defaultBannerColor;
     public string whiteName, redName;
     public int whiteScore = 0, redScore = 0;
+    public GameObject spriteChip1Player1, spriteChip2Player1, spriteChip1Player2, spriteChip2Player2;
+    public Image imageChipInScoreOfPlayer1, imageChipInScoreOfPlayer2;
+    public Sprite[] chipSprites;
 
     // Configuration variables
     public bool isHighlightModeOn;
@@ -194,6 +197,7 @@ public class ScriptController : MonoBehaviour
     {
         whiteName = PlayerPrefs.GetString("player1");
         redName = PlayerPrefs.GetString("player2");
+        putChipImage();
         whiteScoreName.text = whiteName;
         redScoreName.text = redName;
         currentTurn = Team.Red;
@@ -204,6 +208,25 @@ public class ScriptController : MonoBehaviour
         whiteBanner.GetComponent<Image>().color = currentTurn == Team.White ? Color.white : defaultBannerColor;
         redBanner.GetComponent<Image>().color = currentTurn == Team.Red ? Color.white : defaultBannerColor;
         isHighlightModeOn = PlayerPrefs.GetInt("ayuda") == 1;
+    }
+
+    public void putChipImage()
+    {
+        for (int i = 0; i < chipSprites.Length; i++)
+        {
+            if (PlayerPrefs.GetString("color1") == chipSprites[i].ToString())
+            {
+                spriteChip1Player1.GetComponent<SpriteRenderer>().sprite = chipSprites[i];
+                spriteChip2Player1.GetComponent<SpriteRenderer>().sprite = chipSprites[i];
+                imageChipInScoreOfPlayer1.sprite = chipSprites[i];
+            }
+            if (PlayerPrefs.GetString("color2") == chipSprites[i].ToString())
+            {
+                spriteChip1Player2.GetComponent<SpriteRenderer>().sprite = chipSprites[i];
+                spriteChip2Player2.GetComponent<SpriteRenderer>().sprite = chipSprites[i];
+                imageChipInScoreOfPlayer2.sprite = chipSprites[i];
+            }
+        }
     }
 
     public void SetHighlightMode(bool highlightMode)
