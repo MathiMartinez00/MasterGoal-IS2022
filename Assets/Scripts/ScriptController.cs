@@ -43,6 +43,9 @@ public class ScriptController : MonoBehaviour
     public GameObject whiteBanner, redBanner;
     public GameObject popupBanner;
     public Color defaultBannerColor;
+    public GameObject spriteChip1Player1, spriteChip2Player1, spriteChip1Player2, spriteChip2Player2;
+    public Image imageChipInScoreOfPlayer1, imageChipInScoreOfPlayer2;
+    public Sprite[] chipSprites;
 
     // Configuration variables
     public bool isHighlightModeOn;
@@ -54,8 +57,10 @@ public class ScriptController : MonoBehaviour
         BlackScore = 0;
         WhiteName = PlayerPrefs.GetString("player1");
         BlackName = PlayerPrefs.GetString("player2");
+        putChipImage();
         this.whiteScoreName.text = WhiteName;
         this.redScoreName.text = RedName;
+
         whiteBanner.GetComponent<Image>().color = currentTurn == Team.White ? Color.white : defaultBannerColor;
         redBanner.GetComponent<Image>().color = currentTurn == Team.Red ? Color.white : defaultBannerColor;
         BoardBoxCollider =
@@ -64,6 +69,25 @@ public class ScriptController : MonoBehaviour
         // Create a new abstract game instance.
         Game = new Game(Team.White);
         GameMode = GameMode.OnePlayer;
+    }
+
+    public void putChipImage()
+    {
+        for (int i = 0; i < chipSprites.Length; i++)
+        {
+            if (PlayerPrefs.GetString("color1") == chipSprites[i].ToString())
+            {
+                spriteChip1Player1.GetComponent<SpriteRenderer>().sprite = chipSprites[i];
+                spriteChip2Player1.GetComponent<SpriteRenderer>().sprite = chipSprites[i];
+                imageChipInScoreOfPlayer1.sprite = chipSprites[i];
+            }
+            if (PlayerPrefs.GetString("color2") == chipSprites[i].ToString())
+            {
+                spriteChip1Player2.GetComponent<SpriteRenderer>().sprite = chipSprites[i];
+                spriteChip2Player2.GetComponent<SpriteRenderer>().sprite = chipSprites[i];
+                imageChipInScoreOfPlayer2.sprite = chipSprites[i];
+            }
+        }
     }
 
     public void SetHighlightMode(bool highlightMode)

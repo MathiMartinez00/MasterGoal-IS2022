@@ -95,7 +95,7 @@ public class ScriptGameConfiguration : MonoBehaviour
         PlayerPrefs.SetString("player1", player1Name);
         PlayerPrefs.SetString("player2", player2Name);
         PlayerPrefs.SetString("color1", imageChipPlayer1.sprite.ToString()); // color 1 for player 1
-        PlayerPrefs.SetString("color2", imageChipPlayer1.sprite.ToString());
+        PlayerPrefs.SetString("color2", imageChipPlayer2.sprite.ToString());
     }
     public bool IsTheSameChipColor()
     {
