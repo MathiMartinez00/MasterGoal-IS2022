@@ -15,7 +15,7 @@ public class ScriptGameConfiguration : MonoBehaviour
     public Sprite[] chipSprites;
     public Toggle toggleModePlayerVsPlayer;
     public TMP_InputField inputFieldPlayer1, inputFieldPlayer2;
-    public string player1Name = "Jugador1", player2Name = "PC";
+    public string player1Name, player2Name = "PC";
     public int gameMode = 0; // 0 = player1 vs PC. 1 = player1 vs player2
 
     // Start is called before the first frame update
@@ -92,6 +92,7 @@ public class ScriptGameConfiguration : MonoBehaviour
     {
         //Debug.Log("Hey?");
         PlayerPrefs.SetInt("gameMode", gameMode); // 0 = player1 vs PC. 1 = player1 vs player2
+        player1Name = player1Name == "" ? "usted" : player1Name; 
         PlayerPrefs.SetString("player1", player1Name);
         PlayerPrefs.SetString("player2", player2Name);
         PlayerPrefs.SetString("color1", imageChipPlayer1.sprite.ToString()); // color 1 for player 1
