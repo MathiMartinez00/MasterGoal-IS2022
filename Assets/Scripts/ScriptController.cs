@@ -195,12 +195,12 @@ public class ScriptController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        whiteName = PlayerPrefs.GetString("player1");
-        redName = PlayerPrefs.GetString("player2");
+        whiteName = PlayerPrefs.GetString("player2");
+        redName = PlayerPrefs.GetString("player1");
         putChipImage();
         whiteScoreName.text = whiteName;
         redScoreName.text = redName;
-        currentTurn = Team.Red;
+        currentTurn = Team.White;
         ballChip.GetComponent<ScriptBall>().teamPossession = currentTurn;
         currentState = PlayerStates.WaitingPlayerInputChip;
         boardBoxCollider = tilemapBoard.gameObject.GetComponent<BoxCollider2D>();
