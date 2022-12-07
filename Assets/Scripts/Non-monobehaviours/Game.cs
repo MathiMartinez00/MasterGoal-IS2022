@@ -18,8 +18,8 @@ public class Game
 
     public enum GameStatus
     {
-        WaitingPlayerChipSelection,
-        WaitingPlayerChipMovement,
+        WaitingPlayerPieceSelection,
+        WaitingPlayerPieceMovement,
         WaitingBallMovement
     }
 
@@ -28,12 +28,12 @@ public class Game
     private Board board;
     private Player currentTurn;
     private List<Move> movesPlayed;
+    private Nullable<Player> currentBallPossession;
 
     // C# class constructor.
     Game(GameMode gameMode, Player firstTurn)
     {
         board = new Board();
-
 
     }
 

@@ -4,9 +4,9 @@
 
 public class Board
 {
-    Tile[][] tiles;
+    private Tile[][] tiles;
 
-    // Board's constructor method. Creates a new board.
+    // Board's constructor method. Creates a new board for a new game.
     public Board()
     {
         for (int i = 0; i < 15; i++)
@@ -32,10 +32,13 @@ public class Board
                         tiles[j,i].piece = new Ball();
                     }
                 }
-
-                
             }
         }
     }
     
+    // A getter method for a tile at a given pair of coordinates.
+    public Tile GetTile(int x, int y)
+    {
+        return this.tiles[x,y];
+    }
 }
