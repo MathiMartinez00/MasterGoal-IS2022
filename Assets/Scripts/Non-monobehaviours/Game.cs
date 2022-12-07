@@ -1,20 +1,13 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+//using System;
+//using System.Collections;
+//using System.Collections.Generic;
+//using UnityEngine;
 
-// Abstract representation of the state of the game (it uses a matrix).
+// Abstract representation of the state of the game.
 // This is a standalone C# class and doesn't inherit from Monobehavior, so it
 // will not be attached to any Unity GameObject.
-public class GameState
+public class Game
 {
-    // Enum datatype for keeping track of the current turn.
-    public enum Team
-    {
-        White,
-        Red,
-    }
-
     public enum GameMode
     {
         // User against user, no AI.
@@ -23,54 +16,25 @@ public class GameState
         1Player
     }
 
-    plublic enum GameState
+    public enum GameStatus
     {
         WaitingPlayerChipSelection,
         WaitingPlayerChipMovement,
         WaitingBallMovement
     }
 
-    public char [13,11] board;
-    public (int,int) redChip1 = ();
-    public (int,int) redChip2 = ();
-    public (int,int) whiteChip1 = ();
-    public (int,int) whiteChip2 = ();
-    public (int,int) ballPosition = ();
-    // Property for keeping track of the current turn.
-    public Team turn;
-    // Property for keeping track of each player's chips color.
-    public Team player1;
-    // Player 2 may be the machine or the user, depending on the game mode.
-    public Team player2;
+    private Player player1;
+    private Player player2;
+    private Board board;
+    private Player currentTurn;
+    private List<Move> movesPlayed;
 
     // C# class constructor.
-    GameState(GameMode gameMode, Team turn, Team player1)
+    Game(GameMode gameMode, Player firstTurn)
     {
-        // Allocate memory for the abstract game board.
-        board = new char [13,11];
+        board = new Board();
 
-        for (int i = 0; i < 15; i++)
-        {
-            for (int j = 0; j < 11; j++)
-            {
-                if (redChip1 == (j,i) || redChip2 == (j,i))
-                {
-                    board[i,j] = 'R';
-                }
-                else if (whiteChip1 == (j,i) || whiteChip2 == (j,i))
-                {
-                    board[i,j] = 'W';
-                }
-                else if (ballPosition == (j,i))
-                {
-                    board[i,j] = 'B';
-                }
-                else
-                {
-                    board[i,j] = '0';
-                }
-            }
-        }
+
     }
 
 
