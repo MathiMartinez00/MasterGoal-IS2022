@@ -6,30 +6,34 @@ public class Board
 {
     private Tile[][] tiles;
 
+    // Dimension of the board matrix.
+    private const int boardXLength = 11;
+    private const int boardYLength = 15;
+
     // Board's constructor method. Creates a new board for a new game.
     public Board()
     {
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < boardYLength; i++)
         {
-            for (int j = 0; j < 11; j++)
+            for (int j = 0; j < boardXLength; j++)
             {
                 // Initialize a new tile and store it.
-                tiles[j,i] = new Tile(j, i, null);
+                tiles[i,j] = new Tile(i, j, null);
 
                 // The player pieces and ball go on the fifth column (x == 5).
                 if (j == 5)
                 {
                     if (i == 4 || i == 2)
                     {
-                        tiles[j,i].piece = new WhitePiece();
+                        tiles[i,j].piece = new WhitePiece();
                     }
                     else if (i == 10 || i == 12)
                     {
-                        tiles[j,i].piece = new BlackPiece();
+                        tiles[i,j].piece = new BlackPiece();
                     }
                     else if (i == 7)
                     {
-                        tiles[j,i].piece = new Ball();
+                        tiles[i,j].piece = new Ball();
                     }
                 }
             }
@@ -39,6 +43,18 @@ public class Board
     // A getter method for a tile at a given pair of coordinates.
     public Tile GetTile(int x, int y)
     {
-        return this.tiles[x,y];
+        return this.tiles[y,x];
+    }
+
+    // Clear all of the highlighted tiles.
+    public void ClearAllTiles()
+    {
+        for (int i = 0; i < boardYLength; i++)
+        {
+            for (int j = 0; j < boardXLength; j++)
+            {
+                GetTile(j,i).SetHighlight(false);
+            }
+        }
     }
 }

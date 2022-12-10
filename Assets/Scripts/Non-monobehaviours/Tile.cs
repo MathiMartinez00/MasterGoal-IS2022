@@ -13,7 +13,7 @@ public class Tile
     private const bool isTileValid;
     private bool isHighlighted;
 
-    public Tile(int x, int y, Nullable<Piece> piece)
+    public Tile(int y, int x, Nullable<Piece> piece)
     {
         this.x = x;
         this.y = y;

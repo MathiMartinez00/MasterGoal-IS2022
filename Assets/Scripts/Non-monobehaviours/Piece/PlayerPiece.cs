@@ -10,4 +10,10 @@ public class PlayerPiece : Piece
     {
         this.teamColor = teamColor;
     }
+
+    // Getter for the team color field.
+    public Team GetTeamColor()
+    {
+        return this.teamColor;
+    }
 }

@@ -41,6 +41,10 @@ public class Game
     private int whiteScore;
     private int blackScore;
 
+    // The number of tiles that each type of piece can move per action.
+    private const int playerPieceReach = 2;
+    private const int ballPieceReach   = 4;
+
     // C# class constructor.
     Game(GameMode gameMode, Player firstTurn)
     {
@@ -69,17 +73,35 @@ public class Game
         if (
             gameStatus == WaitingPlayerPieceSelection &&
             piece.HasValue &&
-            IsPlayerPieceInTile(piece.Value))
+            IsPlayerPiece(piece.Value))
         {
             PlayerPiece selectedPiece = piece.Value;
+            // Check if the current turn matches with the piece's color.
             if (selectedPiece.teamColor == currentTurn)
             {
+                // Highlight the tiles that indicate valid destinations.
+                CalculatePlayerMovesAndHighlightTiles(
+                    selectedTile, selectedPiece)
+                // Change the status of the game.
                 this.gameStatus = WaitingPlayerPieceMovement;
-                this.Board.CalculateMovesAndHighlightTiles(selectedTile, selectedPiece)
+                // Store the selected piece.
+                this.selectedPiece = piece.Value;
             }
         }
-        else if (gameStatus == WaitingPlayerPieceMovement)
+        else if (
+            gameStatus == WaitingPlayerPieceMovement &&
+            selectedTile.IsTileHighlighted())
         {
+            // Move the piece.
+            selectedTile.SetPiece(this.selectedPiece);
+            // Clear all of the highlighted tiles.
+            this.board.ClearAllTiles();
+            // Deselect the piece.
+            this.selectedPiece = null;
+            // Change the status of the game.
+            this.gameStatus = WaitingPlayerBallMovement;
+            // Highlight the valid destinations for the ball.
+            CalculateBallMovesAndHighlightTiles();
         }
         else if (gameStatus == WaitingPlayerBallMovement)
         {
@@ -88,25 +110,122 @@ public class Game
 
     // Calculates the valid moves for a player piece and highlights all
     // of the tiles in which this piece can be moved.
-    private void CalculateMovesAndHighlightTiles(
+    private void CalculatePlayerMovesAndHighlightTiles(
         Tile selectedTile, PlayerPiece selectedPiece)
     {
-        // Get the tile's coordinates.
+        // Get the selected tile's coordinates.
         int tileX = selectedTile.GetX();
         int tileY = selectedTile.GetY();
 
+        // Clamp the coordinates, so it doesn't go out of the board.
+        int startX = Math.Max(tileX - this.playerPieceReach, 0);
+        int startY = Math.Max(tileY - this.playerPieceReach, 0);
+        int endX = Math.Min(tileX + this.playerPieceReach, 10);
+        int endY = Math.Min(tileY + this.playerPieceReach, 14);
+
         // A player con move no more than two squares from its position.
         // Iterate through the adjacent rows.
-        for (int i = -2; i < 3; i++)
+        for (int i = startY; i <= endY; i++)
         {
             // Iterate through the adjacent columns.
-            for (int j = -2; j < 3; j++)
+            for (int j = startX; j <= endX; j++)
             {
-                if (CheckForValidMovementCoordinates(i, j, 2))
-                // Highlight the tile.
-                board.GetTile(tileX + i, tileY + j).SetHighlight(true);
+                // Check for the other conditions: no placing pieces on their
+                // own corners, no jumping over the ball and other players and
+                // restrict the movement to up-down, right-left and diagonal.
+                if (CheckForValidPlayerMove(
+                    tileX, tileY, x2, y2, selectedPiece.GetTeamColor()))
+                {
+                    // Highlight the tile.
+                    board.GetTile(x2, y2).SetHighlight(true);
+                }
             }
         }
+    }
+
+    // Check for the three conditions:
+    // 1) No placing pieces on their own corners;
+    // 2) No jumping over the ball and other players;
+    // 3) Allow movement to just be over a single row, a single column or
+    // diagonally.
+    // 4) The tile is valid (is not next to either one of the goals).
+    //
+    // If all of those conditions are met, returns "true"; false otherwise.
+    private bool CheckForValidPlayerMove(
+        int x1, int y1, int x2, int y2, Team teamColor)
+    {
+        return (
+            !IsAnotherPieceInTheWay(x1, y1, x2, y2) &&
+            !IsItsOwnCorner(x2, y2) &&
+            CheckForValidMovementDirections(x2-x1, y2-y1) &&
+            this.board.GetTile(x2, y2).IsTileValid()
+        )
+    }
+
+    // Takes the coordinates of two tiles, origin and destination, and
+    // traverses the tiles between them to check if another piece is
+    // on the way (because a player can't jump over another player).
+    //
+    // Returns "true" if a piece is on the way and false otherwise.
+    private bool IsAnotherPieceInTheWay(int x1, int y1, int x2, int y2)
+    {
+        int minX = Math.Min(x1,x2);
+        int minY = Math.Min(y1,y2);
+        int maxX = Math.Max(x1,x2);
+        int maxY = Math.Max(y1,y2);
+
+        if (x1 == x2)
+        {
+            // Traverse the board over a single column.
+            for (int i = minY; i <= maxY; i++)
+            {
+                // Check if another piece is on the path from the origin
+                // tile to the destination tile.
+                if (this.board.GetTile(i, x1).GetPiece().HasValue)
+                {
+                    return true;
+                }
+            }
+        }
+        else if (y1 == y2)
+        {
+            // Traverse the board over a single row.
+            for (int j = minX; j <= maxX; j++)
+            {
+                if (this.board.GetTile(y1, j).GetPiece().HasValue)
+                {
+                    return true;
+                }
+            }
+        }
+        else
+        {
+            // Traverse the board diagonally.
+            for (int k = minX; k <= maxX; k++)
+            {
+                if (this.board.GetTile(k, k).GetPiece().HasValue)
+                {
+                    return true;
+                }
+            }
+        }
+        
+        // If no pieces were found on the traversal, return false.
+        return false;
+    }
+
+    // Checks if the given coordinates are the coordinates of one of the
+    // given team's corners (players can't move to their own corners).
+    private bool IsItsOwnCorner(int x, int y, Team teamColor)
+    {
+        return (
+            (y == 0 || y == 10) &&
+            // The white team play on the top side of the board.
+            ((teamColor == White && x == 1 ) ||
+            // The black team play on the bottom side of the board.
+             (teamColor == Black && x == 13)
+             )
+            )
     }
 
     // Checks if the movement pattern is valid. A piece can only be moved
@@ -114,7 +233,7 @@ public class Game
     // original tile.
     //
     // Returns true if the movement pattern is valid, false otherwise.
-    private bool CheckForValidMovementCoordinates(int x, int y)
+    private bool CheckForValidMovementDirections(int x, int y)
     {
         return (
             // Prevent the user from not making an effective move.
@@ -127,20 +246,19 @@ public class Game
             )
     }
 
-    private void CalculateMoves(PlayerPiece piece)
+    private void CalculateBallMovesAndHighlightTiles(Ball ballPiece)
     {
 
     }
 
-    private void CalculateMoves(Ball piece)
-    {}
-
-    private bool IsPlayerPieceInTile(PlayerPiece piece)
+    // Pattern matching method to check if a piece is a PlayerPiece.
+    private bool IsPlayerPiece(PlayerPiece piece)
     {
         return true;
     }
 
-    private bool IsPlayerPieceInTile(Piece piece)
+    // Pattern matching method to check if a piece is a PlayerPiece.
+    private bool IsPlayerPiece(Piece piece)
     {
         return false;
     }
