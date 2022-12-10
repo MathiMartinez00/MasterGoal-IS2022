@@ -12,8 +12,10 @@ public class Game
     {
         // User against user, no AI.
         2Players,
-        // User agains the machine, with AI.
-        1Player
+        // User against machine.
+        1Player,
+        // Machine against machine.
+        0Players
     }
 
     public enum GameStatus
@@ -23,92 +25,211 @@ public class Game
         WaitingBallMovement
     }
 
-    private Player player1;
-    private Player player2;
+    public enum Team
+    {
+        White,
+        Black
+    }
+
     private Board board;
-    private Player currentTurn;
-    private List<Move> movesPlayed;
+    private GameMode gameMode;
+    private GameStatus gameStatus;
+    private Team currentTurn;
+    private List<Move> allMoves;
     private Nullable<Player> currentBallPossession;
+    private Nullable<Piece> selectedPiece;
+    private int whiteScore;
+    private int blackScore;
 
     // C# class constructor.
     Game(GameMode gameMode, Player firstTurn)
     {
-        board = new Board();
-
+        this.board = new Board();
+        this.gameMode = gameMode;
+        this.gameStatus = WaitingPlayerPieceSelection;
+        this.currentTurn = White;
+        this.allMoves = new List<Move>;
+        this.currentBallPossession = null;
+        this.whiteScore = 0;
+        this.blackScore = 0;
     }
 
-
-    // Checks the playerChip can be moved to the field at destination.
-    public bool IsFieldValidForPlayerChip((int,int) playerChip, (int,int) destination)
+    // This method should be called when the user taps on the screen.
+    // The x and y coordinates of the tile should be passed as
+    // arguments.
+    public void userInput(int x, int y)
     {
-        // Check if the destination coincides with the position of other chips.
+        // Get the selected tile.
+        Nullable<Piece> selectedTile = this.board.GetTile();
+
+        // Get the piece, if there is any.
+        Nullable<Piece> piece = selectedTile.GetPiece();
+
+        // If there are no player pieces selected yet, go to this branch.
         if (
-            redChip1 == destination ||
-            redChip2 == destination ||
-            whiteChip1 == destination ||
-            whiteChip2 == destination ||
-            ballChip == destination
-            )
+            gameStatus == WaitingPlayerPieceSelection &&
+            piece.HasValue &&
+            IsPlayerPieceInTile(piece.Value))
         {
-            return false;
-        }
-        // Check if the destination is out of bounds.
-        else if (
-            // Check on the sides of the board.
-            destination.Item1 < 0 || destination.Item1 > 10 ||
-            // Check on the upper and lower parts of the board.
-            destination.Item2 < 0 || destination.Item2 > 14 ||
-            // Check on the upper and lower parts of the board
-            // around the goals.
-            ((destination.Item2 == 0 || destination.Item2 == 14) &&
-            (destination.Item2 < 3 || destination.Item2 > 7))
-            )
-        {
-            return false;
-        }
-    }
-    
-    // Takes the position of a player's chip and returns the possible
-    // positions that the chip can move to.
-    public List<(int,int)> CalculateMovesPlayer((int,int) playerChip)
-    {
-        List<(int,int)> possibleMoves = new List<(int,int)>;
-        // A player can move no more than 2 tiles away from its
-        // current position.
-        for (int i = -2; i < 3; i++)
-        {
-            for (int j = -2; j < 3; j++)
+            PlayerPiece selectedPiece = piece.Value;
+            if (selectedPiece.teamColor == currentTurn)
             {
-                // If the tile is valid, add it to the list of moves.
-                if (IsFieldValidForPlayerChip(playerChip, (i,j)))
-                {
-                    possibleMoves.Add((i,j));
-                }
+                this.gameStatus = WaitingPlayerPieceMovement;
+                this.Board.CalculateMovesAndHighlightTiles(selectedTile, selectedPiece)
             }
         }
-        return possibleMoves;
+        else if (gameStatus == WaitingPlayerPieceMovement)
+        {
+        }
+        else if (gameStatus == WaitingPlayerBallMovement)
+        {
+        }
     }
 
-    // Checks if a goal has been scored.
-    public bool PlayerScoredGoal()
+    // Calculates the valid moves for a player piece and highlights all
+    // of the tiles in which this piece can be moved.
+    private void CalculateMovesAndHighlightTiles(
+        Tile selectedTile, PlayerPiece selectedPiece)
+    {
+        // Get the tile's coordinates.
+        int tileX = selectedTile.GetX();
+        int tileY = selectedTile.GetY();
+
+        // A player con move no more than two squares from its position.
+        // Iterate through the adjacent rows.
+        for (int i = -2; i < 3; i++)
+        {
+            // Iterate through the adjacent columns.
+            for (int j = -2; j < 3; j++)
+            {
+                if (CheckForValidMovementCoordinates(i, j, 2))
+                // Highlight the tile.
+                board.GetTile(tileX + i, tileY + j).SetHighlight(true);
+            }
+        }
+    }
+
+    // Checks if the movement pattern is valid. A piece can only be moved
+    // straight up and down and diagonally. A piece cannot move to its
+    // original tile.
+    //
+    // Returns true if the movement pattern is valid, false otherwise.
+    private bool CheckForValidMovementCoordinates(int x, int y)
     {
         return (
-            ballChip.Item2 >= 3 && ballChip.Item2 <= 7 &&
-            (ballChip.Item1 == 0 || ballChip.Item1 == 14)
+            // Prevent the user from not making an effective move.
+            (!(x == 0 && y == 0)) &&
+            // If the piece is moved more than a tile away from its original
+            // place, then allow only the diagonals and straight up and down.
+            (!(Math.Abs(x) > 1 && Math.Abs(y) > 1 && Math.Abs(x) != Math.Abs(y))) &&
+            (!(Math.Abs(x) == 1 && Math.Abs(y) > 1))
+            (!(Math.Abs(y) == 1 && Math.Abs(x) > 1))
             )
     }
 
-    public bool IsBallPassable()
-    {}
-
-    public bool AreAdjacentFieldsValid()
-    {}
-
-    // Takes a Vector3 object and returns a tuple with its x
-    // and y coordinates plus an offset, so that the board has no
-    // negative indices.
-    public (int,int) VectorToArrayCoordinates(Vector3 position)
+    private void CalculateMoves(PlayerPiece piece)
     {
-        return ((int)position.x + 5, (int)position.y + 6);
+
+    }
+
+    private void CalculateMoves(Ball piece)
+    {}
+
+    private bool IsPlayerPieceInTile(PlayerPiece piece)
+    {
+        return true;
+    }
+
+    private bool IsPlayerPieceInTile(Piece piece)
+    {
+        return false;
+    }
+
+    public bool playerMove(
+        Turn moveColor,
+        int originX, int originY,
+        int destinationX, int destinationY)
+    {
+        Tile originTile = board.GetTile(originX, originY);
+        Tile destinationTile = board.GetTile(destinationX, destionationY);
+        Move move = new Move(player, originTile, destinationTile);
+        return this.makeMove(move, moveColor)
+    }
+
+    private bool makeMove(Move move, Turn moveColor)
+    {
+        Nullable<Piece> pieceToMoveNullable = move.GetOriginTile().GetPiece();
+
+        // Check if the nullable piece field is null.
+        if (pieceToMoveNullable == null)
+        {
+            return false;
+        }
+
+        // If the nullable piece field is not null, get the piece.
+        Piece pieceToMove = pieceToMoveNullable.Value;
+
+        if (currentTurn != moveColor)
+        {
+            return false;
+        }
+        else if (!pieceToMove.canMove(
+            board, move.GetOriginTile, move.GetDestinationTile)
+            )
+        {
+            return false;
+        }
+
+        // Store the move.
+        allMoves.add(move);
+
+        // Move the piece.
+        move.GetDestinationTile().SetPiece(pieceToMove);
+        move.GetOriginTile().SetPiece(null);
+
+        // Switch the current turn.
+        SwitchCurrentTurn();
+    }
+
+    public bool SelectPieceToMove(
+        int originX, int originY, int destinationX, int destinationY)
+    {
+        // Selected tile.
+        Tile tile = board.GetTile(x,y);
+
+        Nullable<Piece> selectedPieceNullable = tile.GetPiece();
+
+        // Check if the nullable piece field is null.
+        if (selectedPieceNullable == null)
+        {
+            return false;
+        }
+
+        // If the nullable piece field is not null, get the piece.
+        Piece selectedPiece = selectedPieceNullable.Value;
+
+        if (currentTurn != moveColor)
+        {
+            return false;
+        }
+        else if (!pieceToMove.canMove(
+            board, move.GetOriginTile, move.GetDestinationTile)
+            )
+        {
+            return false;
+        }
+    }
+
+    // Switches the current turn from "White" to "Black", or viceversa.
+    private void SwitchCurrentTurn()
+    {
+        if (this.currentTurn == White)
+        {
+            this.currentTurn = Black;
+        }
+        else
+        {
+            this.currentTurn = White;
+        }
     }
 }
