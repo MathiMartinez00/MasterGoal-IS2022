@@ -6,8 +6,10 @@ public class PlayerPiece : Piece
 {
     private Team teamColor;
 
-    public PlayerPiece(Team teamColor)
+    public PlayerPiece(int x, int y, Team teamColor)
     {
+        // Save the position with the parent class' constructor.
+        super(x,y);
         this.teamColor = teamColor;
     }
 

@@ -4,4 +4,9 @@
 
 public class Ball : Piece
 {
+    public Ball(int x, int y)
+    {
+        // Save the position with the parent class' constructor.
+        super(x,y);
+    }
 }
