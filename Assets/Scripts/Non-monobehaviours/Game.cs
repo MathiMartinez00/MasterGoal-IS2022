@@ -105,7 +105,8 @@ public class Game
             {
                 // Change the status of the game.
                 this.gameStatus = WaitingBallMovement;
-                // Highlight the valid destinations for the ball.
+                // Highlight the valid destinations for the ball
+                // for the next method call.
                 CalculateBallMovesAndHighlightTiles();
             }
             else
@@ -128,13 +129,20 @@ public class Game
             if (IsBallInPossessionOfCurrentTurn())
             {
                 this.passCount++;
+
+                // Highlight the valid destinations for the ball
+                // for the next method call.
+                CalculateBallMovesAndHighlightTiles();
             }
             else
             {
+                // Reset the pass count.
                 this.passCount = 0;
+                // Change the status of the game.
+                this.gameStatus = WaitingPlayerPieceSelection;
+                // Switch the current turn.
+                SwitchCurrentTurn();
             }
-            // Highlight the valid destinations for the ball.
-            CalculateBallMovesAndHighlightTiles();
         }
     }
 
