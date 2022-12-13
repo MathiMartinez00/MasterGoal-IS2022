@@ -100,9 +100,9 @@ public class Game
             this.board.ClearAllTiles();
             // Deselect the piece.
             this.selectedPiece = null;
-            // Check if the ball can be played, either to make the first
-            // pass or to kick the ball away.
-            if (CanBallBePlayed())
+            // Check if the team that made the last player move is in
+            // possession of the ball.
+            if (IsBallInPossessionOfCurrentTurn())
             {
                 // Change the status of the game.
                 this.gameStatus = WaitingBallMovement;
@@ -298,22 +298,56 @@ public class Game
         }
     }
 
-    // Check for the three conditions:
-    // 1) The player can't move the ball to its own area;
-    // 2) Allow movement to just be over a single row, a single column or
+    // Check that a potential ball move satisfies these conditions.
+    //
+    // General conditions:
+    // 1) Allow movement to just be over a single row, a single column or
     // diagonally.
+    // 2) The piece cannot stay on its original tile.
     // 3) The tile is valid (is not next to either one of the goals).
-    // 4) The piece cannot stay on its original tile.
-    // 5) The ball cannot be in the 
+    // 4) The ball cannot be moved to a tile contiguous to all of the
+    // player pieces. This is VERY a rare case.
+    //
+    // End-of-turn conditions:
+    // 5) The ball cannot be in the possession of any team at the end of
+    // the turn.
+    // 6) The player cannot be in the team's own area at the end of the turn.
+    // 7) The ball cannot be in the team's own corner at the end of the turn.
     //
     // If all of those conditions are met, returns "true"; false otherwise.
     private bool CheckForValidBallMove(int x1, int y1, int x2, int y2)
     {
         return (
-            !IsItsOwnArea(x2, y2) &&
-            !IsItsOwnCorner(x2, y2) &&
-            CheckForValidMovementDirections(x2-x1, y2-y1) &&
-            this.board.GetTile(x2, y2).IsTileValid()
+            // General conditions.
+            CheckForValidMovementDirections(x2-x1, y2-y1) && // 1 & 2
+            this.board.GetTile(x2, y2).IsTileValid() && // 3
+            (CountContiguousPieces(x2, y2, White) != 2 ||
+             CountContiguousPieces(x2, y2, Black) != 2) && // 4
+            // End-of-turn conditions.
+            !(passCount == 3 &&
+             (IsTileInPossessionOfCurrentTurn(x2,y2) || // 5
+              IsItsOwnArea(x2, y2) || // 6
+              IsItsOwnCorner(x2, y2)) // 7
+              )
+            )
+    }
+
+    // Check if the tile located on the given coordinates is in
+    // "possession" of the team whose turn it is, currently.
+    //
+    // This method is useful to determine the validity of potential
+    // ball moves.
+    private bool IsTileInPossessionOfCurrentTurn(int x, int y)
+    {
+        // Get the tile.
+        Tile tile = this.board.GetTile(x, y);
+        // Count the pieces around the selected tile.
+        int whiteCount = CountContiguousPieces(tile, White);
+        int blackCount = CountContiguousPieces(tile, Black);
+
+        return (
+            (this.currentTurn == White && whiteCount > blackCount) ||
+            (this.currentTurn == Black && blackCount > whiteCount)
             )
     }
 
@@ -361,10 +395,11 @@ public class Game
     //
     // If those conditions are met, the player can move the ball, either
     // to make it a pass or not.
-    private bool CanBallBePlayed()
+    private bool IsBallInPossessionOfCurrentTurn()
     {
         // Check if the ball can be passed or if we must switch turns.
-        Nullable<Team> ballPossesion = GetBallPossession();
+        Nullable<Team> ballPossesion =
+            GetBallPossession(this.board.GetBall());
         return (
             ballPossesion.HasValue &&
             ballPossesion.Value == this.currentTurn)
@@ -373,44 +408,13 @@ public class Game
     // Takes the ball piece and returns the team that is currently in
     // possession of the ball. Returns null if no team is in possession
     // of the ball.
-    private Nullable<Team> GetBallPossession(Ball ballPiece)
+    private Nullable<Team> GetBallPossession(Ball ball)
     {
-        // Set the limits for the nested iteration.
-        int minX = Math.Max(0, ballPiece.GetX() - 1);
-        int maxX = Math.Min(
-            this.board.GetXLength() - 1, ballPiece.GetX() + 1);
-        int minY = Math.Max(0, ballPiece.GetY() - 1);
-        int maxY = Math.Min(
-            this.board.GetYLength() - 1, ballPiece.GetY() + 1);
-        
-        int whiteCount = 0;
-        int blackCount = 0;
-
-        // Check the tiles that are contiguous to the ball for player pieces.
-        for (int i = minY; i <= maxX; i++)
-        {
-            for (int j = minX; j <= maxY; j++)
-            {
-                // Get the piece, if there is any.
-                Nullable<Piece> piece = this.board.GetTile(j,i).GetPiece();
-
-                // Count the white pieces.
-                if (
-                    (j != ballPiece.GetX() && i != ballPiece.GetY()) &&
-                    piece.HasValue && piece.Value.teamColor == White)
-                {
-                    whiteCount++;
-                }
-
-                // Count the black pieces.
-                else if (
-                    (j != ballPiece.GetX() && i != ballPiece.GetY()) &&
-                    piece.HasValue && piece.Value.teamColor == Black)
-                {
-                    blackCount++;
-                }
-            }
-        }
+        // Get the tile first.
+        Tile tile = this.board.GetTile(ball.GetX(), ball.GetY());
+        // Count the pieces next to the selected tile.
+        int whiteCount = CountContiguousPieces(tile, White);
+        int blackCount = CountContiguousPieces(tile, Black);
 
         // Return the team color that is in possession of the ball.
         if (whiteCount > blackCount)
@@ -425,6 +429,41 @@ public class Game
         {
             return null;
         }
+    }
+
+    // Takes a tile and a team color as argument and counts the pieces
+    // of that color that are contiguous to the given tile.
+    private int CountContiguousPieces(int x, int y, Team teamColor)
+    {
+        // Set the limits for the nested iteration.
+        int minX = Math.Max(0, tile.GetX() - 1);
+        int maxX = Math.Min(
+            this.board.GetXLength() - 1, tile.GetX() + 1);
+        int minY = Math.Max(0, tile.GetY() - 1);
+        int maxY = Math.Min(
+            this.board.GetYLength() - 1, tile.GetY() + 1);
+        
+        int count = 0;
+
+        // Check the tiles that are contiguous to the ball for player pieces.
+        for (int i = minY; i <= maxX; i++)
+        {
+            for (int j = minX; j <= maxY; j++)
+            {
+                // Get the piece, if there is any.
+                Nullable<Piece> piece = this.board.GetTile(j,i).GetPiece();
+
+                // Count the pieces of the given color.
+                if (
+                    (j != tile.GetX() && i != tile.GetY()) &&
+                    piece.HasValue && piece.Value.teamColor == teamColor)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
     }
 
     // Pattern matching method to check if a piece is a PlayerPiece.
