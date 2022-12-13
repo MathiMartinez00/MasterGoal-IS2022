@@ -1,7 +1,5 @@
-//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
 
+// The instances of this class represent tiles in the game board.
 public class Tile
 {
     // A tile can have a piece or no pieces.

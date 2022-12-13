@@ -1,32 +1,31 @@
-//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
 
+// The instances of this class is useful to store all of the moves that
+// players make.
 public class Move
 {
-    private Player player;
+    private Team teamColor;
     private Tile origin;
     private Tile destination;
-    private Piece pieceToMove;
+    private Piece pieceMoved;
 
-    public Move(Player player, Tile origin, Tile destination)
+    public Move(
+        Team teamColor, Tile origin, Tile destination, Piece pieceMoved)
     {
-        this.player = player;
+        this.teamColor = teamColor;
         this.origin = origin;
         this.destination = destination;
-        // The GetPiece method returns an instance of Nullable.
-        this.pieceToMove = origin.GetPiece.Value;
+        this.pieceMoved = pieceMoved;
     }
 
     // Origin tile getter.
     public Tile GetOriginTile()
     {
-        return origin;
+        return this.origin;
     }
 
     // Destination tile getter.
     public Tile GetDestinationTile()
     {
-        return destination;
+        return this.destination;
     }
 }

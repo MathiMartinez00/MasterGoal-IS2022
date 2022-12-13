@@ -1,11 +1,8 @@
-//using System;
-//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
 
-// Abstract representation of the state of the game.
-// This is a standalone C# class and doesn't inherit from Monobehavior, so it
-// will not be attached to any Unity GameObject.
+// An instance of this class represents an abstract representation of the
+// state of the game.
+// This is a standalone C# class and doesn't inherit from Monobehavior,
+// so it will not be attached to any Unity GameObject.
 public class Game
 {
     public enum GameMode
@@ -32,6 +29,7 @@ public class Game
     }
 
     private Board board;
+    // GAME MODE NOT USED YET.
     private GameMode gameMode;
     private GameStatus gameStatus;
     private Team currentTurn;
@@ -125,25 +123,48 @@ public class Game
             MovePiece(this.board.GetBall(), this.selectedTile)
             // Clear all of the highlighted tiles.
             this.board.ClearAllTiles();
-            // Check if the player passed the ball.
-            if (IsBallInPossessionOfCurrentTurn())
+            // Check if a goal has been scored.
+            Nullable<Team> goalScored = CheckForGoalScored();
+            if (goalScored.HasValue)
             {
-                this.passCount++;
-
-                // Highlight the valid destinations for the ball
-                // for the next method call.
-                CalculateBallMovesAndHighlightTiles();
+                if (goalScored.Value == White)
+                {
+                    whiteScore++;
+                }
+                else
+                {
+                    blackScore++;
+                }
+                ////////////////////////////////// IMPLEMENTED ????????
+                ResetPieces(GetOppositeTeam(goalScored.Value));
             }
             else
             {
-                // Reset the pass count.
-                this.passCount = 0;
-                // Change the status of the game.
-                this.gameStatus = WaitingPlayerPieceSelection;
-                // Switch the current turn.
-                SwitchCurrentTurn();
+                // Check if the player passed the ball.
+                if (IsBallInPossessionOfCurrentTurn())
+                {
+                    this.passCount++;
+                    // Highlight the valid destinations for the ball
+                    // for the next method call.
+                    CalculateBallMovesAndHighlightTiles();
+                }
+                else
+                {
+                    // Reset the pass count.
+                    this.passCount = 0;
+                    // Change the status of the game.
+                    this.gameStatus = WaitingPlayerPieceSelection;
+                    // Switch the current turn.
+                    SwitchCurrentTurn();
+                }
             }
         }
+    }
+
+    private void ResetPieces(Team currentTurn)
+    {
+        this.currentTurn = currentTurn;
+
     }
 
     // Takes a piece and a pair of coordinates and moves the piece
