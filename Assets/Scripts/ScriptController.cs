@@ -11,8 +11,7 @@ using UnityEngine.Tilemaps;
 public class ScriptController : MonoBehaviour
 {
     // Used to get information to and from the AI algorithm.
-    AbstractGameBoard gameState;
-    [SerializeField] GameObject abstractGameBoard;
+    Game game;
 
     // GameObjects for game control
     public Tilemap tilemapBoard;
@@ -167,13 +166,6 @@ public class ScriptController : MonoBehaviour
     public string whiteName, redName;
     public int whiteScore = 0, redScore = 0;
 
-
-    void Awake()
-    {
-        // Getting the GameState script from the AbstractGameBoard GameObject.
-        gameState = abstractGameBoard.GetComponent<AbstractGameBoard>();
-    }
-    
     // Start is called before the first frame update
     void Start()
     {
@@ -186,6 +178,8 @@ public class ScriptController : MonoBehaviour
         currentState = PlayerStates.WaitingPlayerInputChip;
         boardBoxCollider = tilemapBoard.gameObject.GetComponent<BoxCollider2D>();
         ResetState();
+        // Create a new abstract game instance.
+        game = New Game(2Players, White);
     }
 
     IEnumerator MoveChipAndUpdateState(GameObject chip, Vector3 destination)
@@ -618,76 +612,11 @@ public class ScriptController : MonoBehaviour
 
     public void UpdateBoard(PointerEventData eventData)
     {
-        /// Updates board based on player input given by the IPointerHandlerEvent on the tilemap board GameObject.
+        // Updates board based on player input given by the
+        // IPointerHandlerEvent on the tilemap board GameObject.
         Vector2 worldPoint = Camera.main.ScreenToWorldPoint(eventData.position);
-        var point = tilemapBoard.WorldToCell(worldPoint);
-        var tile = tilemapBoard.GetTile(point);
-
-        // Check if tile clicked is not blank (like the spaces next to
-        // the goals) and if the user is playing against the AI, check
-        // if it is indeed the AI's turn.
-        if (tile != null) //&& (true && currentTurn == Team.White))
-        {
-            var pointCenter = tilemapBoard.GetCellCenterWorld(point);
-
-            switch (currentState) {
-                case PlayerStates.WaitingPlayerInputChip:
-                    // Did the player choose a field with a chip?
-                    if (IsPlayerChipInField(pointCenter))
-                    {
-                        selectedChip = GetChipInField(pointCenter);
-                        if (selectedChip.GetComponent<ScriptChip>().team == currentTurn)
-                        {
-                            currentState = PlayerStates.WaitingPlayerInputChipDestination;
-                            CalculateMovesPlayer(selectedChip, point, destinationsPlayer);
-                        }
-                    }
-                    break;
-
-                case PlayerStates.WaitingPlayerInputChipDestination:
-                    // Did the player choose a valid destination?
-                    if (destinationsPlayer.Contains(pointCenter)) 
-                    {
-                        StartCoroutine(MoveChipAndUpdateState(selectedChip, pointCenter));
-                        tilemapHighlight.ClearAllTiles();
-                        destinationsPlayer.Clear();
-                    }
-                    break;
-
-                case PlayerStates.WaitingPlayerInputBallDestination:
-                    // Did the player choose a valid destination?
-                    if (destinationsBall.Contains(pointCenter))
-                    {
-                        StartCoroutine(MoveChipAndUpdateState(ballChip, pointCenter));
-                        tilemapHighlight.ClearAllTiles();
-                        destinationsBall.Clear();
-                    }
-                    break;
-            }
-        }
-
-        // After the user's turn, if the user is playing against the AI,
-        // the AI should make the next move.
-        MakeAIMove();
-    }
-
-    public void MakeAIMove()
-    {
-        gameState.Initialize(playerChips, ballChip, currentTurn);
-
-        Debug.Log("\n\nNew board:");
-
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 13; i >= 0; i--)
-        {
-            for (int j = 0; j < 11; j++)
-            {
-                sb.Append(gameState.board[i,j]);
-            }
-            sb.Append('\n');
-        }
-
-        Debug.Log(sb.ToString());
+        Vector3Int point = tilemapBoard.WorldToCell(worldPoint);
+        Position position = new Position(point);
+        this.game.UserInput(position);
     }
 }
