@@ -64,11 +64,52 @@ public class Board
         this.blackPiece2 = GetTile(this.piecesX, this.black2Y);
         this.ball        = GetTile(this.piecesX, this.ballY);
     }
+
+    // Resets the pieces to their initial position (after a goal,
+    // for example).
+    private void ResetPieces()
+    {
+        // Set the tiles at the current position of the pieces
+        // to null.
+        GetTile(this.whitePiece1).SetPiece(null);
+        GetTile(this.whitePiece2).SetPiece(null);
+        GetTile(this.blackPiece1).SetPiece(null);
+        GetTile(this.blackPiece2).SetPiece(null);
+        GetTile(this.ball).SetPiece(null);
+
+        // Update the "x" fields of the pieces.
+        this.whitePiece1.SetX(this.piecesX);
+        this.whitePiece2.SetX(this.piecesX);
+        this.blackPiece1.SetX(this.piecesX);
+        this.blackPiece2.SetX(this.piecesX);
+        this.ball.SetX(this.piecesX);
+
+        // Update the "y" fields of the pieces.
+        this.whitePiece1.SetY(this.white1Y);
+        this.whitePiece2.SetY(this.white2Y);
+        this.blackPiece1.SetY(this.black1Y);
+        this.blackPiece2.SetY(this.black2Y);
+        this.ball.SetY(this.ballY);
+
+        // Set the tiles at the new position of the pieces to reference
+        // those pieces, respectively.
+        GetTile(this.piecesX, this.white1Y).SetPiece(this.whitePiece1);
+        GetTile(this.piecesX, this.white2Y).SetPiece(this.whitePiece2);
+        GetTile(this.piecesX, this.black1Y).SetPiece(this.blackPiece1);
+        GetTile(this.piecesX, this.black2Y).SetPiece(this.blackPiece2);
+        GetTile(this.piecesX, this.ballY).SetPiece(this.ball);
+    }
     
     // A getter method for a tile at a given pair of coordinates.
     public Tile GetTile(int x, int y)
     {
         return this.tiles[y,x];
+    }
+
+    // Another getter method for the tiles.
+    public Tile GetTile(Piece piece)
+    {
+        return GetTile(piece.GetX(), piece.GetY());
     }
 
     // Clear all of the highlighted tiles.

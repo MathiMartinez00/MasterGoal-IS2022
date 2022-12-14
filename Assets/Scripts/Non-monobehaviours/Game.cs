@@ -19,7 +19,8 @@ public class Game
     {
         WaitingPlayerPieceSelection,
         WaitingPlayerPieceMovement,
-        WaitingBallMovement
+        WaitingBallMovement,
+        GameOver
     }
 
     public enum Team
@@ -50,7 +51,7 @@ public class Game
         this.gameMode = gameMode;
         this.gameStatus = WaitingPlayerPieceSelection;
         this.currentTurn = White;
-        this.allMoves = new List<Move>;
+        this.allMoves = new List<Move>();
         this.currentBallPossession = null;
         this.passCount = 0;
         this.whiteScore = 0;
@@ -127,6 +128,7 @@ public class Game
             Nullable<Team> goalScored = CheckForGoalScored();
             if (goalScored.HasValue)
             {
+                // Update the scores.
                 if (goalScored.Value == White)
                 {
                     whiteScore++;
@@ -135,8 +137,20 @@ public class Game
                 {
                     blackScore++;
                 }
-                ////////////////////////////////// IMPLEMENTED ????????
-                ResetPieces(GetOppositeTeam(goalScored.Value));
+                // The game is over when someone scores two goals.
+                if (this.whiteScore >= 2 || this.blackScore >= 2)
+                {
+                    this.gameStatus = GameOver;
+                }
+                else
+                {
+                    // After a goal, it's the opposite team's turn.
+                    this.currentTurn = GetOppositeTeam(goalScored.Value);
+                    // Change the status of the game.
+                    this.gameStatus = WaitingPlayerPieceSelection;
+                    // Reset the pieces to their initial position.
+                    this.board.ResetPieces();
+                }
             }
             else
             {
@@ -161,12 +175,6 @@ public class Game
         }
     }
 
-    private void ResetPieces(Team currentTurn)
-    {
-        this.currentTurn = currentTurn;
-
-    }
-
     // Takes a piece and a pair of coordinates and moves the piece
     // to the tile located at the given coordinates. In this process,
     // it also changes the x and y position of the Piece object and
@@ -184,12 +192,18 @@ public class Game
         int y2 = destinationTile.GetY();
 
         // Set the origin tile's "piece" field to null.
-        this.board.GetTile(x1,y1).SetPiece(null);
+        Tile originTile = this.board.GetTile(x1,y1);
+        originTile.SetPiece(null);
         // Set the destination tile's field to the correct reference.
         destinationTile.SetPiece(piece);
         // Update the piece's fields.
         piece.SetX(x2);
         piece.SetY(y2);
+
+        // Store the move.
+        Move move = new Move(
+            this.currentTurn, originTile, destinationTile, piece);
+        this.allMoves.Add(move);
     }
 
     // Calculates the valid moves for a player piece and highlights all
