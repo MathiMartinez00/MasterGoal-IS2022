@@ -4,7 +4,7 @@
 public class Board
 {
     // The game board stored in a matrix.
-    private Tile[][] tiles;
+    private AbstractTile[][] tiles;
 
     // Store a reference to the pieces on this class' fields for
     // easy access to their position.
@@ -100,25 +100,25 @@ public class Board
     }
     
     // A getter method for a tile at a given pair of coordinates.
-    public Tile GetTile(int x, int y)
+    public AbstractTile GetTile(int x, int y)
     {
         return this.tiles[y,x];
     }
 
     // Another getter method for the tiles.
-    public Tile GetTile(Piece piece)
+    public AbstractTile GetTile(Piece piece)
     {
         return GetTile(piece.GetX(), piece.GetY());
     }
 
-    public IEnumerable<Tile> GetIterativeTiles()
+    public IEnumerable<AbstractTile> GetIterativeTiles()
     {
         for (int i = 0; i < boardYLength; i++)
         {
             for (int j = 0; j < boardXLength; j++)
             {
                 // Get the tile and check if it's valid.
-                Tile tile = GetTile(j, i);
+                AbstractTile tile = GetTile(j, i);
                 if (tile.IsTileValid())
                 {
                     // Return the tile iteratively.

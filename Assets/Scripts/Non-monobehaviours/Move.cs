@@ -4,14 +4,14 @@
 public class Move
 {
     private Team teamColor;
-    private Tile origin;
-    private Tile destination;
+    private AbstractTile origin;
+    private AbstractTile destination;
     private Piece pieceMoved;
     // Field that tells you if the move resulted in a goal.
     private bool isGoal;
 
     public Move(
-        Team teamColor, Tile origin, Tile destination, Piece pieceMoved)
+        Team teamColor, AbstractTile origin, AbstractTile destination, Piece pieceMoved)
     {
         this.teamColor = teamColor;
         this.origin = origin;
@@ -21,13 +21,13 @@ public class Move
     }
 
     // Origin tile getter.
-    public Tile GetOriginTile()
+    public AbstractTile GetOriginTile()
     {
         return this.origin;
     }
 
     // Destination tile getter.
-    public Tile GetDestinationTile()
+    public AbstractTile GetDestinationTile()
     {
         return this.destination;
     }
@@ -36,5 +36,17 @@ public class Move
     public void SetIsGoal(bool isGoal)
     {
         this.isGoal = isGoal;
+    }
+
+    // Getter for the isGoal field.
+    public bool GetIsGoal()
+    {
+        return this.isGoal;
+    }
+
+    // Getter for the piece that has been moved.
+    public Piece GetPieceMoved()
+    {
+        return this.pieceMoved;
     }
 }

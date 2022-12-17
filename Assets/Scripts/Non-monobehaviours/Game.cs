@@ -59,15 +59,19 @@ public class Game
     }
 
     // This method should be called when the user taps on the screen.
-    // The x and y coordinates of the selected tile should be passed
-    // as arguments.
+    // A Position instnace with the coordinates of the selected tile
+    // should be passed as the argument.
     //
     // Returns the move that was performed on every particular method
     // call. This is useful to do a reactive update on the board. If no
     // moves were made (just a selection of a piece, for example), it
     // returns null.
-    public Nullable<Move> UserInput(int x, int y)
+    public Nullable<Move> UserInput(Position position)
     {
+        // Conver the coordinates to x and y.
+        int x = position.GetX();
+        int y = position.GetY();
+
         // Get the selected tile.
         Nullable<Piece> selectedTile = this.board.GetTile(x,y);
 
@@ -201,7 +205,7 @@ public class Game
     //
     // This method doesn't validate the move. Validation is made by
     // highlighting tiles.
-    private Move MovePiece(Piece piece, Tile destinationTile)
+    private Move MovePiece(Piece piece, AbstractTile destinationTile)
     {
         // Origin coordinates.
         int x1 = piece.GetX();
@@ -211,7 +215,7 @@ public class Game
         int y2 = destinationTile.GetY();
 
         // Set the origin tile's "piece" field to null.
-        Tile originTile = this.board.GetTile(x1,y1);
+        AbstractTile originTile = this.board.GetTile(x1,y1);
         originTile.SetPiece(null);
         // Set the destination tile's field to the correct reference.
         destinationTile.SetPiece(piece);
@@ -231,7 +235,7 @@ public class Game
     // Calculates the valid moves for a player piece and highlights all
     // of the tiles in which this piece can be moved.
     private void CalculatePlayerMovesAndHighlightTiles(
-        Tile selectedTile, PlayerPiece selectedPiece)
+        AbstractTile selectedTile, PlayerPiece selectedPiece)
     {
         // Get the selected tile's coordinates.
         int tileX = selectedTile.GetX();
@@ -606,81 +610,6 @@ public class Game
     private bool IsPlayerPiece(Piece piece)
     {
         return false;
-    }
-
-    public bool playerMove(
-        Turn moveColor,
-        int originX, int originY,
-        int destinationX, int destinationY)
-    {
-        Tile originTile = board.GetTile(originX, originY);
-        Tile destinationTile = board.GetTile(destinationX, destionationY);
-        Move move = new Move(player, originTile, destinationTile);
-        return this.makeMove(move, moveColor)
-    }
-
-    private bool makeMove(Move move, Turn moveColor)
-    {
-        Nullable<Piece> pieceToMoveNullable = move.GetOriginTile().GetPiece();
-
-        // Check if the nullable piece field is null.
-        if (pieceToMoveNullable == null)
-        {
-            return false;
-        }
-
-        // If the nullable piece field is not null, get the piece.
-        Piece pieceToMove = pieceToMoveNullable.Value;
-
-        if (currentTurn != moveColor)
-        {
-            return false;
-        }
-        else if (!pieceToMove.canMove(
-            board, move.GetOriginTile, move.GetDestinationTile)
-            )
-        {
-            return false;
-        }
-
-        // Store the move.
-        allMoves.add(move);
-
-        // Move the piece.
-        move.GetDestinationTile().SetPiece(pieceToMove);
-        move.GetOriginTile().SetPiece(null);
-
-        // Switch the current turn.
-        SwitchCurrentTurn();
-    }
-
-    public bool SelectPieceToMove(
-        int originX, int originY, int destinationX, int destinationY)
-    {
-        // Selected tile.
-        Tile tile = board.GetTile(x,y);
-
-        Nullable<Piece> selectedPieceNullable = tile.GetPiece();
-
-        // Check if the nullable piece field is null.
-        if (selectedPieceNullable == null)
-        {
-            return false;
-        }
-
-        // If the nullable piece field is not null, get the piece.
-        Piece selectedPiece = selectedPieceNullable.Value;
-
-        if (currentTurn != moveColor)
-        {
-            return false;
-        }
-        else if (!pieceToMove.canMove(
-            board, move.GetOriginTile, move.GetDestinationTile)
-            )
-        {
-            return false;
-        }
     }
 
     // Switches the current turn from "White" to "Black", or viceversa.

@@ -1,6 +1,6 @@
 
 // The instances of this class represent tiles in the game board.
-public class Tile
+public class AbstractTile
 {
     // A tile can have a piece or no pieces.
     private Nullable<Piece> piece;
