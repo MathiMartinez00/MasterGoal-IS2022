@@ -38,7 +38,7 @@ public class ScriptController : MonoBehaviour
     public string whiteName, redName;
     public int whiteScore = 0, redScore = 0;
 
-    // Start is called before the first frame update
+    // Start is called before the first frame update.
     void Start()
     {
         this.whiteName = PlayerPrefs.GetString("player1");
@@ -69,7 +69,9 @@ public class ScriptController : MonoBehaviour
         RenderChanges(move, this.game.board);
     }
 
-    private void RenderChanges(Nullable<Move> move, Board board)
+    // Takes the last move that was made on the game and moves the
+    // corresponding concrete piece.
+    private void RenderChanges(Nullable<Move> move)
     {
         // Check for any piece movement that didn't result in a goal.
         if (move.HasValue && !move.Value.isGoal())
@@ -89,7 +91,7 @@ public class ScriptController : MonoBehaviour
         }
 
         // Render the new highlights, if there are any.
-        RenderHighlights(board);
+        RenderHighlights(this.game.board);
     }
 
     // Takes the abstract board as argument and checks for the tiles that
