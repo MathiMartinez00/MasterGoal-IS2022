@@ -1,7 +1,6 @@
-//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
 
+// An instance of this class represents a game board. It is composed of
+// tiles (stored in a matrix), player pieces and a ball.
 public class Board
 {
     // The game board stored in a matrix.
@@ -112,8 +111,25 @@ public class Board
         return GetTile(piece.GetX(), piece.GetY());
     }
 
-    // Clear all of the highlighted tiles.
-    public void ClearAllTiles()
+    public IEnumerable<Tile> GetIterativeTiles()
+    {
+        for (int i = 0; i < boardYLength; i++)
+        {
+            for (int j = 0; j < boardXLength; j++)
+            {
+                // Get the tile and check if it's valid.
+                Tile tile = GetTile(j, i);
+                if (tile.IsTileValid())
+                {
+                    // Return the tile iteratively.
+                    yield return tile;
+                }
+            }
+        }
+    }
+
+    // Clear all of the highlights on the tiles.
+    public void ClearAllHighlights()
     {
         for (int i = 0; i < boardYLength; i++)
         {

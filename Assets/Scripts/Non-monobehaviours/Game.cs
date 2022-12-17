@@ -61,7 +61,12 @@ public class Game
     // This method should be called when the user taps on the screen.
     // The x and y coordinates of the selected tile should be passed
     // as arguments.
-    public void UserInput(int x, int y)
+    //
+    // Returns the move that was performed on every particular method
+    // call. This is useful to do a reactive update on the board. If no
+    // moves were made (just a selection of a piece, for example), it
+    // returns null.
+    public Nullable<Move> UserInput(int x, int y)
     {
         // Get the selected tile.
         Nullable<Piece> selectedTile = this.board.GetTile(x,y);
@@ -79,23 +84,26 @@ public class Game
             // Check if the current turn matches with the piece's color.
             if (selectedPiece.teamColor == currentTurn)
             {
-                // Highlight the tiles that indicate valid destinations.
+                // Highlight and store the tiles that indicate valid destinations.
                 CalculatePlayerMovesAndHighlightTiles(
-                    selectedTile, selectedPiece)
+                    selectedTile, selectedPiece);
                 // Change the status of the game.
                 this.gameStatus = WaitingPlayerPieceMovement;
                 // Store the selected piece.
                 this.selectedPiece = piece.Value;
             }
+
+            // Because no moves were made on this conditional branch.
+            return null;
         }
         else if (
             gameStatus == WaitingPlayerPieceMovement &&
             selectedTile.IsTileHighlighted())
         {
-            // Move the piece.
-            MovePiece(this.selectedPiece, this.selectedTile)
+            // Move the piece and store the move.
+            Move move = MovePiece(this.selectedPiece, this.selectedTile);
             // Clear all of the highlighted tiles.
-            this.board.ClearAllTiles();
+            this.board.ClearAllHighlights();
             // Deselect the piece.
             this.selectedPiece = null;
             // Check if the team that made the last player move is in
@@ -115,19 +123,27 @@ public class Game
                 // Switch the current turn.
                 SwitchCurrentTurn();
             }
+
+            // Return the move (to do a reactive board update).
+            return move;
         }
         else if (
             gameStatus == WaitingPlayerBallMovement &&
             selectedTile.IsTileHighlighted())
         {
-            // Move the ball.
-            MovePiece(this.board.GetBall(), this.selectedTile)
+            // Move the ball and store the move.
+            Move move = MovePiece(this.board.GetBall(), this.selectedTile);
+
             // Clear all of the highlighted tiles.
-            this.board.ClearAllTiles();
+            this.board.ClearAllHighlights();
+
             // Check if a goal has been scored.
             Nullable<Team> goalScored = CheckForGoalScored();
             if (goalScored.HasValue)
             {
+                // Mark that the latest move resulted in a goal.
+                move.SetIsGoal(true);
+
                 // Update the scores.
                 if (goalScored.Value == White)
                 {
@@ -172,6 +188,9 @@ public class Game
                     SwitchCurrentTurn();
                 }
             }
+
+            // Return the move (to do a reactive board update).
+            return move;
         }
     }
 
@@ -182,7 +201,7 @@ public class Game
     //
     // This method doesn't validate the move. Validation is made by
     // highlighting tiles.
-    private void MovePiece(Piece piece, Tile destinationTile)
+    private Move MovePiece(Piece piece, Tile destinationTile)
     {
         // Origin coordinates.
         int x1 = piece.GetX();
@@ -204,6 +223,9 @@ public class Game
         Move move = new Move(
             this.currentTurn, originTile, destinationTile, piece);
         this.allMoves.Add(move);
+
+        // Return the move (for the reactive board update).
+        return move;
     }
 
     // Calculates the valid moves for a player piece and highlights all
