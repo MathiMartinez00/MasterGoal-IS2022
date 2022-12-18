@@ -1,7 +1,6 @@
-//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
 
+// Abstract class that represents a game piece. On this game, a
+// piece can be either a ball or a player piece.
 public abstract class Piece
 {
     // The position of the piece.

@@ -45,10 +45,9 @@ public class ScriptController : MonoBehaviour
         this.redName = PlayerPrefs.GetString("player2");
         this.whiteScoreName.text = whiteName;
         this.redScoreName.text = redName;
-        this.boardBoxCollider =
-        tilemapBoard.gameObject.GetComponent<BoxCollider2D>();
+        this.boardBoxCollider = tilemapBoard.gameObject.GetComponent<BoxCollider2D>();
         // Create a new abstract game instance.
-        this.game = New Game(2Players, White);
+        this.game = new Game(TwoPlayers, White);
     }
 
     // This method is called whenever the user taps on the screen.
@@ -71,23 +70,26 @@ public class ScriptController : MonoBehaviour
 
     // Takes the last move that was made on the game and moves the
     // corresponding concrete piece.
-    private void RenderChanges(Nullable<Move> move)
+    private void RenderChanges(Move? move)
     {
-        // Check for any piece movement that didn't result in a goal.
-        if (move.HasValue && !move.Value.isGoal())
+        if (move != null)
         {
-            // Get the piece that was recently moved on the abstract
-            // board and move it on the concrete board.
-            MoveConcretePiece(move.Value.GetPieceMoved());
-        }
-        // If a goal has been made, all of the pieces need to be reset.
-        else if (move.HasValue && move.Value.isGoal())
-        {
-            MoveConcretePiece(this.game.board.whitePiece1);
-            MoveConcretePiece(this.game.board.whitePiece2);
-            MoveConcretePiece(this.game.board.blackPiece1);
-            MoveConcretePiece(this.game.board.blackPiece2);
-            MoveConcretePiece(this.game.board.ball);
+            // Check for any piece movement that didn't result in a goal.
+            if (!move.GetIsGoal())
+            {
+                // Get the piece that was recently moved on the abstract
+                // board and move it on the concrete board.
+                MoveConcretePiece(move.GetPieceMoved());
+            }
+            // If a goal has been made, all of the pieces need to be reset.
+            else if (move.GetIsGoal())
+            {
+                MoveConcretePiece(this.game.board.whitePiece1);
+                MoveConcretePiece(this.game.board.whitePiece2);
+                MoveConcretePiece(this.game.board.blackPiece1);
+                MoveConcretePiece(this.game.board.blackPiece2);
+                MoveConcretePiece(this.game.board.ball);
+            }
         }
 
         // Render the new highlights, if there are any.

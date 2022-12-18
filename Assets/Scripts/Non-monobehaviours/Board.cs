@@ -1,18 +1,19 @@
+using System.Collections.Generic;
 
 // An instance of this class represents a game board. It is composed of
 // tiles (stored in a matrix), player pieces and a ball.
 public class Board
 {
     // The game board stored in a matrix.
-    private AbstractTile[][] tiles;
+    private AbstractTile[,] tiles;
 
     // Store a reference to the pieces on this class' fields for
     // easy access to their position.
-    private const PlayerPiece whitePiece1;
-    private const PlayerPiece whitePiece2;
-    private const PlayerPiece blackPiece1;
-    private const PlayerPiece blackPiece2;
-    private const Ball ball;
+    private PlayerPiece whitePiece1;
+    private PlayerPiece whitePiece2;
+    private PlayerPiece blackPiece1;
+    private PlayerPiece blackPiece2;
+    private Ball ball;
 
     // Dimension of the board matrix.
     private const int boardXLength = 11;
@@ -37,11 +38,11 @@ public class Board
                 tiles[i,j] = new Tile(i, j, null);
 
                 // The player pieces and ball go on the fifth column (x == 5).
-                if (j == this.piecesX)
+                if (j == piecesX)
                 {
                     if (i == white1Y || i == white2Y)
                     {
-                        tiles[i,j].piece = new PlayerPiece(j,i,White);
+                        tiles[i,j].SetPiece(new PlayerPiece(j,i,Team.White));
                     }
                     else if (i == black1Y || i == black2Y)
                     {
@@ -111,6 +112,7 @@ public class Board
         return GetTile(piece.GetX(), piece.GetY());
     }
 
+    // Returns an iterator with the tiles of the board.
     public IEnumerable<AbstractTile> GetIterativeTiles()
     {
         for (int i = 0; i < boardYLength; i++)

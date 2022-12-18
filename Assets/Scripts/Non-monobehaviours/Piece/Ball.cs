@@ -1,7 +1,6 @@
-//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
 
+// The instance of this class represents the abstract ball.
+// There should only be a single instance of this class per game.
 public class Ball : Piece
 {
     public Ball(int x, int y)

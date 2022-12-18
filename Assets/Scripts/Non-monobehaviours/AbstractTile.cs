@@ -3,15 +3,15 @@
 public class AbstractTile
 {
     // A tile can have a piece or no pieces.
-    private Nullable<Piece> piece;
+    private Piece? piece;
     // Coordinates of a tile.
-    private const int x;
-    private const int y;
+    private int x;
+    private int y;
     // Property to store the validity of the tile.
-    private const bool isTileValid;
+    private bool isTileValid;
     private bool isHighlighted;
 
-    public Tile(int y, int x, Nullable<Piece> piece)
+    public AbstractTile(int y, int x, Piece? piece)
     {
         this.x = x;
         this.y = y;
@@ -38,7 +38,7 @@ public class AbstractTile
     // first. If the tile is valid, the piece is set and the method
     // returns "true"; otherwise, the piece is not set and it
     // returns "false".
-    public bool SetPiece(Nullable<Piece> piece)
+    public bool SetPiece(Piece? piece)
     {
         // Check if the tile is valid.
         if (isTileValid)
@@ -53,7 +53,7 @@ public class AbstractTile
 
     // A getter for the piece field. This method will return "null"
     // if the value is null.
-    public Nullable<Piece> GetPiece()
+    public Piece? GetPiece()
     {
         return this.piece;
     }
@@ -62,7 +62,7 @@ public class AbstractTile
     // valid tiles. Pieces cannot be moved on those tiles.
     private bool AreCoordinatesValid(int x, int y)
     {
-        return (not ((x <= 2 || x >= 8) && (y == 0 || y == 14)));
+        return !((x <= 2 || x >= 8) && (y == 0 || y == 14));
     }
 
     // Getter for the isTileValid field.
@@ -74,13 +74,13 @@ public class AbstractTile
     // Getter for the index of the tile's column.
     public int GetX()
     {
-        this.x;
+        return this.x;
     }
 
     // Getter for the index of the tile's row.
     public int GetY()
     {
-        this.y;
+        return this.y;
     }
 
     // Setter for the tile highlight field.

@@ -1,27 +1,28 @@
+using UnityEngine;
 
 // This class is used to make a conversion between an Unity Vector3Int
 // object and the coordinates of our game board, one way or the other.
 public class Position
 {
-    private const int x;
-    private const int y;
-    private const Vector3Int vector3Int;
-    private const Vector3 vector3;
+    private readonly int x;
+    private readonly int y;
+    private readonly Vector3Int vector3Int;
+    private readonly Vector3 vector3;
 
     // The dimensions of the board.
-    private const boardXLength = 11;
-    private const boardYLength = 15;
+    private const int boardXLength = 11;
+    private const int boardYLength = 15;
 
     public Position(Vector3Int vector)
     {
         // In the implementation, the X axis has the origin in the
         // middle of the board.
-        this.x = vector.x + ((this.boardXLength - 1) / 2);
+        this.x = vector.x + ((boardXLength - 1) / 2);
 
         // In the implementation, the Y axis has the origin in the
         // middle of the board and it doesn't use the computer graphics
         // convention of going from top to bottom, in increasing order.
-        this.y = ((this.boardYLength - 1) / 2) - vector.y;
+        this.y = ((boardYLength - 1) / 2) - vector.y;
 
         // No need to convert this.
         this.vector3Int = vector;
@@ -37,8 +38,8 @@ public class Position
         this.y = y;
 
         // Convert from abstract coordinates to concrete coordinates.
-        int vectorX = x + (this.boardXLength - 1) / 2;
-        int vectorY = (this.boardYLength - 1) / 2 - y;
+        int vectorX = x + (boardXLength - 1) / 2;
+        int vectorY = (boardYLength - 1) / 2 - y;
 
         // Initialize a new Vector3Int object and store it.
         this.vector3 = new Vector3Int(vectorX, vectorY);

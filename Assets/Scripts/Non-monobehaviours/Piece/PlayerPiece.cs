@@ -3,13 +3,6 @@
 // This piece can be white or black and numbered one or two.
 public class PlayerPiece : Piece
 {
-    // There are two pieces for each team. They have to be distinguishable.
-    public enum PieceNumber
-    {
-        One,
-        Two
-    }
-
     private Team teamColor;
     private PieceNumber pieceNumber;
 

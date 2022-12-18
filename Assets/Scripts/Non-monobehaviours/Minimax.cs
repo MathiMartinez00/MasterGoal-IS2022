@@ -41,7 +41,6 @@ public class Minimax
     {
         return false;
     }
-}
 
     // Checks the playerChip can be moved to the field at destination.
     public bool IsFieldValidForPlayerChip((int,int) playerChip, (int,int) destination)
@@ -77,7 +76,7 @@ public class Minimax
     // positions that the chip can move to.
     public List<(int,int)> CalculateMovesPlayer((int,int) playerChip)
     {
-        List<(int,int)> possibleMoves = new List<(int,int)>;
+        List<(int,int)> possibleMoves = new List<(int,int)>();
         // A player can move no more than 2 tiles away from its
         // current position.
         for (int i = -2; i < 3; i++)
@@ -100,14 +99,18 @@ public class Minimax
         return (
             ballChip.Item2 >= 3 && ballChip.Item2 <= 7 &&
             (ballChip.Item1 == 0 || ballChip.Item1 == 14)
-            )
+            );
     }
 
     public bool IsBallPassable()
-    {}
+    {
+        return true;
+    }
 
     public bool AreAdjacentFieldsValid()
-    {}
+    {
+        return true;
+    }
 
     // Takes a Vector3 object and returns a tuple with its x
     // and y coordinates plus an offset, so that the board has no
@@ -116,3 +119,4 @@ public class Minimax
     {
         return ((int)position.x + 5, (int)position.y + 6);
     }
+}
