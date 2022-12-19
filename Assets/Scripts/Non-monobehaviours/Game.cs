@@ -57,22 +57,12 @@ public class Game
         // If there are no player pieces selected yet, go to this branch.
         if (
             gameStatus == GameStatus.WaitingPlayerPieceSelection &&
-            piece != null &&
-            IsPlayerPiece(piece))
+            piece != null)
         {
-            SelectPlayerPiece(piece);
-            PlayerPiece selectedPiece = piece;
-            // Check if the current turn matches with the piece's color.
-            if (selectedPiece.teamColor == currentTurn)
-            {
-                // Highlight and store the tiles that indicate valid destinations.
-                CalculatePlayerMovesAndHighlightTiles(
-                    selectedTile, selectedPiece);
-                // Change the status of the game.
-                this.gameStatus = WaitingPlayerPieceMovement;
-                // Store the selected piece.
-                this.selectedPiece = piece.Value;
-            }
+            // Check if the piece is a PlayerPiece, check if it is a piece
+            // of the right team, highlight the valid moves, change the
+            // game status and store the selected piece.
+            SelectPlayerPiece(piece, selectedTile);
 
             // Because no moves were made on this conditional branch.
             return null;
@@ -82,7 +72,7 @@ public class Game
             selectedTile.IsTileHighlighted())
         {
             // Move the piece and store the move.
-            Move move = MovePiece(this.selectedPiece, this.selectedTile);
+            Move move = MovePiece(this.selectedPiece, selectedTile);
             // Clear all of the highlighted tiles.
             this.board.ClearAllHighlights();
             // Deselect the piece.
@@ -109,11 +99,11 @@ public class Game
             return move;
         }
         else if (
-            gameStatus == GameStatus.WaitingPlayerBallMovement &&
+            gameStatus == GameStatus.WaitingBallMovement &&
             selectedTile.IsTileHighlighted())
         {
             // Move the ball and store the move.
-            Move move = MovePiece(this.board.GetBall(), this.selectedTile);
+            Move move = MovePiece(this.board.GetBall(), selectedTile);
 
             // Clear all of the highlighted tiles.
             this.board.ClearAllHighlights();
@@ -126,7 +116,7 @@ public class Game
                 move.SetIsGoal(true);
 
                 // Update the scores.
-                if (goalScored == White)
+                if (goalScored == Team.White)
                 {
                     whiteScore++;
                 }
@@ -164,7 +154,7 @@ public class Game
                     // Reset the pass count.
                     this.passCount = 0;
                     // Change the status of the game.
-                    this.gameStatus = WaitingPlayerPieceSelection;
+                    this.gameStatus = GameStatus.WaitingPlayerPieceSelection;
                     // Switch the current turn.
                     SwitchCurrentTurn();
                 }
@@ -175,12 +165,24 @@ public class Game
         }
     }
 
-    private void SelectPlayerPiece(PlayerPiece)
+    // Check if the piece is a PlayerPiece, check if it is a piece
+    // of the right team, highlight the valid moves, change the
+    // game status and store the selected piece.
+    private void SelectPlayerPiece(PlayerPiece piece, AbstractTile tile)
     {
-
+        // Check if the current turn matches with the piece's color.
+        if (piece.teamColor == currentTurn)
+        {
+            // Highlight and store the tiles that indicate valid destinations.
+            CalculatePlayerMovesAndHighlightTiles(tile, piece);
+            // Change the status of the game.
+            this.gameStatus = GameStatus.WaitingPlayerPieceMovement;
+            // Store the selected piece in an instance field.
+            this.selectedPiece = piece;
+        }
     }
 
-    private void SelectPlayerPiece(Piece piece)
+    private void SelectPlayerPiece(Ball piece)
     {
         return;
     }
@@ -229,10 +231,10 @@ public class Game
         int tileY = selectedTile.GetY();
 
         // Clamp the coordinates, so it doesn't go out of the board.
-        int startX = Math.Max(tileX - this.playerPieceReach, 0);
-        int startY = Math.Max(tileY - this.playerPieceReach, 0);
-        int endX = Math.Min(tileX + this.playerPieceReach, 10);
-        int endY = Math.Min(tileY + this.playerPieceReach, 14);
+        int startX = Math.Max(tileX - playerPieceReach, 0);
+        int startY = Math.Max(tileY - playerPieceReach, 0);
+        int endX = Math.Min(tileX + playerPieceReach, 10);
+        int endY = Math.Min(tileY + playerPieceReach, 14);
 
         // A player con move no more than two squares from its position.
         // Iterate through the adjacent rows.

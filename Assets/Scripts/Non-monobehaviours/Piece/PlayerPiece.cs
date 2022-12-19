@@ -6,10 +6,11 @@ public class PlayerPiece : Piece
     private Team teamColor;
     private PieceNumber pieceNumber;
 
-    public PlayerPiece(int x, int y, Team teamColor, PieceNumber number)
+    public PlayerPiece(
+        int x, int y, Team teamColor, PieceNumber number) : base(x,y)
     {
-        // Save the position with the parent class' constructor.
-        super(x,y);
+        // (Save the position with the parent class' constructor).
+
         this.teamColor = teamColor;
         this.pieceNumber = pieceNumber;
     }

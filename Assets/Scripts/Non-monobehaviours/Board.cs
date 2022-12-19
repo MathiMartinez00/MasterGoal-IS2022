@@ -80,7 +80,7 @@ public class Board
 
     // Resets the pieces to their initial position (after a goal,
     // for example).
-    private void ResetPieces()
+    public void ResetPieces()
     {
         // Set the tiles at the current position of the pieces
         // to null.

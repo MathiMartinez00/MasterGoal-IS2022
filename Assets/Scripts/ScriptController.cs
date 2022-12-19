@@ -47,7 +47,7 @@ public class ScriptController : MonoBehaviour
         this.redScoreName.text = redName;
         this.boardBoxCollider = tilemapBoard.gameObject.GetComponent<BoxCollider2D>();
         // Create a new abstract game instance.
-        this.game = new Game(TwoPlayers, White);
+        this.game = new Game(GameMode.TwoPlayers, Team.White);
     }
 
     // This method is called whenever the user taps on the screen.
