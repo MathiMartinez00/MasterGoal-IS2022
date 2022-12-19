@@ -11,7 +11,7 @@ public class AbstractTile
     private bool isTileValid;
     private bool isHighlighted;
 
-    public AbstractTile(int y, int x, Piece? piece)
+    public AbstractTile(int x, int y, Piece? piece)
     {
         this.x = x;
         this.y = y;

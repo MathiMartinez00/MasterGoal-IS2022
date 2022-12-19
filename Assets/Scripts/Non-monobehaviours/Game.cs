@@ -8,7 +8,7 @@ public class Game
 {
     private Board board;
     // GAME MODE NOT USED YET.
-    private GameMode gameMode;
+    private readonly GameMode gameMode;
     private GameStatus gameStatus;
     private Team currentTurn;
     private List<Move> allMoves;
@@ -27,9 +27,8 @@ public class Game
         this.board = new Board();
         this.gameMode = gameMode;
         this.gameStatus = GameStatus.WaitingPlayerPieceSelection;
-        this.currentTurn = White;
+        this.currentTurn = Team.White;
         this.allMoves = new List<Move>();
-        this.currentBallPossession = null;
         this.passCount = 0;
         this.whiteScore = 0;
         this.blackScore = 0;
@@ -50,17 +49,18 @@ public class Game
         int y = position.GetY();
 
         // Get the selected tile.
-        Piece selectedTile = this.board.GetTile(x,y);
+        AbstractTile selectedTile = this.board.GetTile(x,y);
 
         // Get the piece, if there is any.
         Piece? piece = selectedTile.GetPiece();
 
         // If there are no player pieces selected yet, go to this branch.
         if (
-            gameStatus == WaitingPlayerPieceSelection &&
+            gameStatus == GameStatus.WaitingPlayerPieceSelection &&
             piece != null &&
             IsPlayerPiece(piece))
         {
+            SelectPlayerPiece(piece);
             PlayerPiece selectedPiece = piece;
             // Check if the current turn matches with the piece's color.
             if (selectedPiece.teamColor == currentTurn)
@@ -78,7 +78,7 @@ public class Game
             return null;
         }
         else if (
-            gameStatus == WaitingPlayerPieceMovement &&
+            gameStatus == GameStatus.WaitingPlayerPieceMovement &&
             selectedTile.IsTileHighlighted())
         {
             // Move the piece and store the move.
@@ -92,7 +92,7 @@ public class Game
             if (IsBallInPossessionOfCurrentTurn())
             {
                 // Change the status of the game.
-                this.gameStatus = WaitingBallMovement;
+                this.gameStatus = GameStatus.WaitingBallMovement;
                 // Highlight the valid destinations for the ball
                 // for the next method call.
                 CalculateBallMovesAndHighlightTiles();
@@ -100,7 +100,7 @@ public class Game
             else
             {
                 // Change the status of the game.
-                this.gameStatus = WaitingPlayerPieceSelection;
+                this.gameStatus = GameStatus.WaitingPlayerPieceSelection;
                 // Switch the current turn.
                 SwitchCurrentTurn();
             }
@@ -109,7 +109,7 @@ public class Game
             return move;
         }
         else if (
-            gameStatus == WaitingPlayerBallMovement &&
+            gameStatus == GameStatus.WaitingPlayerBallMovement &&
             selectedTile.IsTileHighlighted())
         {
             // Move the ball and store the move.
@@ -137,14 +137,14 @@ public class Game
                 // The game is over when someone scores two goals.
                 if (this.whiteScore >= 2 || this.blackScore >= 2)
                 {
-                    this.gameStatus = GameOver;
+                    this.gameStatus = GameStatus.GameOver;
                 }
                 else
                 {
                     // After a goal, it's the opposite team's turn.
                     this.currentTurn = GetOppositeTeam(goalScored.Value);
                     // Change the status of the game.
-                    this.gameStatus = WaitingPlayerPieceSelection;
+                    this.gameStatus = GameStatus.WaitingPlayerPieceSelection;
                     // Reset the pieces to their initial position.
                     this.board.ResetPieces();
                 }
@@ -173,6 +173,16 @@ public class Game
             // Return the move (to do a reactive board update).
             return move;
         }
+    }
+
+    private void SelectPlayerPiece(PlayerPiece)
+    {
+
+    }
+
+    private void SelectPlayerPiece(Piece piece)
+    {
+        return;
     }
 
     // Takes a piece and a pair of coordinates and moves the piece

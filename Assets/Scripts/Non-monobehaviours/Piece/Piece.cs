@@ -13,12 +13,12 @@ public abstract class Piece
         this.y = y;
     }
 
-    public int GetX(int x)
+    public int GetX()
     {
         return this.x;
     }
 
-    public int GetY(int y)
+    public int GetY()
     {
         return this.y;
     }

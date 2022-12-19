@@ -61,7 +61,7 @@ public class ScriptController : MonoBehaviour
         // Convert the Vector3Int to matrix coordinates using
         // the Position object.
         Position position = new Position(point);
-        Nullable<Move> move = this.game.UserInput(position);
+        Move? move = this.game.UserInput(position);
 
         // Render the changes that resulted from this interaction with
         // the user.
@@ -158,7 +158,7 @@ public class ScriptController : MonoBehaviour
         // Create a new position object (to make a unit conversion).
         Position position = new Position(piece.GetX(), piece.GetY());
         // Set the new coordinates for the piece.
-        piece.transform.position = tilemapBoard.GetCellCenterWorld(
+        realPiece.transform.position = tilemapBoard.GetCellCenterWorld(
             position.GetVector3Int());
     }
 }
