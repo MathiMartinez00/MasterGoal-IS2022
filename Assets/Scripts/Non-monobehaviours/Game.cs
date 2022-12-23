@@ -52,19 +52,18 @@ public class Game
         // Get the selected tile.
         AbstractTile selectedTile = Board.GetTile(x,y);
 
-        // Get the piece, if there is any.
+        // Get the player piece, if there is any.
         PlayerPiece? selectedPlayerPiece = selectedTile.PlayerPiece;
-        Ball? selectedBall = selectedTile.Ball;
 
         // If there are no player pieces selected yet, go to this branch.
         if (
             GameStatus == GameStatus.WaitingPlayerPieceSelection &&
-            piece != null)
+            selectedPlayerPiece != null)
         {
             // Check if the piece is a PlayerPiece, check if it is a piece
             // of the right team, highlight the valid moves, change the
             // game status and store the selected piece.
-            SelectPlayerPiece(piece, selectedTile);
+            SelectPlayerPiece(selectedPlayerPiece, selectedTile);
 
             // Because no moves were made on this conditional branch.
             return null;
