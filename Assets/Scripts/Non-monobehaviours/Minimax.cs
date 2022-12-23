@@ -1,11 +1,13 @@
 
 public class Minimax
 {
+    private int EvalScore;
+
     public Minimax(Game game, int depth, bool maximizingPlayer)
     {
         if ((depth == 0) || IsGameOver())
         {
-            return EvaluateBoard();
+            this.EvalScore = EvaluateBoard();
         }
 
         (int,int)[] positions = GetChildrenPositions();
@@ -13,12 +15,12 @@ public class Minimax
         if (maximizingPlayer)
         {
             int maxEval = int.MaxValue;
-            return maxEval;
+            this.EvalScore = maxEval;
         }
         else
         {
             int minEval = int.MinValue;
-            return minEval;
+            this.EvalScore = minEval;
         }
     }
 

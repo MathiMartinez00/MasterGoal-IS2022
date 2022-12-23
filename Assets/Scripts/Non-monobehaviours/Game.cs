@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 
 // An instance of this class represents an abstract representation of the
 // state of the game.
@@ -6,10 +7,10 @@ using System.Collections.Generic;
 // so it will not be attached to any Unity GameObject.
 public class Game
 {
-    private Board board;
+    public Board Board { get; private set; }
     // GAME MODE NOT USED YET.
-    private readonly GameMode gameMode;
-    private GameStatus gameStatus;
+    public GameMode GameMode { get; private set; }
+    public GameStatus GameStatus { get; private set; }
     private Team currentTurn;
     private List<Move> allMoves;
     private PlayerPiece? selectedPiece;
@@ -18,15 +19,15 @@ public class Game
     private int blackScore;
 
     // The number of tiles that each type of piece can move per action.
-    private const int playerPieceReach = 2;
-    private const int ballPieceReach   = 4;
+    private readonly int playerPieceReach = 2;
+    private readonly int ballPieceReach   = 4;
 
     // C# class constructor.
     Game(GameMode gameMode, Team firstTurn)
     {
-        this.board = new Board();
-        this.gameMode = gameMode;
-        this.gameStatus = GameStatus.WaitingPlayerPieceSelection;
+        Board = new Board();
+        GameMode = gameMode;
+        GameStatus = GameStatus.WaitingPlayerPieceSelection;
         this.currentTurn = Team.White;
         this.allMoves = new List<Move>();
         this.passCount = 0;
@@ -42,21 +43,21 @@ public class Game
     // call. This is useful to do a reactive update on the board. If no
     // moves were made (just a selection of a piece, for example), it
     // returns null.
-    public Move UserInput(Position position)
+    public Move? UserInput(Position position)
     {
         // Conver the coordinates to x and y.
         int x = position.GetX();
         int y = position.GetY();
 
         // Get the selected tile.
-        AbstractTile selectedTile = this.board.GetTile(x,y);
+        AbstractTile selectedTile = Board.GetTile(x,y);
 
         // Get the piece, if there is any.
-        Piece? piece = selectedTile.GetPiece();
+        Piece? piece = selectedTile.Piece;
 
         // If there are no player pieces selected yet, go to this branch.
         if (
-            gameStatus == GameStatus.WaitingPlayerPieceSelection &&
+            GameStatus == GameStatus.WaitingPlayerPieceSelection &&
             piece != null)
         {
             // Check if the piece is a PlayerPiece, check if it is a piece
@@ -68,13 +69,13 @@ public class Game
             return null;
         }
         else if (
-            gameStatus == GameStatus.WaitingPlayerPieceMovement &&
-            selectedTile.IsTileHighlighted())
+            GameStatus == GameStatus.WaitingPlayerPieceMovement &&
+            selectedTile.IsHighlighted)
         {
             // Move the piece and store the move.
             Move move = MovePiece(this.selectedPiece, selectedTile);
             // Clear all of the highlighted tiles.
-            this.board.ClearAllHighlights();
+            Board.ClearAllHighlights();
             // Deselect the piece.
             this.selectedPiece = null;
             // Check if the team that made the last player move is in
@@ -82,7 +83,7 @@ public class Game
             if (IsBallInPossessionOfCurrentTurn())
             {
                 // Change the status of the game.
-                this.gameStatus = GameStatus.WaitingBallMovement;
+                GameStatus = GameStatus.WaitingBallMovement;
                 // Highlight the valid destinations for the ball
                 // for the next method call.
                 CalculateBallMovesAndHighlightTiles();
@@ -90,7 +91,7 @@ public class Game
             else
             {
                 // Change the status of the game.
-                this.gameStatus = GameStatus.WaitingPlayerPieceSelection;
+                GameStatus = GameStatus.WaitingPlayerPieceSelection;
                 // Switch the current turn.
                 SwitchCurrentTurn();
             }
@@ -99,14 +100,14 @@ public class Game
             return move;
         }
         else if (
-            gameStatus == GameStatus.WaitingBallMovement &&
-            selectedTile.IsTileHighlighted())
+            GameStatus == GameStatus.WaitingBallMovement &&
+            selectedTile.IsHighlighted)
         {
             // Move the ball and store the move.
-            Move move = MovePiece(this.board.GetBall(), selectedTile);
+            Move move = MovePiece(Board.Ball, selectedTile);
 
             // Clear all of the highlighted tiles.
-            this.board.ClearAllHighlights();
+            Board.ClearAllHighlights();
 
             // Check if a goal has been scored.
             Team? goalScored = CheckForGoalScored();
@@ -127,16 +128,16 @@ public class Game
                 // The game is over when someone scores two goals.
                 if (this.whiteScore >= 2 || this.blackScore >= 2)
                 {
-                    this.gameStatus = GameStatus.GameOver;
+                    GameStatus = GameStatus.GameOver;
                 }
                 else
                 {
                     // After a goal, it's the opposite team's turn.
                     this.currentTurn = GetOppositeTeam(goalScored.Value);
                     // Change the status of the game.
-                    this.gameStatus = GameStatus.WaitingPlayerPieceSelection;
+                    GameStatus = GameStatus.WaitingPlayerPieceSelection;
                     // Reset the pieces to their initial position.
-                    this.board.ResetPieces();
+                    Board.ResetPieces();
                 }
             }
             else
@@ -154,7 +155,7 @@ public class Game
                     // Reset the pass count.
                     this.passCount = 0;
                     // Change the status of the game.
-                    this.gameStatus = GameStatus.WaitingPlayerPieceSelection;
+                    GameStatus = GameStatus.WaitingPlayerPieceSelection;
                     // Switch the current turn.
                     SwitchCurrentTurn();
                 }
@@ -171,18 +172,21 @@ public class Game
     private void SelectPlayerPiece(PlayerPiece piece, AbstractTile tile)
     {
         // Check if the current turn matches with the piece's color.
-        if (piece.teamColor == currentTurn)
+        if (piece.GetTeamColor() == currentTurn)
         {
             // Highlight and store the tiles that indicate valid destinations.
             CalculatePlayerMovesAndHighlightTiles(tile, piece);
             // Change the status of the game.
-            this.gameStatus = GameStatus.WaitingPlayerPieceMovement;
+            GameStatus = GameStatus.WaitingPlayerPieceMovement;
             // Store the selected piece in an instance field.
             this.selectedPiece = piece;
         }
     }
 
-    private void SelectPlayerPiece(Ball piece)
+    // If the game is in the WaitingPlayerPiece Selection status and
+    // the user selects a Piece that is not a PlayerPiece (a Ball),
+    // then this method should do nothing.
+    private void SelectPlayerPiece(Piece piece, AbstractTile tile)
     {
         return;
     }
@@ -197,20 +201,20 @@ public class Game
     private Move MovePiece(Piece piece, AbstractTile destinationTile)
     {
         // Origin coordinates.
-        int x1 = piece.GetX();
-        int y1 = piece.GetY();
+        int x1 = piece.X;
+        int y1 = piece.Y;
         // Destination coordinates.
-        int x2 = destinationTile.GetX();
-        int y2 = destinationTile.GetY();
+        int x2 = destinationTile.X;
+        int y2 = destinationTile.Y;
 
         // Set the origin tile's "piece" field to null.
-        AbstractTile originTile = this.board.GetTile(x1,y1);
-        originTile.SetPiece(null);
+        AbstractTile originTile = Board.GetTile(x1,y1);
+        originTile.Piece = null;
         // Set the destination tile's field to the correct reference.
-        destinationTile.SetPiece(piece);
+        destinationTile.Piece = piece;
         // Update the piece's fields.
-        piece.SetX(x2);
-        piece.SetY(y2);
+        piece.X = x2;
+        piece.Y = y2;
 
         // Store the move.
         Move move = new Move(
@@ -227,8 +231,8 @@ public class Game
         AbstractTile selectedTile, PlayerPiece selectedPiece)
     {
         // Get the selected tile's coordinates.
-        int tileX = selectedTile.GetX();
-        int tileY = selectedTile.GetY();
+        int tileX = selectedTile.X;
+        int tileY = selectedTile.Y;
 
         // Clamp the coordinates, so it doesn't go out of the board.
         int startX = Math.Max(tileX - playerPieceReach, 0);
@@ -247,10 +251,10 @@ public class Game
                 // own corners, no jumping over the ball and other players and
                 // restrict the movement to up-down, right-left and diagonal.
                 if (CheckForValidPlayerMove(
-                    tileX, tileY, x2, y2, selectedPiece.GetTeamColor()))
+                    tileX, tileY, j, i, selectedPiece.GetTeamColor()))
                 {
                     // Highlight the tile.
-                    board.GetTile(x2, y2).SetHighlight(true);
+                    Board.GetTile(j, i).IsHighlighted = true;
                 }
             }
         }
@@ -269,10 +273,10 @@ public class Game
         int x1, int y1, int x2, int y2, Team teamColor)
     {
         return (
-            !IsItsOwnCorner(x2, y2) && // 1
+            !IsItsOwnCorner(x2, y2, teamColor) && // 1
             !IsAnotherPieceInTheWay(x1, y1, x2, y2) && // 2
             CheckForValidMovementDirections(x2-x1, y2-y1) && // 3 & 5
-            this.board.GetTile(x2, y2).IsTileValid() // 4
+            Board.GetTile(x2, y2).IsTileValid // 4
         );
     }
 
@@ -295,7 +299,7 @@ public class Game
             {
                 // Check if another piece is on the path from the origin
                 // tile to the destination tile.
-                if (this.board.GetTile(i, x1).GetPiece().HasValue)
+                if (Board.GetTile(i, x1).Piece != null)
                 {
                     return true;
                 }
@@ -306,7 +310,7 @@ public class Game
             // Traverse the board over a single row.
             for (int j = minX; j <= maxX; j++)
             {
-                if (this.board.GetTile(y1, j).GetPiece().HasValue)
+                if (Board.GetTile(y1, j).Piece != null)
                 {
                     return true;
                 }
@@ -317,7 +321,7 @@ public class Game
             // Traverse the board diagonally.
             for (int k = minX; k <= maxX; k++)
             {
-                if (this.board.GetTile(k, k).GetPiece().HasValue)
+                if (Board.GetTile(k, k).Piece != null)
                 {
                     return true;
                 }
@@ -335,9 +339,9 @@ public class Game
         return (
             (y == 0 || y == 10) &&
             // The white team play on the top side of the board.
-            ((teamColor == White && x == 1 ) ||
+            ((teamColor == Team.White && x == 1 ) ||
             // The black team play on the bottom side of the board.
-             (teamColor == Black && x == 13)
+             (teamColor == Team.Black && x == 13)
             ));
     }
 
@@ -364,15 +368,15 @@ public class Game
     // can be moved to.
     private void CalculateBallMovesAndHighlightTiles()
     {
-        Ball ball = this.board.GetBall();
+        Ball ball = Board.Ball;
 
         // Clamp the coordinates, so it doesn't go out of the board.
-        int startX = Math.Max(ball.GetX() - this.ballPieceReach, 0);
-        int startY = Math.Max(ball.GetY() - this.ballPieceReach, 0);
+        int startX = Math.Max(ball.X - this.ballPieceReach, 0);
+        int startY = Math.Max(ball.Y - this.ballPieceReach, 0);
         int endX = Math.Min(
-            ball.GetX() + this.ballPieceReach, this.board.GetXLength() - 1);
+            ball.X + this.ballPieceReach, Board.GetXLength() - 1);
         int endY = Math.Min(
-            ball.GetY() + this.ballPieceReach, this.board.GetYLength() - 1);
+            ball.Y + this.ballPieceReach, Board.GetYLength() - 1);
 
         // The ball can move no more than 4 squares from its
         // current position.
@@ -385,10 +389,10 @@ public class Game
                 // Check for the other conditions: no placing the ball
                 // in the team's own area, restrict the movement to
                 // up-down, right-left and diagonal.
-                if (CheckForValidBallMove(ball.GetX(), ball.GetY(), j, i))
+                if (CheckForValidBallMove(ball.X, ball.Y, j, i))
                 {
                     // Highlight the tile.
-                    board.GetTile(j, i).SetHighlight(true);
+                    Board.GetTile(j, i).IsHighlighted = true;
                 }
             }
         }
@@ -421,8 +425,8 @@ public class Game
         return (
             // General conditions.
             CheckForValidMovementDirections(x2-x1, y2-y1) && // 1 & 2
-            !this.board.GetTile(x2, y2).GetPiece().HasValue && // 3
-            this.board.GetTile(x2, y2).IsTileValid() && // 4
+            !Board.GetTile(x2, y2).GetPiece().HasValue && // 3
+            Board.GetTile(x2, y2).IsTileValid() && // 4
             (CountContiguousPieces(x2, y2, White) != 2 ||
              CountContiguousPieces(x2, y2, Black) != 2) && // 5
             // End-of-turn conditions.
@@ -495,7 +499,7 @@ public class Game
     // Returns the scoring team if a goal has been scored; null otherwise.
     private Team? CheckForGoalScored()
     {
-        Ball ball = this.board.GetBall();
+        Ball ball = Board.GetBall();
 
         // Look for the ball on the white team's goal.
         if (ball.GetY() == 0)
@@ -520,7 +524,7 @@ public class Game
     private bool IsBallInPossessionOfCurrentTurn()
     {
         // Check if the ball can be passed or if we must switch turns.
-        Team? ballPossesion = GetBallPossession(this.board.GetBall());
+        Team? ballPossesion = GetBallPossession(Board.GetBall());
         return (
             ballPossesion.HasValue &&
             ballPossesion.Value == this.currentTurn);
@@ -559,10 +563,10 @@ public class Game
         // Set the limits for the nested iteration.
         int minX = Math.Max(0, x-1);
         int maxX = Math.Min(
-            this.board.GetXLength() - 1, x+1);
+            Board.GetXLength() - 1, x+1);
         int minY = Math.Max(0, y-1);
         int maxY = Math.Min(
-            this.board.GetYLength() - 1, y+1);
+            Board.GetYLength() - 1, y+1);
         
         int count = 0;
 
@@ -572,7 +576,7 @@ public class Game
             for (int j = minX; j <= maxY; j++)
             {
                 // Get the piece, if there is any.
-                Piece? piece = this.board.GetTile(j,i).GetPiece();
+                Piece? piece = Board.GetTile(j,i).GetPiece();
 
                 // Count the pieces of the given color.
                 if (

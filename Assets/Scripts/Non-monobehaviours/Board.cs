@@ -9,11 +9,11 @@ public class Board
 
     // Store a reference to the pieces on this class' fields for
     // easy access to their position.
-    private readonly PlayerPiece whitePiece1;
-    private readonly PlayerPiece whitePiece2;
-    private readonly PlayerPiece blackPiece1;
-    private readonly PlayerPiece blackPiece2;
-    private readonly Ball ball;
+    public PlayerPiece WhitePiece1 { get; private set; }
+    public PlayerPiece WhitePiece2 { get; private set; }
+    public PlayerPiece BlackPiece1 { get; private set; }
+    public PlayerPiece BlackPiece2 { get; private set; }
+    public Ball Ball { get; private set; }
 
     // Dimension of the board matrix.
     private const int boardXLength = 11;
@@ -32,15 +32,15 @@ public class Board
     {
         // Store a reference to the pieces on this class' fields for
         // easy access to their position.
-        this.whitePiece1 = new PlayerPiece(
+        WhitePiece1 = new PlayerPiece(
             piecesX,white1Y,Team.White,PieceNumber.One);
-        this.whitePiece2 = new PlayerPiece(
+        WhitePiece2 = new PlayerPiece(
             piecesX,white2Y,Team.White,PieceNumber.Two);
-        this.blackPiece1 = new PlayerPiece(
+        BlackPiece1 = new PlayerPiece(
             piecesX,black1Y,Team.Black,PieceNumber.One);
-        this.blackPiece2 = new PlayerPiece(
+        BlackPiece2 = new PlayerPiece(
             piecesX,black2Y,Team.Black,PieceNumber.Two);
-        this.ball        = new Ball(piecesX,ballY);
+        Ball        = new Ball(piecesX,ballY);
 
         // Create the abstract tiles and store the pieces in them.
         for (int i = 0; i < boardYLength; i++)
@@ -55,23 +55,23 @@ public class Board
                 {
                     if (i == white1Y)
                     {
-                        tiles[i,j].SetPiece(whitePiece1);
+                        tiles[i,j].Piece = WhitePiece1;
                     }
                     else if (i == white2Y)
                     {
-                        tiles[i,j].SetPiece(whitePiece2);
+                        tiles[i,j].Piece = WhitePiece2;
                     }
                     else if (i == black1Y)
                     {
-                        tiles[i,j].SetPiece(blackPiece1);
+                        tiles[i,j].Piece = BlackPiece1;
                     }
                     else if (i == black2Y)
                     {
-                        tiles[i,j].SetPiece(blackPiece2);
+                        tiles[i,j].Piece = BlackPiece2;
                     }
                     else if (i == ballY)
                     {
-                        tiles[i,j].SetPiece(ball);
+                        tiles[i,j].Piece = Ball;
                     }
                 }
             }
@@ -84,33 +84,33 @@ public class Board
     {
         // Set the tiles at the current position of the pieces
         // to null.
-        GetTile(this.whitePiece1).SetPiece(null);
-        GetTile(this.whitePiece2).SetPiece(null);
-        GetTile(this.blackPiece1).SetPiece(null);
-        GetTile(this.blackPiece2).SetPiece(null);
-        GetTile(this.ball).SetPiece(null);
+        GetTile(WhitePiece1).Piece = null;
+        GetTile(WhitePiece2).Piece = null;
+        GetTile(BlackPiece1).Piece = null;
+        GetTile(BlackPiece2).Piece = null;
+        GetTile(Ball).Piece = null;
 
         // Update the "x" fields of the pieces.
-        this.whitePiece1.SetX(piecesX);
-        this.whitePiece2.SetX(piecesX);
-        this.blackPiece1.SetX(piecesX);
-        this.blackPiece2.SetX(piecesX);
-        this.ball.SetX(piecesX);
+        WhitePiece1.X = piecesX;
+        WhitePiece2.X = piecesX;
+        BlackPiece1.X = piecesX;
+        BlackPiece2.X = piecesX;
+        Ball.X = piecesX;
 
         // Update the "y" fields of the pieces.
-        this.whitePiece1.SetY(white1Y);
-        this.whitePiece2.SetY(white2Y);
-        this.blackPiece1.SetY(black1Y);
-        this.blackPiece2.SetY(black2Y);
-        this.ball.SetY(ballY);
+        WhitePiece1.Y = white1Y;
+        WhitePiece2.Y = white2Y;
+        BlackPiece1.Y = black1Y;
+        BlackPiece2.Y = black2Y;
+        Ball.Y = ballY;
 
         // Set the tiles at the new position of the pieces to reference
         // those pieces, respectively.
-        GetTile(piecesX, white1Y).SetPiece(this.whitePiece1);
-        GetTile(piecesX, white2Y).SetPiece(this.whitePiece2);
-        GetTile(piecesX, black1Y).SetPiece(this.blackPiece1);
-        GetTile(piecesX, black2Y).SetPiece(this.blackPiece2);
-        GetTile(piecesX, ballY).SetPiece(this.ball);
+        GetTile(piecesX, white1Y).Piece = WhitePiece1;
+        GetTile(piecesX, white2Y).Piece = WhitePiece2;
+        GetTile(piecesX, black1Y).Piece = BlackPiece1;
+        GetTile(piecesX, black2Y).Piece = BlackPiece2;
+        GetTile(piecesX, ballY).Piece = Ball;
     }
     
     // A getter method for a tile at a given pair of coordinates.
@@ -122,7 +122,7 @@ public class Board
     // Another getter method for the tiles.
     public AbstractTile GetTile(Piece piece)
     {
-        return GetTile(piece.GetX(), piece.GetY());
+        return GetTile(piece.X, piece.Y);
     }
 
     // Returns an iterator with the tiles of the board.
@@ -134,7 +134,7 @@ public class Board
             {
                 // Get the tile and check if it's valid.
                 AbstractTile tile = GetTile(j, i);
-                if (tile.IsTileValid())
+                if (tile.IsTileValid)
                 {
                     // Return the tile iteratively.
                     yield return tile;
@@ -150,7 +150,7 @@ public class Board
         {
             for (int j = 0; j < boardXLength; j++)
             {
-                GetTile(j,i).SetHighlight(false);
+                GetTile(j,i).IsHighlighted = false;
             }
         }
     }
@@ -168,8 +168,10 @@ public class Board
     }
 
     // Getter for the reference to the ball.
+    /*
     public Ball GetBall()
     {
-        return this.ball;
+        return Ball;
     }
+    */
 }

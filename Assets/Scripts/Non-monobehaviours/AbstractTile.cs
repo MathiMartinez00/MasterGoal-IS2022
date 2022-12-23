@@ -3,34 +3,49 @@
 public class AbstractTile
 {
     // A tile can have a piece or no pieces.
-    private Piece? piece;
+    public Piece? Piece { get; set; }
     // Coordinates of a tile.
-    private int x;
-    private int y;
+    public int X { get; }
+    public int Y { get; }
     // Property to store the validity of the tile.
-    private bool isTileValid;
-    private bool isHighlighted;
+    public bool IsTileValid { get; }
+    public bool IsHighlighted { get; set; }
 
     public AbstractTile(int x, int y, Piece? piece)
     {
-        this.x = x;
-        this.y = y;
+        X = x;
+        Y = y;
         // At the beginning of a game no tile is highlighted.
-        this.isHighlighted = false;
+        IsHighlighted = false;
 
         // Check for the validity of the tile. Tiles to the sides
         // of the goals are always invalid.
         if (AreCoordinatesValid(x,y))
         {
             // If the tile is valid, set the piece.
-            this.piece = piece;
-            this.isTileValid = true;
+            Piece = piece;
+            IsTileValid = true;
         }
         else
         {
             // If the tile is not valid, set the piece to null.
-            this.piece = null;
-            this.isTileValid = false;
+            Piece = null;
+            IsTileValid = false;
+        }
+    }
+
+    // The tiles that are located on both sides of the goals aren't
+    // valid tiles. Pieces cannot be moved on those tiles.
+    private bool AreCoordinatesValid(int x, int y)
+    {
+        return !((x <= 2 || x >= 8) && (y == 0 || y == 14));
+    }
+
+    /*
+    public Piece? Piece
+    {
+        get { return piece; }
+        set { piece = value;
         }
     }
 
@@ -58,12 +73,7 @@ public class AbstractTile
         return this.piece;
     }
 
-    // The tiles that are located on both sides of the goals aren't
-    // valid tiles. Pieces cannot be moved on those tiles.
-    private bool AreCoordinatesValid(int x, int y)
-    {
-        return !((x <= 2 || x >= 8) && (y == 0 || y == 14));
-    }
+
 
     // Getter for the isTileValid field.
     public bool IsTileValid()
@@ -94,4 +104,5 @@ public class AbstractTile
     {
         return this.isHighlighted;
     }
+    */
 }

@@ -28,7 +28,7 @@ public class Position
         this.vector3Int = vector;
 
         // Convert the Vector3Int to a Vector3 with float components.
-        this.vector3 = new Vector((float)vector.x, (float)vector.y);
+        this.vector3 = new Vector3((float)vector.x, (float)vector.y);
     }
 
     public Position(int x, int y)
@@ -45,7 +45,7 @@ public class Position
         this.vector3 = new Vector3Int(vectorX, vectorY);
 
         // Initialize a new Vector3 object with float components.
-        this.vector3 = new Vector((float)vectorX, (float)vectorY);
+        this.vector3 = new Vector3((float)vectorX, (float)vectorY);
     }
 
     // Getter for the x coordinate.

@@ -11,21 +11,21 @@ using UnityEngine.Tilemaps;
 public class ScriptController : MonoBehaviour
 {
     // Used to get information to and from the AI algorithm.
-    Game game;
+    public Game Game { get; set; }
 
     // GameObjects for game control.
     //
-    public Tilemap tilemapBoard;
-    public Tilemap tilemapHighlight;
+    public Tilemap TilemapBoard;
+    public Tilemap TilemapHighlight;
     // A PNG file that signals the highlighting.
-    public Tile tileHighlight;
-    public BoxCollider2D boardBoxCollider;
+    public Tile TileHighlight { get; set; }
+    public BoxCollider2D BoardBoxCollider { get; set; }
     // The five game pieces.
-    public GameObject whitePiece1;
-    public GameObject whitePiece2;
-    public GameObject blackPiece1;
-    public GameObject blackPiece2;
-    public GameObject ball;
+    public GameObject WhitePiece1 { get; set; }
+    public GameObject WhitePiece2 { get; set; }
+    public GameObject BlackPiece1 { get; set; }
+    public GameObject BlackPiece2 { get; set; }
+    public GameObject Ball { get; set; }
     
     // Movement settings
     //public float smoothDampTime = .02f;
@@ -35,19 +35,23 @@ public class ScriptController : MonoBehaviour
     public TextMeshProUGUI whiteScoreText, redScoreText;
     public TextMeshProUGUI whiteScoreName, redScoreName;
     public TextMeshProUGUI winnerName;
-    public string whiteName, redName;
-    public int whiteScore = 0, redScore = 0;
+    public string WhiteName { get; private set; }
+    public string RedName { get; private set; }
+    public int WhiteScore { get; set; }
+    public int RedScore { get; set; }
 
     // Start is called before the first frame update.
     void Start()
     {
-        this.whiteName = PlayerPrefs.GetString("player1");
-        this.redName = PlayerPrefs.GetString("player2");
-        this.whiteScoreName.text = whiteName;
-        this.redScoreName.text = redName;
-        this.boardBoxCollider = tilemapBoard.gameObject.GetComponent<BoxCollider2D>();
+        WhiteScore = 0;
+        RedScore = 0;
+        WhiteName = PlayerPrefs.GetString("player1");
+        RedName = PlayerPrefs.GetString("player2");
+        this.whiteScoreName.text = WhiteName;
+        this.redScoreName.text = RedName;
+        BoardBoxCollider = TilemapBoard.gameObject.GetComponent<BoxCollider2D>();
         // Create a new abstract game instance.
-        this.game = new Game(GameMode.TwoPlayers, Team.White);
+        Game = new Game(GameMode.TwoPlayers, Team.White);
     }
 
     // This method is called whenever the user taps on the screen.
@@ -56,16 +60,16 @@ public class ScriptController : MonoBehaviour
         // Updates board based on player input given by the
         // IPointerHandlerEvent on the tilemap board GameObject.
         Vector2 worldPoint = Camera.main.ScreenToWorldPoint(eventData.position);
-        Vector3Int point = tilemapBoard.WorldToCell(worldPoint);
+        Vector3Int point = TilemapBoard.WorldToCell(worldPoint);
 
         // Convert the Vector3Int to matrix coordinates using
         // the Position object.
         Position position = new Position(point);
-        Move? move = this.game.UserInput(position);
+        Move? move = Game.UserInput(position);
 
         // Render the changes that resulted from this interaction with
         // the user.
-        RenderChanges(move, this.game.board);
+        RenderChanges(move);
     }
 
     // Takes the last move that was made on the game and moves the
@@ -84,16 +88,16 @@ public class ScriptController : MonoBehaviour
             // If a goal has been made, all of the pieces need to be reset.
             else if (move.GetIsGoal())
             {
-                MoveConcretePiece(this.game.board.whitePiece1);
-                MoveConcretePiece(this.game.board.whitePiece2);
-                MoveConcretePiece(this.game.board.blackPiece1);
-                MoveConcretePiece(this.game.board.blackPiece2);
-                MoveConcretePiece(this.game.board.ball);
+                MoveConcretePiece(Game.Board.WhitePiece1);
+                MoveConcretePiece(Game.Board.WhitePiece2);
+                MoveConcretePiece(Game.Board.BlackPiece1);
+                MoveConcretePiece(Game.Board.BlackPiece2);
+                MoveConcretePiece(Game.Board.Ball);
             }
         }
 
         // Render the new highlights, if there are any.
-        RenderHighlights(this.game.board);
+        RenderHighlights(Game.Board);
     }
 
     // Takes the abstract board as argument and checks for the tiles that
@@ -102,20 +106,20 @@ public class ScriptController : MonoBehaviour
     private void RenderHighlights(Board board)
     {
         // Clear all of the highlights on the tilemap.
-        tilemapHighlight.ClearAllTiles();
+        TilemapHighlight.ClearAllTiles();
 
         // Iterate through the abstract tiles and highlight the concrete ones.
-        foreach(Tile tile in board.GetIterativeTiles())
+        foreach(AbstractTile tile in board.GetIterativeTiles())
         {
             // Check if the tile is valid and if it's highlighted.
-            if (tile.IsTileValid() && tile.isHighlighted())
+            if (tile.IsTileValid && tile.IsHighlighted)
             {
                 // Create a new position object (to make a unit conversion).
-                Position position = new Position(tile.GetX(), tile.GetY());
+                Position position = new Position(tile.X, tile.Y);
 
                 // Highlight the concrete tile.
-                tilemapHighlight.SetTile(
-                    position.GetVector3Int(), this.tileHighlight);
+                TilemapHighlight.SetTile(
+                    position.GetVector3Int(), TileHighlight);
             }
         }
     }
@@ -124,7 +128,7 @@ public class ScriptController : MonoBehaviour
     // it is supossed to represent.
     private GameObject AbstractPieceToConcrete(PlayerPiece piece)
     {
-        if (piece.teamColor == White && piece.pieceNumber == One)
+        if (piece.teamColor == Team.White && piece.pieceNumber == PieceNumber.One)
         {
             return whitePiece1;
         }
