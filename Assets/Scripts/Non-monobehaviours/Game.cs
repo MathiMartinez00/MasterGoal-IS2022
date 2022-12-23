@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System;
 
+#nullable enable
+
 // An instance of this class represents an abstract representation of the
 // state of the game.
 // This is a standalone C# class and doesn't inherit from Monobehavior,
@@ -13,7 +15,7 @@ public class Game
     public GameStatus GameStatus { get; private set; }
     private Team currentTurn;
     private List<Move> allMoves;
-    private PlayerPiece? selectedPiece;
+    private PlayerPiece selectedPiece;
     private int passCount;
     private int whiteScore;
     private int blackScore;
@@ -23,12 +25,14 @@ public class Game
     private readonly int ballPieceReach   = 4;
 
     // C# class constructor.
-    Game(GameMode gameMode, Team firstTurn)
+    public Game(GameMode gameMode, Team firstTurn)
     {
         Board = new Board();
         GameMode = gameMode;
         GameStatus = GameStatus.WaitingPlayerPieceSelection;
         this.currentTurn = Team.White;
+        // Select a piece just as a placeholder for the field.
+        this.selectedPiece = Board.WhitePiece1;
         this.allMoves = new List<Move>();
         this.passCount = 0;
         this.whiteScore = 0;
@@ -46,8 +50,8 @@ public class Game
     public Move? UserInput(Position position)
     {
         // Conver the coordinates to x and y.
-        int x = position.GetX();
-        int y = position.GetY();
+        int x = position.X;
+        int y = position.Y;
 
         // Get the selected tile.
         AbstractTile selectedTile = Board.GetTile(x,y);
@@ -72,12 +76,21 @@ public class Game
             GameStatus == GameStatus.WaitingPlayerPieceMovement &&
             selectedTile.IsHighlighted)
         {
-            // Move the piece and store the move.
-            Move move = MovePieceAndStoreMove(this.selectedPiece, selectedTile);
+            // Get the origin tile.
+            AbstractTile originTile = Board.GetTile(
+                this.selectedPiece.X,this.selectedPiece.Y);
+
+            // Update the piece's position fields.
+            this.selectedPiece.X = selectedTile.X;
+            this.selectedPiece.Y = selectedTile.Y;
+
+            // Update the origin and destination tile's player piece fields.
+            Move move = UpdateTilesPieceFieldsAndStoreMove(
+                this.selectedPiece, originTile, selectedTile);
+
             // Clear all of the highlighted tiles.
             Board.ClearAllHighlights();
-            // Deselect the piece.
-            this.selectedPiece = null;
+
             // Check if the team that made the last player move is in
             // possession of the ball.
             if (IsBallInPossessionOfCurrentTurn())
@@ -103,8 +116,16 @@ public class Game
             GameStatus == GameStatus.WaitingBallMovement &&
             selectedTile.IsHighlighted)
         {
-            // Move the ball and store the move.
-            Move move = MovePieceAndStoreMove(Board.Ball, selectedTile);
+            // Get the origin tile.
+            AbstractTile originTile = Board.GetTile(Board.Ball.X,Board.Ball.Y);
+
+            // Update the piece's position fields.
+            Board.Ball.X = selectedTile.X;
+            Board.Ball.Y = selectedTile.Y;
+
+            // Update both the origin and destination tile's ball fields.
+            Move move = UpdateTilesPieceFieldsAndStoreMove(
+                Board.Ball, originTile, selectedTile);
 
             // Clear all of the highlighted tiles.
             Board.ClearAllHighlights();
@@ -114,7 +135,7 @@ public class Game
             if (goalScored != null)
             {
                 // Mark that the latest move resulted in a goal.
-                move.SetIsGoal(true);
+                move.IsGoal = true;
 
                 // Update the scores.
                 if (goalScored == Team.White)
@@ -164,6 +185,9 @@ public class Game
             // Return the move (to do a reactive board update).
             return move;
         }
+
+        // If an invalid selection is made (no branches apply), return null.
+        return null;
     }
 
     // Check if the player piece is of the right team, highlight the
@@ -182,36 +206,23 @@ public class Game
         }
     }
 
-    // Takes a piece and a pair of coordinates and moves the piece
-    // to the tile located at the given coordinates. In this process,
-    // it also changes the x and y position of the Piece object and
-    // sets the old tile's "piece" field to null.
-    //
-    // This method doesn't validate the move. Validation is made by
-    // highlighting tiles.
-    private Move MovePieceAndStoreMove(Piece piece, AbstractTile destinationTile)
+    // Overloaded method that updates the origin and destination tile's
+    // PlayerPiece and Ball fields according to the type of Piece that
+    // is moved, creates a new Move instance, stores the move and then
+    // returns it. This method is used then the piece is an instance of
+    // Player Piece.
+    private Move UpdateTilesPieceFieldsAndStoreMove(
+        PlayerPiece playerPiece, AbstractTile originTile,
+        AbstractTile destinationTile)
     {
-        // Origin coordinates.
-        int x1 = piece.X;
-        int y1 = piece.Y;
-
-        // Destination coordinates.
-        int x2 = destinationTile.X;
-        int y2 = destinationTile.Y;
-
-        // Get the origin tile.
-        AbstractTile originTile = Board.GetTile(x1,y1);
-
-        // Update both the origin and destination tile's piece fields.
-        UpdateTilesPieceFields(piece, originTile, destinationTile);
-
-        // Update the piece's position fields.
-        piece.X = x2;
-        piece.Y = y2;
+        // Set the origin tile's "PlayerPiece" field to null.
+        originTile.PlayerPiece = null;
+        // Set the destination tile's field to the correct reference.
+        destinationTile.PlayerPiece = playerPiece;
 
         // Store the move.
         Move move = new Move(
-            this.currentTurn, originTile, destinationTile, piece);
+            this.currentTurn, originTile, destinationTile, playerPiece);
         this.allMoves.Add(move);
 
         // Return the move (for the reactive board update).
@@ -220,21 +231,10 @@ public class Game
 
     // Overloaded method that updates the origin and destination tile's
     // PlayerPiece and Ball fields according to the type of Piece that
-    // is moved.
-    private void UpdateTilesPieceFields(
-        PlayerPiece playerPiece, AbstractTile originTile,
-        AbstractTile destinationTile)
-    {
-        // Set the origin tile's "PlayerPiece" field to null.
-        originTile.PlayerPiece = null;
-        // Set the destination tile's field to the correct reference.
-        destinationTile.PlayerPiece = playerPiece;
-    }
-
-    // Overloaded method that updates the origin and destination tile's
-    // PlayerPiece and Ball fields according to the type of Piece that
-    // is moved.
-    private void UpdateTilesPieceFields(
+    // is moved, creates a new Move instance, stores the move and then
+    // returns it. This method is used then the piece is an instance of
+    // Ball.
+    private Move UpdateTilesPieceFieldsAndStoreMove(
         Ball ballPiece, AbstractTile originTile,
         AbstractTile destinationTile)
     {
@@ -242,8 +242,15 @@ public class Game
         originTile.Ball = null;
         // Set the destination tile's field to the correct reference.
         destinationTile.Ball = ballPiece;
-    }
 
+        // Store the move.
+        Move move = new Move(
+            this.currentTurn, originTile, destinationTile, ballPiece);
+        this.allMoves.Add(move);
+
+        // Return the move (for the reactive board update).
+        return move;
+    }
 
     // Calculates the valid moves for a player piece and highlights all
     // of the tiles in which this piece can be moved.
@@ -373,6 +380,24 @@ public class Game
             ));
     }
 
+    // Checks to see if the given coordinates corresponds to the area
+    // of the team whose turn it is (determined by the currentTurn field).
+    //
+    // The area of each team is defined as a 9 by 4 rectangle contiguous
+    // to the team's goal.
+    private bool IsItsOwnArea(int x, int y, Team teamColor)
+    {
+        return (
+            // These are the columns that span the area.
+            (x >= 1 && x <= 9) &&
+             // The rows that span the area of each team.
+            ((teamColor == Team.White && y >= 1  && y <= 4 ) ||
+             (teamColor == Team.Black && y >= 10 && y <= 13))
+            );
+    }
+
+
+
     // Checks if the movement pattern is valid. A piece can only be moved
     // straight up and down, and diagonally. A piece cannot stay on its
     // tile and count that action as a "move".
@@ -386,7 +411,7 @@ public class Game
             // If the piece is moved more than a tile away from its original
             // place, then allow only the diagonals and straight up and down.
             (!(Math.Abs(x) > 1 && Math.Abs(y) > 1 && Math.Abs(x) != Math.Abs(y))) &&
-            (!(Math.Abs(x) == 1 && Math.Abs(y) > 1))
+            (!(Math.Abs(x) == 1 && Math.Abs(y) > 1)) &&
             (!(Math.Abs(y) == 1 && Math.Abs(x) > 1))
             );
     }
@@ -447,14 +472,13 @@ public class Game
     private bool CheckForValidBallMove(int x1, int y1, int x2, int y2)
     {
         // Get the team whose current turn it is and the opposite team.
-        Team thisTeam     = this.currentTurn;
-        Team oppositeTeam = GetOppositeTeam(this.currentTurn);
+        Team teamColor = this.currentTurn;
 
         return (
             // General conditions.
             CheckForValidMovementDirections(x2-x1, y2-y1) && // 1 & 2
-            Board.GetTile(x2, y2).Piece == null && // 3
-            Board.GetTile(x2, y2).IsTileValid && // 4
+            !DoesTileContainAPiece(x2,y2) && // 3
+            Board.GetTile(x2, y2).IsValid && // 4
             (CountContiguousPieces(x2, y2, Team.White) != 2 ||
              CountContiguousPieces(x2, y2, Team.Black) != 2) && // 5
             // End-of-turn conditions.
@@ -464,8 +488,8 @@ public class Game
                 (passCount == 3 || IsTileFree(x2,y2)) &&
                 // If the turn ends, end of turn conditions must be met.
                 (!IsTileFree(x2,y2) || // 6
-                 IsItsOwnArea(x2, y2) || // 7
-                 IsItsOwnCorner(x2, y2)) // 8
+                 IsItsOwnArea(x2, y2, teamColor) || // 7
+                 IsItsOwnCorner(x2, y2, teamColor)) // 8
                  )
                  );
     }
@@ -503,22 +527,6 @@ public class Game
     private Team GetOppositeTeam(Team team)
     {
         return ((team == Team.White) ? Team.Black : Team.White);
-    }
-
-    // Checks to see if the given coordinates corresponds to the area
-    // of the team whose turn it is (determined by the currentTurn field).
-    //
-    // The area of each team is defined as a 9 by 4 rectangle contiguous
-    // to the team's goal.
-    private bool IsItsOwnArea(int x, int y)
-    {
-        return (
-            // These are the columns that span the area.
-            (x >= 1 && x <= 9) &&
-             // The rows that span the area of each team.
-            ((this.currentTurn == Team.White && y >= 1  && y <= 4 ) ||
-             (this.currentTurn == Team.Black && y >= 10 && y <= 13))
-            );
     }
 
     // Checks if a goal has been scored based on the current position

@@ -640,7 +640,6 @@ GameObject:
   m_Component:
   - component: {fileID: 570439593}
   - component: {fileID: 570439594}
-  - component: {fileID: 570439595}
   m_Layer: 0
   m_Name: ChipRed1
   m_TagString: Untagged
@@ -715,19 +714,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &570439595
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 570439592}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c4ddd266448db843a1c087b736a0acb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  team: 1
 --- !u!1 &581318472
 GameObject:
   m_ObjectHideFlags: 0
@@ -814,7 +800,6 @@ GameObject:
   m_Component:
   - component: {fileID: 721146564}
   - component: {fileID: 721146563}
-  - component: {fileID: 721146565}
   m_Layer: 0
   m_Name: ChipBall
   m_TagString: Untagged
@@ -889,19 +874,6 @@ Transform:
   m_Father: {fileID: 174100779}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &721146565
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 721146561}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66f30b487ca68684e998615f985e2f63, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamPossession: 0
 --- !u!1 &829102919
 GameObject:
   m_ObjectHideFlags: 0
@@ -1047,7 +1019,6 @@ GameObject:
   m_Component:
   - component: {fileID: 863969267}
   - component: {fileID: 863969268}
-  - component: {fileID: 863969269}
   m_Layer: 0
   m_Name: ChipWhite1
   m_TagString: Untagged
@@ -1122,19 +1093,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &863969269
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 863969266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c4ddd266448db843a1c087b736a0acb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  team: 0
 --- !u!1 &865292540
 GameObject:
   m_ObjectHideFlags: 0
@@ -1221,7 +1179,6 @@ GameObject:
   m_Component:
   - component: {fileID: 870302200}
   - component: {fileID: 870302199}
-  - component: {fileID: 870302201}
   m_Layer: 0
   m_Name: ChipWhite0
   m_TagString: Untagged
@@ -1296,19 +1253,6 @@ Transform:
   m_Father: {fileID: 174100779}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &870302201
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 870302198}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c4ddd266448db843a1c087b736a0acb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  team: 0
 --- !u!1 &1041523346
 GameObject:
   m_ObjectHideFlags: 0
@@ -1353,32 +1297,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcedacc7f1f00a44bb7f05b0fd4c06b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tilemapBoard: {fileID: 1142989029}
-  tilemapHighlight: {fileID: 1398135956}
-  tileHighlight: {fileID: 11400000, guid: 370fe24df9fa5c348b30e16c3a10d28d, type: 2}
-  boardBoxCollider: {fileID: 0}
-  playerChips:
-  - {fileID: 1821952873}
-  - {fileID: 570439592}
-  - {fileID: 870302198}
-  - {fileID: 863969266}
-  ballChip: {fileID: 721146561}
-  smoothDampTime: 0.1
-  distanceToSnap: 0.05
-  passCount: 0
-  selectedChip: {fileID: 0}
-  ballChipPasser: {fileID: 0}
-  currentTurn: 0
-  currentState: 0
+  TilemapBoard: {fileID: 1142989029}
+  TilemapHighlight: {fileID: 1398135956}
+  TileHighlight: {fileID: 11400000, guid: 370fe24df9fa5c348b30e16c3a10d28d, type: 2}
+  BoardBoxCollider: {fileID: 0}
+  WhitePiece1: {fileID: 870302198}
+  WhitePiece2: {fileID: 863969266}
+  BlackPiece1: {fileID: 1821952873}
+  BlackPiece2: {fileID: 570439592}
+  Ball: {fileID: 721146561}
   whiteScoreText: {fileID: 1627969480}
   redScoreText: {fileID: 1184850327}
   whiteScoreName: {fileID: 1838547762}
   redScoreName: {fileID: 1328258735}
   winnerName: {fileID: 425312825}
-  whiteName: 
-  redName: 
-  whiteScore: 0
-  redScore: 0
 --- !u!1 &1142989026
 GameObject:
   m_ObjectHideFlags: 0
@@ -4377,7 +4309,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1821952875}
   - component: {fileID: 1821952874}
-  - component: {fileID: 1821952876}
   m_Layer: 0
   m_Name: ChipRed0
   m_TagString: Untagged
@@ -4452,19 +4383,6 @@ Transform:
   m_Father: {fileID: 174100779}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1821952876
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1821952873}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c4ddd266448db843a1c087b736a0acb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  team: 1
 --- !u!1 &1824068057
 GameObject:
   m_ObjectHideFlags: 0

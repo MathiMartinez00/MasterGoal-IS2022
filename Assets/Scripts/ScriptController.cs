@@ -7,38 +7,41 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 
+#nullable enable
 
 public class ScriptController : MonoBehaviour
 {
     // Used to get information to and from the AI algorithm.
-    public Game Game { get; set; }
+    public Game Game { get; set; } = default!;
 
     // GameObjects for game control.
     //
-    public Tilemap TilemapBoard;
-    public Tilemap TilemapHighlight;
+    public Tilemap TilemapBoard = default!;
+    public Tilemap TilemapHighlight = default!;
     // A PNG file that signals the highlighting.
-    public Tile TileHighlight { get; set; }
-    public BoxCollider2D BoardBoxCollider { get; set; }
+    public Tile TileHighlight = default!;
+    public BoxCollider2D BoardBoxCollider = default!;
     // The five game pieces.
-    public GameObject WhitePiece1 { get; set; }
-    public GameObject WhitePiece2 { get; set; }
-    public GameObject BlackPiece1 { get; set; }
-    public GameObject BlackPiece2 { get; set; }
-    public GameObject Ball { get; set; }
+    public GameObject WhitePiece1 = default!;
+    public GameObject WhitePiece2 = default!;
+    public GameObject BlackPiece1 = default!;
+    public GameObject BlackPiece2 = default!;
+    public GameObject Ball = default!;
     
     // Movement settings
     //public float smoothDampTime = .02f;
     //public float distanceToSnap = .05f;
 
     // UI variables
-    public TextMeshProUGUI whiteScoreText, redScoreText;
-    public TextMeshProUGUI whiteScoreName, redScoreName;
-    public TextMeshProUGUI winnerName;
-    public string WhiteName { get; private set; }
-    public string RedName { get; private set; }
-    public int WhiteScore { get; set; }
-    public int RedScore { get; set; }
+    public TextMeshProUGUI whiteScoreText = default!;
+    public TextMeshProUGUI redScoreText = default!;
+    public TextMeshProUGUI whiteScoreName = default!;
+    public TextMeshProUGUI redScoreName = default!;
+    public TextMeshProUGUI winnerName = default!;
+    public string WhiteName { get; private set; } = default!;
+    public string RedName { get; private set; } = default!;
+    public int WhiteScore { get; set; } = default!;
+    public int RedScore { get; set; } = default!;
 
     // Start is called before the first frame update.
     void Start()
@@ -65,6 +68,13 @@ public class ScriptController : MonoBehaviour
         // Convert the Vector3Int to matrix coordinates using
         // the Position object.
         Position position = new Position(point);
+
+        ///////////////////////////////////////////
+        Debug.Log(position.X);
+        Debug.Log(position.Y);
+        Debug.Log(position.Vector3Int);
+        ///////////////////////////////////////////
+
         Move? move = Game.UserInput(position);
 
         // Render the changes that resulted from this interaction with
@@ -79,20 +89,27 @@ public class ScriptController : MonoBehaviour
         if (move != null)
         {
             // Check for any piece movement that didn't result in a goal.
-            if (!move.GetIsGoal())
+            if (!move.IsGoal)
             {
-                // Get the piece that was recently moved on the abstract
-                // board and move it on the concrete board.
-                MoveConcretePiece(move.GetPieceMoved());
+                // Check what kind of piece was recently moved and move
+                // it on the concrete board.
+                if (move.PlayerPiece != null)
+                {
+                    MoveConcretePlayer(move.PlayerPiece);
+                }
+                else if (move.BallMoved != null)
+                {
+                    MoveConcreteBall(move.BallMoved);
+                }
             }
             // If a goal has been made, all of the pieces need to be reset.
-            else if (move.GetIsGoal())
+            else if (move.IsGoal)
             {
-                MoveConcretePiece(Game.Board.WhitePiece1);
-                MoveConcretePiece(Game.Board.WhitePiece2);
-                MoveConcretePiece(Game.Board.BlackPiece1);
-                MoveConcretePiece(Game.Board.BlackPiece2);
-                MoveConcretePiece(Game.Board.Ball);
+                MoveConcretePlayer(Game.Board.WhitePiece1);
+                MoveConcretePlayer(Game.Board.WhitePiece2);
+                MoveConcretePlayer(Game.Board.BlackPiece1);
+                MoveConcretePlayer(Game.Board.BlackPiece2);
+                MoveConcreteBall(Game.Board.Ball);
             }
         }
 
@@ -112,65 +129,72 @@ public class ScriptController : MonoBehaviour
         foreach(AbstractTile tile in board.GetIterativeTiles())
         {
             // Check if the tile is valid and if it's highlighted.
-            if (tile.IsTileValid && tile.IsHighlighted)
+            if (tile.IsValid && tile.IsHighlighted)
             {
                 // Create a new position object (to make a unit conversion).
                 Position position = new Position(tile.X, tile.Y);
 
                 // Highlight the concrete tile.
                 TilemapHighlight.SetTile(
-                    position.GetVector3Int(), TileHighlight);
+                    position.Vector3Int, TileHighlight);
             }
         }
     }
 
-    // Takes an abstract piece and returns the concrete GameObject that
-    // it is supossed to represent.
-    private GameObject AbstractPieceToConcrete(PlayerPiece piece)
+    // Takes an abstract player piece and returns the concrete GameObject
+    // that it is supossed to represent.
+    private GameObject AbstractPlayerToConcrete(PlayerPiece piece)
     {
+        GameObject result = WhitePiece1;
         if (
             piece.TeamColor == Team.White &&
             piece.PieceNumber == PieceNumber.One)
         {
-            return WhitePiece1;
+            result = WhitePiece1;
         }
         else if (
             piece.TeamColor == Team.White &&
             piece.PieceNumber == PieceNumber.Two)
         {
-            return WhitePiece2;
+            result = WhitePiece2;
         }
         else if (
             piece.TeamColor == Team.Black &&
             piece.PieceNumber == PieceNumber.One)
         {
-            return BlackPiece1;
+            result = BlackPiece1;
         }
         else if (
             piece.TeamColor == Team.Black &&
             piece.PieceNumber == PieceNumber.Two)
         {
-            return BlackPiece2;
+            result = BlackPiece2;
         }
+
+        return result;
     }
 
-    // Takes an abstract piece and returns the concrete GameObject that
-    // it is supossed to represent.
-    private GameObject AbstractPieceToConcrete(Ball ball)
-    {
-        return Ball;
-    }
-
-    // Takes an abstract piece (that was recently moved), finds the real
+    // Takes an abstract Player Piece (that was moved), finds the real
     // piece that it represents and updates its position (of the real one).
-    private void MoveConcretePiece(Piece piece)
+    private void MoveConcretePlayer(PlayerPiece playerPiece)
     {
-        // Translate from the abstract piece to the concrete one.
-        GameObject realPiece = AbstractPieceToConcrete(piece);
+        // Translate from the abstract player piece to the concrete one.
+        GameObject realPiece = AbstractPlayerToConcrete(playerPiece);
         // Create a new position object (to make a unit conversion).
-        Position position = new Position(piece.X, piece.Y);
+        Position position = new Position(playerPiece.X, playerPiece.Y);
         // Set the new coordinates for the piece.
-        realPiece.transform.position = tilemapBoard.GetCellCenterWorld(
-            position.GetVector3Int());
+        realPiece.transform.position = TilemapBoard.GetCellCenterWorld(
+            position.Vector3Int);
+    }
+
+    // Takes an abstract Ball and based on its current position, updates
+    // the position of the real one.
+    private void MoveConcreteBall(Ball ball)
+    {
+        // Create a new position object (to make a unit conversion).
+        Position position = new Position(ball.X, ball.Y);
+        // Set the new coordinates for the ball.
+        Ball.transform.position = TilemapBoard.GetCellCenterWorld(
+            position.Vector3Int);
     }
 }

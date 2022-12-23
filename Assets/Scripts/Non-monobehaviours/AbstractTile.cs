@@ -1,4 +1,6 @@
 
+#nullable enable
+
 // The instances of this class represent tiles in the game board.
 public class AbstractTile
 {

@@ -4,10 +4,10 @@ using UnityEngine;
 // object and the coordinates of our game board, one way or the other.
 public class Position
 {
-    private readonly int x;
-    private readonly int y;
-    private readonly Vector3Int vector3Int;
-    private readonly Vector3 vector3;
+    public int X { get; private set; }
+    public int Y { get; private set; }
+    public Vector3Int Vector3Int { get; private set; }
+    public Vector3 Vector3 { get; private set; }
 
     // The dimensions of the board.
     private const int boardXLength = 11;
@@ -17,37 +17,38 @@ public class Position
     {
         // In the implementation, the X axis has the origin in the
         // middle of the board.
-        this.x = vector.x + ((boardXLength - 1) / 2);
+        X = vector.x + ((boardXLength - 1) / 2) + 1;
 
         // In the implementation, the Y axis has the origin in the
         // middle of the board and it doesn't use the computer graphics
         // convention of going from top to bottom, in increasing order.
-        this.y = ((boardYLength - 1) / 2) - vector.y;
+        Y = ((boardYLength - 1) / 2) - vector.y - 1;
 
         // No need to convert this.
-        this.vector3Int = vector;
+        Vector3Int = vector;
 
         // Convert the Vector3Int to a Vector3 with float components.
-        this.vector3 = new Vector3((float)vector.x, (float)vector.y);
+        Vector3 = new Vector3((float)vector.x, (float)vector.y);
     }
 
     public Position(int x, int y)
     {
         // No need to convert these.
-        this.x = x;
-        this.y = y;
+        X = x;
+        Y = y;
 
         // Convert from abstract coordinates to concrete coordinates.
         int vectorX = x + (boardXLength - 1) / 2;
         int vectorY = (boardYLength - 1) / 2 - y;
 
         // Initialize a new Vector3Int object and store it.
-        this.vector3 = new Vector3Int(vectorX, vectorY);
+        Vector3 = new Vector3Int(vectorX, vectorY);
 
         // Initialize a new Vector3 object with float components.
-        this.vector3 = new Vector3((float)vectorX, (float)vectorY);
+        Vector3 = new Vector3((float)vectorX, (float)vectorY);
     }
 
+    /*
     // Getter for the x coordinate.
     public int GetX()
     {
@@ -71,4 +72,5 @@ public class Position
     {
         return this.vector3;
     }
+    */
 }

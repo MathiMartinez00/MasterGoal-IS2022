@@ -1,25 +1,44 @@
 
+#nullable enable
+
 // The instances of this class is useful to store all of the moves that
 // players make.
 public class Move
 {
-    private Team teamColor;
-    private AbstractTile origin;
-    private AbstractTile destination;
-    private Piece pieceMoved;
+    public Team TeamColor { get; private set; }
+    public AbstractTile Origin { get; private set; }
+    public AbstractTile Destination { get; private set; }
+    public PlayerPiece? PlayerPiece { get; private set; }
+    public Ball? BallMoved { get; private set; }
     // Field that tells you if the move resulted in a goal.
-    private bool isGoal;
+    public bool IsGoal { get; set; }
 
-    public Move(
-        Team teamColor, AbstractTile origin, AbstractTile destination, Piece pieceMoved)
+    public Move(Team teamColor, AbstractTile origin, AbstractTile destination)
     {
-        this.teamColor = teamColor;
-        this.origin = origin;
-        this.destination = destination;
-        this.pieceMoved = pieceMoved;
-        this.isGoal = false;
+        TeamColor = teamColor;
+        Origin = origin;
+        Destination = destination;
+        // False by default. Can be modified with setter.
+        IsGoal = false;
     }
 
+    public Move(
+        Team teamColor, AbstractTile origin, AbstractTile destination,
+        PlayerPiece playerPieceMoved) : this(teamColor, origin, destination)
+    {
+        PlayerPiece = playerPieceMoved;
+        BallMoved = null;
+    }
+
+    public Move(
+        Team teamColor, AbstractTile origin, AbstractTile destination,
+        Ball ball) : this(teamColor, origin, destination)
+    {
+        BallMoved = ball;
+        PlayerPiece = null;
+    }
+
+    /*
     // Origin tile getter.
     public AbstractTile GetOriginTile()
     {
@@ -49,4 +68,5 @@ public class Move
     {
         return this.pieceMoved;
     }
+    */
 }

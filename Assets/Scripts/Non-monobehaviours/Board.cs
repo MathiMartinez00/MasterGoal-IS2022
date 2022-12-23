@@ -4,8 +4,9 @@ using System.Collections.Generic;
 // tiles (stored in a matrix), player pieces and a ball.
 public class Board
 {
-    // The game board stored in a matrix.
-    private AbstractTile[,] tiles;
+    // The game board stored in a matrix. Declare the matrix.
+    private AbstractTile[,] tiles = new AbstractTile[
+        boardYLength, boardXLength];
 
     // Store a reference to the pieces on this class' fields for
     // easy access to their position.
@@ -166,12 +167,4 @@ public class Board
     {
         return boardYLength;
     }
-
-    // Getter for the reference to the ball.
-    /*
-    public Ball GetBall()
-    {
-        return Ball;
-    }
-    */
 }
