@@ -48,30 +48,30 @@ public class Board
             for (int j = 0; j < boardXLength; j++)
             {
                 // Initialize a new tile and store it.
-                tiles[i,j] = new AbstractTile(j, i, null);
+                tiles[i,j] = new AbstractTile(j, i);
 
                 // The player pieces and ball go on the fifth column (x == 5).
                 if (j == piecesX)
                 {
                     if (i == white1Y)
                     {
-                        tiles[i,j].Piece = WhitePiece1;
+                        tiles[i,j].PlayerPiece = WhitePiece1;
                     }
                     else if (i == white2Y)
                     {
-                        tiles[i,j].Piece = WhitePiece2;
+                        tiles[i,j].PlayerPiece = WhitePiece2;
                     }
                     else if (i == black1Y)
                     {
-                        tiles[i,j].Piece = BlackPiece1;
+                        tiles[i,j].PlayerPiece = BlackPiece1;
                     }
                     else if (i == black2Y)
                     {
-                        tiles[i,j].Piece = BlackPiece2;
+                        tiles[i,j].PlayerPiece = BlackPiece2;
                     }
                     else if (i == ballY)
                     {
-                        tiles[i,j].Piece = Ball;
+                        tiles[i,j].Ball = Ball;
                     }
                 }
             }
@@ -84,11 +84,11 @@ public class Board
     {
         // Set the tiles at the current position of the pieces
         // to null.
-        GetTile(WhitePiece1).Piece = null;
-        GetTile(WhitePiece2).Piece = null;
-        GetTile(BlackPiece1).Piece = null;
-        GetTile(BlackPiece2).Piece = null;
-        GetTile(Ball).Piece = null;
+        GetTile(WhitePiece1).PlayerPiece = null;
+        GetTile(WhitePiece2).PlayerPiece = null;
+        GetTile(BlackPiece1).PlayerPiece = null;
+        GetTile(BlackPiece2).PlayerPiece = null;
+        GetTile(Ball).Ball = null;
 
         // Update the "x" fields of the pieces.
         WhitePiece1.X = piecesX;
@@ -106,11 +106,11 @@ public class Board
 
         // Set the tiles at the new position of the pieces to reference
         // those pieces, respectively.
-        GetTile(piecesX, white1Y).Piece = WhitePiece1;
-        GetTile(piecesX, white2Y).Piece = WhitePiece2;
-        GetTile(piecesX, black1Y).Piece = BlackPiece1;
-        GetTile(piecesX, black2Y).Piece = BlackPiece2;
-        GetTile(piecesX, ballY).Piece = Ball;
+        GetTile(piecesX, white1Y).PlayerPiece = WhitePiece1;
+        GetTile(piecesX, white2Y).PlayerPiece = WhitePiece2;
+        GetTile(piecesX, black1Y).PlayerPiece = BlackPiece1;
+        GetTile(piecesX, black2Y).PlayerPiece = BlackPiece2;
+        GetTile(piecesX, ballY).Ball = Ball;
     }
     
     // A getter method for a tile at a given pair of coordinates.
@@ -134,7 +134,7 @@ public class Board
             {
                 // Get the tile and check if it's valid.
                 AbstractTile tile = GetTile(j, i);
-                if (tile.IsTileValid)
+                if (tile.IsValid)
                 {
                     // Return the tile iteratively.
                     yield return tile;

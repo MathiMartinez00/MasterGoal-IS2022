@@ -3,36 +3,91 @@
 public class AbstractTile
 {
     // A tile can have a piece or no pieces.
-    public Piece? Piece { get; set; }
+    public PlayerPiece? PlayerPiece { get; set; }
+    public Ball? Ball { get; set; }
     // Coordinates of a tile.
     public int X { get; }
     public int Y { get; }
     // Property to store the validity of the tile.
-    public bool IsTileValid { get; }
+    public bool IsValid { get; }
     public bool IsHighlighted { get; set; }
 
-    public AbstractTile(int x, int y, Piece? piece)
+    // Constructor meant to be used when no piece is on the tile.
+    public AbstractTile(int x, int y)
     {
         X = x;
         Y = y;
         // At the beginning of a game no tile is highlighted.
         IsHighlighted = false;
+        PlayerPiece = null;
+        Ball = null;
+
+        // Check for the validity of the tile. Tiles to the sides
+        // of the goals are always invalid.
+        IsValid = AreCoordinatesValid(x,y) ? true : false;
+    }
+
+    // Constructor meant to be used when a player piece is on the tile.
+    public AbstractTile(int x, int y, PlayerPiece playerPiece) : this(x,y)
+    {
+        PlayerPiece = this.IsValid ? playerPiece : null;
+        Ball = null;
+    }
+
+    // Constructor meant to be used when a ball is on the tile.
+    public AbstractTile(int x, int y, Ball ballPiece) : this(x,y)
+    {
+        Ball = this.IsValid ? ballPiece : null;
+        PlayerPiece = null;
+    }
+
+    /*
+    public AbstractTile(int x, int y, Piece piece) : this(x,y)
+    {
+        SetPiece(piece);
+        //X = x;
+        //Y = y;
+        // At the beginning of a game no tile is highlighted.
+        //IsHighlighted = false;
 
         // Check for the validity of the tile. Tiles to the sides
         // of the goals are always invalid.
         if (AreCoordinatesValid(x,y))
         {
             // If the tile is valid, set the piece.
-            Piece = piece;
-            IsTileValid = true;
+            //Piece = piece;
+            IsValid = true;
         }
         else
         {
             // If the tile is not valid, set the piece to null.
-            Piece = null;
-            IsTileValid = false;
+            //Piece = null;
+            SetPiece(null);
+            IsValid = false;
         }
     }
+
+    */
+
+    /*
+    private void SetPiece(null nullValue)
+    {
+        PlayerPiece = null;
+        Ball = null;
+    }
+
+    private void SetPiece(PlayerPiece piece)
+    {
+        PlayerPiece = piece;
+        Ball = null;
+    }
+
+    private void SetPiece(Ball ballPiece)
+    {
+        PlayerPiece = null;
+        Ball = ballPiece;
+    }
+    */
 
     // The tiles that are located on both sides of the goals aren't
     // valid tiles. Pieces cannot be moved on those tiles.

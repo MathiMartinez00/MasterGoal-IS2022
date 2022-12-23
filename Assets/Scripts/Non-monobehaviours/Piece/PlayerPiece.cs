@@ -3,21 +3,23 @@
 // This piece can be white or black and numbered one or two.
 public class PlayerPiece : Piece
 {
-    private Team teamColor;
-    private PieceNumber pieceNumber;
+    public Team TeamColor { get; private set; }
+    public PieceNumber PieceNumber { get; private set; }
 
     public PlayerPiece(
         int x, int y, Team teamColor, PieceNumber number) : base(x,y)
     {
         // (Save the position with the parent class' constructor).
 
-        this.teamColor = teamColor;
-        this.pieceNumber = pieceNumber;
+        this.TeamColor = teamColor;
+        this.PieceNumber = number;
     }
 
+    /*
     // Getter for the team color field.
     public Team GetTeamColor()
     {
         return this.teamColor;
     }
+    */
 }

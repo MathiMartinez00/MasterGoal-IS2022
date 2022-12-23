@@ -53,7 +53,8 @@ public class Game
         AbstractTile selectedTile = Board.GetTile(x,y);
 
         // Get the piece, if there is any.
-        Piece? piece = selectedTile.Piece;
+        PlayerPiece? selectedPlayerPiece = selectedTile.PlayerPiece;
+        Ball? selectedBall = selectedTile.Ball;
 
         // If there are no player pieces selected yet, go to this branch.
         if (
@@ -172,7 +173,7 @@ public class Game
     private void SelectPlayerPiece(PlayerPiece piece, AbstractTile tile)
     {
         // Check if the current turn matches with the piece's color.
-        if (piece.GetTeamColor() == currentTurn)
+        if (piece.TeamColor == currentTurn)
         {
             // Highlight and store the tiles that indicate valid destinations.
             CalculatePlayerMovesAndHighlightTiles(tile, piece);
@@ -251,7 +252,7 @@ public class Game
                 // own corners, no jumping over the ball and other players and
                 // restrict the movement to up-down, right-left and diagonal.
                 if (CheckForValidPlayerMove(
-                    tileX, tileY, j, i, selectedPiece.GetTeamColor()))
+                    tileX, tileY, j, i, selectedPiece.TeamColor))
                 {
                     // Highlight the tile.
                     Board.GetTile(j, i).IsHighlighted = true;
@@ -425,10 +426,10 @@ public class Game
         return (
             // General conditions.
             CheckForValidMovementDirections(x2-x1, y2-y1) && // 1 & 2
-            !Board.GetTile(x2, y2).GetPiece().HasValue && // 3
-            Board.GetTile(x2, y2).IsTileValid() && // 4
-            (CountContiguousPieces(x2, y2, White) != 2 ||
-             CountContiguousPieces(x2, y2, Black) != 2) && // 5
+            Board.GetTile(x2, y2).Piece == null && // 3
+            Board.GetTile(x2, y2).IsTileValid && // 4
+            (CountContiguousPieces(x2, y2, Team.White) != 2 ||
+             CountContiguousPieces(x2, y2, Team.Black) != 2) && // 5
             // End-of-turn conditions.
             !(
                 // The turn ends when the pass count is 3 or when the
@@ -467,14 +468,14 @@ public class Game
     private bool IsTileFree(int x, int y)
     {
         return (
-            !IsTileInPossessionOfTeam(x,y,White) &&
-            !IsTileInPossessionOfTeam(x,y,Black));
+            !IsTileInPossessionOfTeam(x,y,Team.White) &&
+            !IsTileInPossessionOfTeam(x,y,Team.Black));
     }
 
     // Takes a team and returns the opposite team.
     private Team GetOppositeTeam(Team team)
     {
-        return ((team == White) ? Black : White);
+        return ((team == Team.White) ? Team.Black : Team.White);
     }
 
     // Checks to see if the given coordinates corresponds to the area
@@ -488,8 +489,8 @@ public class Game
             // These are the columns that span the area.
             (x >= 1 && x <= 9) &&
              // The rows that span the area of each team.
-            ((this.currentTurn == White && y >= 1  && y <= 4 ) ||
-             (this.currentTurn == Black && y >= 10 && y <= 13))
+            ((this.currentTurn == Team.White && y >= 1  && y <= 4 ) ||
+             (this.currentTurn == Team.Black && y >= 10 && y <= 13))
             );
     }
 
@@ -499,17 +500,17 @@ public class Game
     // Returns the scoring team if a goal has been scored; null otherwise.
     private Team? CheckForGoalScored()
     {
-        Ball ball = Board.GetBall();
+        Ball ball = Board.Ball;
 
         // Look for the ball on the white team's goal.
-        if (ball.GetY() == 0)
+        if (ball.Y == 0)
         {
-            return White;
+            return Team.White;
         }
         // Look for the ball on the black team's goal.
-        else if (ball.GetY() == 14)
+        else if (ball.Y == 14)
         {
-            return Black;
+            return Team.Black;
         }
 
         // If no goal has been scored, return null.
@@ -524,10 +525,10 @@ public class Game
     private bool IsBallInPossessionOfCurrentTurn()
     {
         // Check if the ball can be passed or if we must switch turns.
-        Team? ballPossesion = GetBallPossession(Board.GetBall());
+        Team? ballPossesion = GetBallPossession(Board.Ball);
         return (
-            ballPossesion.HasValue &&
-            ballPossesion.Value == this.currentTurn);
+            ballPossesion != null &&
+            ballPossesion == this.currentTurn);
     }
 
     // Takes the ball piece and returns the team that is currently in
@@ -537,18 +538,18 @@ public class Game
     {
         // Count the pieces next to the ball.
         int whiteCount = CountContiguousPieces(
-            ball.GetX(), ball.GetY(), White);
+            ball.X, ball.Y, Team.White);
         int blackCount = CountContiguousPieces(
-            ball.GetX(), ball.GetY(), Black);
+            ball.X, ball.Y, Team.Black);
 
         // Return the team color that is in possession of the ball.
         if (whiteCount > blackCount)
         {
-            return White;
+            return Team.White;
         }
         else if (blackCount > whiteCount)
         {
-            return Black;
+            return Team.Black;
         }
         else
         {
@@ -576,12 +577,12 @@ public class Game
             for (int j = minX; j <= maxY; j++)
             {
                 // Get the piece, if there is any.
-                Piece? piece = Board.GetTile(j,i).GetPiece();
+                Piece? piece = Board.GetTile(j,i).PlayerPiece;
 
                 // Count the pieces of the given color.
                 if (
                     (j != x && i != y) &&
-                    piece.HasValue && piece.Value.teamColor == teamColor)
+                    piece != null && piece.TeamColor == teamColor)
                 {
                     count++;
                 }
@@ -606,13 +607,13 @@ public class Game
     // Switches the current turn from "White" to "Black", or viceversa.
     private void SwitchCurrentTurn()
     {
-        if (this.currentTurn == White)
+        if (this.currentTurn == Team.White)
         {
-            this.currentTurn = Black;
+            this.currentTurn = Team.Black;
         }
         else
         {
-            this.currentTurn = White;
+            this.currentTurn = Team.White;
         }
     }
 }

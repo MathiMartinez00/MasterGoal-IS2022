@@ -128,21 +128,29 @@ public class ScriptController : MonoBehaviour
     // it is supossed to represent.
     private GameObject AbstractPieceToConcrete(PlayerPiece piece)
     {
-        if (piece.teamColor == Team.White && piece.pieceNumber == PieceNumber.One)
+        if (
+            piece.TeamColor == Team.White &&
+            piece.PieceNumber == PieceNumber.One)
         {
-            return whitePiece1;
+            return WhitePiece1;
         }
-        else if (piece.teamColor == White && piece.pieceNumber == Two)
+        else if (
+            piece.TeamColor == Team.White &&
+            piece.PieceNumber == PieceNumber.Two)
         {
-            return whitePiece2;
+            return WhitePiece2;
         }
-        else if (piece.teamColor == Black && piece.pieceNumber == One)
+        else if (
+            piece.TeamColor == Team.Black &&
+            piece.PieceNumber == PieceNumber.One)
         {
-            return blackPiece1;
+            return BlackPiece1;
         }
-        else if (piece.teamColor == Black && piece.pieceNumber == Two)
+        else if (
+            piece.TeamColor == Team.Black &&
+            piece.PieceNumber == PieceNumber.Two)
         {
-            return blackPiece2;
+            return BlackPiece2;
         }
     }
 
@@ -150,7 +158,7 @@ public class ScriptController : MonoBehaviour
     // it is supossed to represent.
     private GameObject AbstractPieceToConcrete(Ball ball)
     {
-        return ballPiece;
+        return Ball;
     }
 
     // Takes an abstract piece (that was recently moved), finds the real
@@ -160,7 +168,7 @@ public class ScriptController : MonoBehaviour
         // Translate from the abstract piece to the concrete one.
         GameObject realPiece = AbstractPieceToConcrete(piece);
         // Create a new position object (to make a unit conversion).
-        Position position = new Position(piece.GetX(), piece.GetY());
+        Position position = new Position(piece.X, piece.Y);
         // Set the new coordinates for the piece.
         realPiece.transform.position = tilemapBoard.GetCellCenterWorld(
             position.GetVector3Int());
