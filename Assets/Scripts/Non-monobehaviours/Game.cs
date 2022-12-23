@@ -73,7 +73,7 @@ public class Game
             selectedTile.IsHighlighted)
         {
             // Move the piece and store the move.
-            Move move = MovePiece(this.selectedPiece, selectedTile);
+            Move move = MovePieceAndStoreMove(this.selectedPiece, selectedTile);
             // Clear all of the highlighted tiles.
             Board.ClearAllHighlights();
             // Deselect the piece.
@@ -104,7 +104,7 @@ public class Game
             selectedTile.IsHighlighted)
         {
             // Move the ball and store the move.
-            Move move = MovePiece(Board.Ball, selectedTile);
+            Move move = MovePieceAndStoreMove(Board.Ball, selectedTile);
 
             // Clear all of the highlighted tiles.
             Board.ClearAllHighlights();
@@ -166,9 +166,8 @@ public class Game
         }
     }
 
-    // Check if the piece is a PlayerPiece, check if it is a piece
-    // of the right team, highlight the valid moves, change the
-    // game status and store the selected piece.
+    // Check if the player piece is of the right team, highlight the
+    // valid moves, change the game status and store the selected piece.
     private void SelectPlayerPiece(PlayerPiece piece, AbstractTile tile)
     {
         // Check if the current turn matches with the piece's color.
@@ -183,14 +182,6 @@ public class Game
         }
     }
 
-    // If the game is in the WaitingPlayerPiece Selection status and
-    // the user selects a Piece that is not a PlayerPiece (a Ball),
-    // then this method should do nothing.
-    private void SelectPlayerPiece(Piece piece, AbstractTile tile)
-    {
-        return;
-    }
-
     // Takes a piece and a pair of coordinates and moves the piece
     // to the tile located at the given coordinates. In this process,
     // it also changes the x and y position of the Piece object and
@@ -198,21 +189,23 @@ public class Game
     //
     // This method doesn't validate the move. Validation is made by
     // highlighting tiles.
-    private Move MovePiece(Piece piece, AbstractTile destinationTile)
+    private Move MovePieceAndStoreMove(Piece piece, AbstractTile destinationTile)
     {
         // Origin coordinates.
         int x1 = piece.X;
         int y1 = piece.Y;
+
         // Destination coordinates.
         int x2 = destinationTile.X;
         int y2 = destinationTile.Y;
 
-        // Set the origin tile's "piece" field to null.
+        // Get the origin tile.
         AbstractTile originTile = Board.GetTile(x1,y1);
-        originTile.Piece = null;
-        // Set the destination tile's field to the correct reference.
-        destinationTile.Piece = piece;
-        // Update the piece's fields.
+
+        // Update both the origin and destination tile's piece fields.
+        UpdateTilesPieceFields(piece, originTile, destinationTile);
+
+        // Update the piece's position fields.
         piece.X = x2;
         piece.Y = y2;
 
@@ -224,6 +217,33 @@ public class Game
         // Return the move (for the reactive board update).
         return move;
     }
+
+    // Overloaded method that updates the origin and destination tile's
+    // PlayerPiece and Ball fields according to the type of Piece that
+    // is moved.
+    private void UpdateTilesPieceFields(
+        PlayerPiece playerPiece, AbstractTile originTile,
+        AbstractTile destinationTile)
+    {
+        // Set the origin tile's "PlayerPiece" field to null.
+        originTile.PlayerPiece = null;
+        // Set the destination tile's field to the correct reference.
+        destinationTile.PlayerPiece = playerPiece;
+    }
+
+    // Overloaded method that updates the origin and destination tile's
+    // PlayerPiece and Ball fields according to the type of Piece that
+    // is moved.
+    private void UpdateTilesPieceFields(
+        Ball ballPiece, AbstractTile originTile,
+        AbstractTile destinationTile)
+    {
+        // Set the origin tile's "Ball" field to null.
+        originTile.Ball = null;
+        // Set the destination tile's field to the correct reference.
+        destinationTile.Ball = ballPiece;
+    }
+
 
     // Calculates the valid moves for a player piece and highlights all
     // of the tiles in which this piece can be moved.
@@ -276,7 +296,7 @@ public class Game
             !IsItsOwnCorner(x2, y2, teamColor) && // 1
             !IsAnotherPieceInTheWay(x1, y1, x2, y2) && // 2
             CheckForValidMovementDirections(x2-x1, y2-y1) && // 3 & 5
-            Board.GetTile(x2, y2).IsTileValid // 4
+            Board.GetTile(x2, y2).IsValid // 4
         );
     }
 
@@ -299,7 +319,7 @@ public class Game
             {
                 // Check if another piece is on the path from the origin
                 // tile to the destination tile.
-                if (Board.GetTile(i, x1).Piece != null)
+                if (DoesTileContainAPiece(x1,i))
                 {
                     return true;
                 }
@@ -310,7 +330,7 @@ public class Game
             // Traverse the board over a single row.
             for (int j = minX; j <= maxX; j++)
             {
-                if (Board.GetTile(y1, j).Piece != null)
+                if (DoesTileContainAPiece(j, y1))
                 {
                     return true;
                 }
@@ -321,7 +341,7 @@ public class Game
             // Traverse the board diagonally.
             for (int k = minX; k <= maxX; k++)
             {
-                if (Board.GetTile(k, k).Piece != null)
+                if (DoesTileContainAPiece(k,k))
                 {
                     return true;
                 }
@@ -330,6 +350,14 @@ public class Game
         
         // If no pieces were found on the traversal, return false.
         return false;
+    }
+
+    // Takes the x and y coordinates of a tile and returns true if the
+    // the tile contains a player piece or the ball, false otherwise.
+    private bool DoesTileContainAPiece(int x, int y)
+    {
+        AbstractTile tile = Board.GetTile(x,y);
+        return (tile.PlayerPiece != null || tile.Ball != null);
     }
 
     // Checks if the given coordinates are the coordinates of one of the
@@ -576,7 +604,7 @@ public class Game
             for (int j = minX; j <= maxY; j++)
             {
                 // Get the piece, if there is any.
-                Piece? piece = Board.GetTile(j,i).PlayerPiece;
+                PlayerPiece? piece = Board.GetTile(j,i).PlayerPiece;
 
                 // Count the pieces of the given color.
                 if (
@@ -589,18 +617,6 @@ public class Game
         }
 
         return count;
-    }
-
-    // Pattern matching method to check if a piece is a PlayerPiece.
-    private bool IsPlayerPiece(PlayerPiece piece)
-    {
-        return true;
-    }
-
-    // Pattern matching method to check if a piece is a PlayerPiece.
-    private bool IsPlayerPiece(Piece piece)
-    {
-        return false;
     }
 
     // Switches the current turn from "White" to "Black", or viceversa.
