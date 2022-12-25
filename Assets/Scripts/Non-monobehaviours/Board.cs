@@ -170,7 +170,7 @@ public class Board
 
     // Takes a player piece of a certain color and returns the other
     // piece of the same color.
-    private PlayerPiece GetTheOtherPieceOfTheSameTeam(PlayerPiece piece)
+    public PlayerPiece GetTheOtherPieceOfTheSameTeam(PlayerPiece piece)
     {
         if (piece == WhitePiece1)
         {

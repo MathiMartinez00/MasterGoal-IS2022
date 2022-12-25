@@ -487,12 +487,14 @@ public class Game
     // 5) The ball cannot be moved to a tile contiguous to all of the
     // player pieces. This is VERY a rare case.
     // 6) A player can't pass the ball to themself.
+    // 7) A player can't pass the ball to their opponent (because then the
+    // turn will end and the ball will be in possession of a team).
     //
     // End-of-turn conditions:
-    // 7) The ball cannot be in the possession of any team at the end of
+    // 8) The ball cannot be in the possession of any team at the end of
     // the turn.
-    // 8) The player cannot be in the team's own area at the end of the turn.
-    // 9) The ball cannot be in the team's own corner at the end of the turn.
+    // 9) The player cannot be in the team's own area at the end of the turn.
+    // 10) The ball cannot be in the team's own corner at the end of the turn.
     //
     // If all of those conditions are met, returns "true"; false otherwise.
     private bool CheckForValidBallMove(int x1, int y1, int x2, int y2)
@@ -503,26 +505,31 @@ public class Game
         // Check all of the aforementioned conditions.
         //
         // General conditions.
-        bool validDirection = CheckForValidMovementDirections(x2-x1, y2-y1); // 1 & 2
-        bool tileIsFree = !DoesTileContainAPiece(x2,y2); // 3
+        // 1 & 2
+        bool validDirection = CheckForValidMovementDirections(x2-x1, y2-y1);
+        bool notAPieceInDestination = !DoesTileContainAPiece(x2,y2); // 3
         bool tileIsValid = Board.GetTile(x2, y2).IsValid; // 4
         bool tileNotContiguousToAllPieces = (
             CountContiguousPieces(x2, y2, Team.White) != 2 ||
             CountContiguousPieces(x2, y2, Team.Black) != 2); // 5
-
-        //////////////////////// BUGGG
-        bool notSelfPass = !CheckForSelfPass(x2, y2); // 6
-        //////////////////////// BUGGG
+        // If a player tries to move the ball to a tile contiguous to them
+        // and the number of contiguous player piece to that tile equal to
+        // one, then the player is trying to make a self-pass.
+        bool notSelfPass = (
+            !IsPlayerNextToTile(x2, y2, ballPossesion) ||
+            CountContiguousPieces(x2, y2, teamColor) != 1); // 6
+        bool notPassToOpponent = !CheckForOpponentPass(x2, y2); // 7
 
         bool generalConditions = (
-            validDirection && tileIsFree && tileIsValid &&
-            tileNotContiguousToAllPieces && notSelfPass);
+            validDirection && notAPieceInDestination && tileIsValid &&
+            tileNotContiguousToAllPieces && notSelfPass && notPassToOpponent);
 
         // End-of-turn conditions.
         bool isEndOfTurn = passCount == 3 || IsTileFree(x2,y2);
-        bool isDestinationTileFree = IsTileFree(x2,y2); // 7
-        bool notOwnArea = !IsItsOwnArea(x2, y2, teamColor); // 8
-        bool notOwnCorner = !IsItsOwnCorner(x2, y2, teamColor); // 9
+        bool isDestinationTileFree = IsTileFree(x2,y2); // 8
+        bool notOwnArea = !IsItsOwnArea(x2, y2, teamColor); // 9
+        bool notOwnCorner = !IsItsOwnCorner(x2, y2, teamColor); // 10
+
         bool endOfTurnConditions = (
             !isEndOfTurn ||
             isDestinationTileFree && notOwnArea && notOwnCorner);
@@ -539,43 +546,22 @@ public class Game
         {
             return generalConditions && endOfTurnConditions;
         }
+    }
 
-        /*
-        return (
-            // General conditions.
-            CheckForValidMovementDirections(x2-x1, y2-y1) && // 1 & 2
-            !DoesTileContainAPiece(x2,y2) && // 3
-            Board.GetTile(x2, y2).IsValid && // 4
-            (CountContiguousPieces(x2, y2, Team.White) != 2 ||
-             CountContiguousPieces(x2, y2, Team.Black) != 2) && // 5
-            // End-of-turn conditions.
-            !(
-                // The turn ends when the pass count is 3 or when the
-                // destination tile is free.
-                (passCount == 3 || IsTileFree(x2,y2)) &&
-                // If the turn ends, end of turn conditions must be met.
-                (!IsTileFree(x2,y2) || // 6
-                 IsItsOwnArea(x2, y2, teamColor) || // 7
-                 IsItsOwnCorner(x2, y2, teamColor)) // 8
-                 )
-                 );
-        */
+    private bool CheckForOpponentPass(int x, int y)
+    {
+        Team oppositeTeam = GetOppositeTeam(currentTurn);
+        return IsTileInPossessionOfTeam(x, y, oppositeTeam);
     }
 
     // Takes the coordinates of a potential destination tile for a
-    // potential ball pass and, using the ballPossession field, determines
-    // if the potential pass is a self-pass. Because it is illegal for the
-    // player to make a ball pass to himself.
-    private bool CheckForSelfPass(int x, int y)
-    {
-        return IsPlayerTheOnlyPossessorOfTile(x, y, ballPossesion);
-    }
-
-    // Takes the coordinates and a player piece and checks whether the
-    // player is in "possession" of the tile. That is to say, whether
-    // the player piece is immediately contiguous to the tile.
-    private bool IsPlayerTheOnlyPossessorOfTile(
-        int x, int y, PlayerPiece player)
+    // potential ball pass and a player piece and determines if the
+    // player is contiguous to the tile. This is useful to check for
+    // self-passes, because in a self-pass the player that is in
+    // possession of the ball moves the ball to a tile which only
+    // they "possess" or control.
+    // (It is illegal for the player to make a ball pass to himself).
+    private bool IsPlayerNextToTile(int x, int y, PlayerPiece player)
     {
         // Set the limits for the nested iteration.
         int minX = Math.Max(0, x-1);
@@ -614,16 +600,13 @@ public class Game
     // ball moves.
     private bool IsTileInPossessionOfTeam(int x, int y, Team teamColor)
     {
-        // Get the opposite team's color.
-        Team oppositeColor = GetOppositeTeam(teamColor);
-
         // Count the pieces around the selected tile.
-        int teamCount = CountContiguousPieces(x, y, teamColor);
-        int oppositeCount = CountContiguousPieces(x, y, oppositeColor);
+        int whiteCount = CountContiguousPieces(x, y, Team.White);
+        int blackCount = CountContiguousPieces(x, y, Team.Black);
 
         return (
-            (this.currentTurn == teamColor && teamCount > oppositeCount) ||
-            (this.currentTurn == oppositeColor && oppositeCount > teamCount)
+            (teamColor == Team.White && whiteCount > blackCount) ||
+            (teamColor == Team.Black && blackCount > whiteCount)
             );
     }
 
