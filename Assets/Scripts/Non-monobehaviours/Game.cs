@@ -300,7 +300,6 @@ public class Game
     private bool CheckForValidPlayerMove(
         int x1, int y1, int x2, int y2, Team teamColor)
     {
-
         // Check all of the aforementioned conditions.
         bool notOwnCorner = !IsItsOwnCorner(x2, y2, teamColor); // 1
         bool notPieceInTheWay = !IsAnotherPieceInTheWay(
@@ -412,8 +411,6 @@ public class Game
             );
     }
 
-
-
     // Checks if the movement pattern is valid. A piece can only be moved
     // straight up and down, and diagonally. A piece cannot stay on its
     // tile and count that action as a "move".
@@ -490,6 +487,42 @@ public class Game
         // Get the team whose current turn it is and the opposite team.
         Team teamColor = this.currentTurn;
 
+        // Check all of the aforementioned conditions.
+        //
+        // General conditions.
+        bool validDirection = CheckForValidMovementDirections(x2-x1, y2-y1); // 1 & 2
+        bool tileIsFree = !DoesTileContainAPiece(x2,y2); // 3
+        bool tileIsValid = Board.GetTile(x2, y2).IsValid; // 4
+        bool tileNotCongiuousToAllPieces = (
+            CountContiguousPieces(x2, y2, Team.White) != 2 ||
+            CountContiguousPieces(x2, y2, Team.Black) != 2); // 5
+        bool generalConditions = (
+            validDirection && tileIsFree && tileIsValid &&
+            tileNotCongiuousToAllPieces);
+
+        // End-of-turn conditions.
+        bool isEndOfTurn = passCount == 3 || IsTileFree(x2,y2);
+        bool isDestinationTileFree = IsTileFree(x2,y2); // 6
+        bool notOwnArea = !IsItsOwnArea(x2, y2, teamColor); // 7
+        bool notOwnCorner = !IsItsOwnCorner(x2, y2, teamColor); // 8
+        bool endOfTurnConditions = (
+            !isEndOfTurn ||
+            isDestinationTileFree && notOwnArea && notOwnCorner);
+
+        // If it is not the end of the current turn, only the general
+        // conditions must be met.
+        if (!isEndOfTurn)
+        {
+            return generalConditions;
+        }
+        // If it is the end of the current turn, both the general
+        // conditions and the end-of-turn conditions must be met.
+        else
+        {
+            return generalConditions && endOfTurnConditions;
+        }
+
+        /*
         return (
             // General conditions.
             CheckForValidMovementDirections(x2-x1, y2-y1) && // 1 & 2
@@ -508,6 +541,7 @@ public class Game
                  IsItsOwnCorner(x2, y2, teamColor)) // 8
                  )
                  );
+        */
     }
 
     // Check if the tile located on the given coordinates is in
@@ -623,9 +657,9 @@ public class Game
         int count = 0;
 
         // Check the tiles that are contiguous to the ball for player pieces.
-        for (int i = minY; i <= maxX; i++)
+        for (int i = minY; i <= maxY; i++)
         {
-            for (int j = minX; j <= maxY; j++)
+            for (int j = minX; j <= maxX; j++)
             {
                 // Get the piece, if there is any.
                 PlayerPiece? piece = Board.GetTile(j,i).PlayerPiece;
