@@ -167,4 +167,26 @@ public class Board
     {
         return boardYLength;
     }
+
+    // Takes a player piece of a certain color and returns the other
+    // piece of the same color.
+    private PlayerPiece GetTheOtherPieceOfTheSameTeam(PlayerPiece piece)
+    {
+        if (piece == WhitePiece1)
+        {
+            return WhitePiece2;
+        }
+        else if (piece == WhitePiece2)
+        {
+            return WhitePiece1;
+        }
+        else if (piece == BlackPiece1)
+        {
+            return BlackPiece2;
+        }
+        else
+        {
+            return BlackPiece1;
+        }
+    }
 }

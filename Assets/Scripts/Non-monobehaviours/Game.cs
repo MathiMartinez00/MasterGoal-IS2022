@@ -16,6 +16,8 @@ public class Game
     private Team currentTurn;
     private List<Move> allMoves;
     private PlayerPiece selectedPiece;
+    // A player has to be in possession of the ball in order to move it.
+    private PlayerPiece ballPossesion;
     private int passCount;
     private int whiteScore;
     private int blackScore;
@@ -31,8 +33,10 @@ public class Game
         GameMode = gameMode;
         GameStatus = GameStatus.WaitingPlayerPieceSelection;
         this.currentTurn = Team.White;
-        // Select a piece just as a placeholder for the field.
+        // Assign a piece just placeholder, for now.
         this.selectedPiece = Board.WhitePiece1;
+        // Assign a piece just placeholder, for now.
+        this.ballPossesion= Board.WhitePiece1;
         this.allMoves = new List<Move>();
         this.passCount = 0;
         this.whiteScore = 0;
@@ -97,6 +101,9 @@ public class Game
             {
                 // Change the status of the game.
                 GameStatus = GameStatus.WaitingBallMovement;
+                // Update the ball possession field. The piece that was
+                // recently moved is now in possession of the ball.
+                ballPossesion = selectedPiece;
                 // Highlight the valid destinations for the ball
                 // for the next method call.
                 CalculateBallMovesAndHighlightTiles();
@@ -167,6 +174,11 @@ public class Game
                 if (IsBallInPossessionOfCurrentTurn())
                 {
                     this.passCount++;
+                    // Update the ball possession field. The other piece of
+                    // the team that is in possession of the ball is now in
+                    // possesion of the ball (One -> Two or Two -> One).
+                    ballPossesion = Board.GetTheOtherPieceOfTheSameTeam(
+                        ballPossesion);
                     // Highlight the valid destinations for the ball
                     // for the next method call.
                     CalculateBallMovesAndHighlightTiles();
@@ -454,7 +466,7 @@ public class Game
             {
                 // Check for the other conditions: no placing the ball
                 // in the team's own area, restrict the movement to
-                // up-down, right-left and diagonal.
+                // up-down, right-left and diagonal, etc.
                 if (CheckForValidBallMove(ball.X, ball.Y, j, i))
                 {
                     // Highlight the tile.
@@ -474,17 +486,18 @@ public class Game
     // 4) The tile is valid (is not next to either one of the goals).
     // 5) The ball cannot be moved to a tile contiguous to all of the
     // player pieces. This is VERY a rare case.
+    // 6) A player can't pass the ball to themself.
     //
     // End-of-turn conditions:
-    // 6) The ball cannot be in the possession of any team at the end of
+    // 7) The ball cannot be in the possession of any team at the end of
     // the turn.
-    // 7) The player cannot be in the team's own area at the end of the turn.
-    // 8) The ball cannot be in the team's own corner at the end of the turn.
+    // 8) The player cannot be in the team's own area at the end of the turn.
+    // 9) The ball cannot be in the team's own corner at the end of the turn.
     //
     // If all of those conditions are met, returns "true"; false otherwise.
     private bool CheckForValidBallMove(int x1, int y1, int x2, int y2)
     {
-        // Get the team whose current turn it is and the opposite team.
+        // Get the team whose turn it is.
         Team teamColor = this.currentTurn;
 
         // Check all of the aforementioned conditions.
@@ -493,18 +506,19 @@ public class Game
         bool validDirection = CheckForValidMovementDirections(x2-x1, y2-y1); // 1 & 2
         bool tileIsFree = !DoesTileContainAPiece(x2,y2); // 3
         bool tileIsValid = Board.GetTile(x2, y2).IsValid; // 4
-        bool tileNotCongiuousToAllPieces = (
+        bool tileNotContiguousToAllPieces = (
             CountContiguousPieces(x2, y2, Team.White) != 2 ||
             CountContiguousPieces(x2, y2, Team.Black) != 2); // 5
+        bool notSelfPass = !CheckForSelfPass(x2, y2); // 6
         bool generalConditions = (
             validDirection && tileIsFree && tileIsValid &&
-            tileNotCongiuousToAllPieces);
+            tileNotContiguousToAllPieces && notSelfPass);
 
         // End-of-turn conditions.
         bool isEndOfTurn = passCount == 3 || IsTileFree(x2,y2);
-        bool isDestinationTileFree = IsTileFree(x2,y2); // 6
-        bool notOwnArea = !IsItsOwnArea(x2, y2, teamColor); // 7
-        bool notOwnCorner = !IsItsOwnCorner(x2, y2, teamColor); // 8
+        bool isDestinationTileFree = IsTileFree(x2,y2); // 7
+        bool notOwnArea = !IsItsOwnArea(x2, y2, teamColor); // 8
+        bool notOwnCorner = !IsItsOwnCorner(x2, y2, teamColor); // 9
         bool endOfTurnConditions = (
             !isEndOfTurn ||
             isDestinationTileFree && notOwnArea && notOwnCorner);
@@ -542,6 +556,14 @@ public class Game
                  )
                  );
         */
+    }
+
+    // Takes the coordinates of the destination tile for a ball pass
+    // and, using the ballPossession field, determines if the pass is
+    // a self-pass. Because it is illegal for the player to make a ball
+    // pass to himself.
+    private bool CheckForSelfPass(int x, int y)
+    {
     }
 
     // Check if the tile located on the given coordinates is in
