@@ -509,7 +509,11 @@ public class Game
         bool tileNotContiguousToAllPieces = (
             CountContiguousPieces(x2, y2, Team.White) != 2 ||
             CountContiguousPieces(x2, y2, Team.Black) != 2); // 5
+
+        //////////////////////// BUGGG
         bool notSelfPass = !CheckForSelfPass(x2, y2); // 6
+        //////////////////////// BUGGG
+
         bool generalConditions = (
             validDirection && tileIsFree && tileIsValid &&
             tileNotContiguousToAllPieces && notSelfPass);
@@ -558,12 +562,49 @@ public class Game
         */
     }
 
-    // Takes the coordinates of the destination tile for a ball pass
-    // and, using the ballPossession field, determines if the pass is
-    // a self-pass. Because it is illegal for the player to make a ball
-    // pass to himself.
+    // Takes the coordinates of a potential destination tile for a
+    // potential ball pass and, using the ballPossession field, determines
+    // if the potential pass is a self-pass. Because it is illegal for the
+    // player to make a ball pass to himself.
     private bool CheckForSelfPass(int x, int y)
     {
+        return IsPlayerTheOnlyPossessorOfTile(x, y, ballPossesion);
+    }
+
+    // Takes the coordinates and a player piece and checks whether the
+    // player is in "possession" of the tile. That is to say, whether
+    // the player piece is immediately contiguous to the tile.
+    private bool IsPlayerTheOnlyPossessorOfTile(
+        int x, int y, PlayerPiece player)
+    {
+        // Set the limits for the nested iteration.
+        int minX = Math.Max(0, x-1);
+        int maxX = Math.Min(
+            Board.GetXLength() - 1, x+1);
+        int minY = Math.Max(0, y-1);
+        int maxY = Math.Min(
+            Board.GetYLength() - 1, y+1);
+        
+        // Check the tiles that are contiguous to the ball for player pieces.
+        for (int i = minY; i <= maxY; i++)
+        {
+            for (int j = minX; j <= maxX; j++)
+            {
+                // Get the piece, if there is any.
+                PlayerPiece? piece = Board.GetTile(j,i).PlayerPiece;
+
+                // Check if the piece is the same as the player parameter.
+                if (
+                    (j != x || i != y) &&
+                    piece != null && piece == player)
+                {
+                    return true;
+                }
+            }
+        }
+
+        // If no equal pieces were found, return false.
+        return false;
     }
 
     // Check if the tile located on the given coordinates is in
