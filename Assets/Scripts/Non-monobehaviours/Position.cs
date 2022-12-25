@@ -7,7 +7,7 @@ public class Position
     public int X { get; private set; }
     public int Y { get; private set; }
     public Vector3Int Vector3Int { get; private set; }
-    public Vector3 Vector3 { get; private set; }
+    //public Vector3 Vector3 { get; private set; }
 
     // The dimensions of the board.
     private const int boardXLength = 11;
@@ -28,7 +28,7 @@ public class Position
         Vector3Int = vector;
 
         // Convert the Vector3Int to a Vector3 with float components.
-        Vector3 = new Vector3((float)vector.x, (float)vector.y);
+        //Vector3 = new Vector3((float)vector.x, (float)vector.y);
     }
 
     public Position(int x, int y)
@@ -38,14 +38,14 @@ public class Position
         Y = y;
 
         // Convert from abstract coordinates to concrete coordinates.
-        int vectorX = x + (boardXLength - 1) / 2;
-        int vectorY = (boardYLength - 1) / 2 - y;
+        int vectorX = x - ((boardXLength - 1) / 2 + 1);
+        int vectorY = (boardYLength - 1) / 2 - (y + 1);
 
         // Initialize a new Vector3Int object and store it.
-        Vector3 = new Vector3Int(vectorX, vectorY);
+        Vector3Int = new Vector3Int(vectorX, vectorY);
 
         // Initialize a new Vector3 object with float components.
-        Vector3 = new Vector3((float)vectorX, (float)vectorY);
+        //Vector3 = new Vector3((float)vectorX, (float)vectorY);
     }
 
     /*
