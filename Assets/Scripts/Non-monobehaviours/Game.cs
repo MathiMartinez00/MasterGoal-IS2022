@@ -290,21 +290,37 @@ public class Game
     // Check for these conditions:
     // 1) No placing pieces on their own corners;
     // 2) No jumping over the ball and other players;
-    // 3) Allow movement to just be over a single row, a single column or
+    // 3) The destination tile is free (only one piece per tile allowed).
+    // 4) Allow movement to just be over a single row, a single column or
     // diagonally.
-    // 4) The tile is valid (is not next to either one of the goals).
-    // 5) The piece cannot stay on its original tile.
+    // 5) The tile is valid (is not next to either one of the goals).
+    // 6) The piece cannot stay on its original tile.
     //
     // If all of those conditions are met, returns "true"; false otherwise.
     private bool CheckForValidPlayerMove(
         int x1, int y1, int x2, int y2, Team teamColor)
     {
+
+        // Check all of the aforementioned conditions.
+        bool notOwnCorner = !IsItsOwnCorner(x2, y2, teamColor); // 1
+        bool notPieceInTheWay = !IsAnotherPieceInTheWay(
+            x1, y1, x2, y2); // 2
+        bool destinationTileFree = DoesTileContainAPiece(x2,y2); // 3
+        bool validDirection = CheckForValidMovementDirections(
+            x2-x1, y2-y1); // 4 & 6
+        bool validTile = Board.GetTile(x2, y2).IsValid; // 5
+
+        return (
+            notOwnCorner && notPieceInTheWay && validDirection && validTile);
+
+        /*
         return (
             !IsItsOwnCorner(x2, y2, teamColor) && // 1
             !IsAnotherPieceInTheWay(x1, y1, x2, y2) && // 2
             CheckForValidMovementDirections(x2-x1, y2-y1) && // 3 & 5
             Board.GetTile(x2, y2).IsValid // 4
         );
+        */
     }
 
     // Takes the coordinates of two tiles, origin and destination, and
@@ -322,7 +338,7 @@ public class Game
         if (x1 == x2)
         {
             // Traverse the board over a single column.
-            for (int i = minY; i <= maxY; i++)
+            for (int i = minY+1; i < maxY; i++)
             {
                 // Check if another piece is on the path from the origin
                 // tile to the destination tile.
@@ -335,7 +351,7 @@ public class Game
         else if (y1 == y2)
         {
             // Traverse the board over a single row.
-            for (int j = minX; j <= maxX; j++)
+            for (int j = minX+1; j < maxX; j++)
             {
                 if (DoesTileContainAPiece(j, y1))
                 {
@@ -346,7 +362,7 @@ public class Game
         else
         {
             // Traverse the board diagonally.
-            for (int k = minX; k <= maxX; k++)
+            for (int k = minX+1; k < maxX; k++)
             {
                 if (DoesTileContainAPiece(k,k))
                 {
@@ -372,11 +388,11 @@ public class Game
     private bool IsItsOwnCorner(int x, int y, Team teamColor)
     {
         return (
-            (y == 0 || y == 10) &&
+            (x == 0 || x == 10) &&
             // The white team play on the top side of the board.
-            ((teamColor == Team.White && x == 1 ) ||
+            ((teamColor == Team.White && y == 1 ) ||
             // The black team play on the bottom side of the board.
-             (teamColor == Team.Black && x == 13)
+             (teamColor == Team.Black && y == 13)
             ));
     }
 
@@ -616,7 +632,7 @@ public class Game
 
                 // Count the pieces of the given color.
                 if (
-                    (j != x && i != y) &&
+                    (j != x || i != y) &&
                     piece != null && piece.TeamColor == teamColor)
                 {
                     count++;
