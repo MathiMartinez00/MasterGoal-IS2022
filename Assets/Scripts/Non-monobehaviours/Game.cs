@@ -10,6 +10,7 @@ using System;
 public class Game
 {
     public Board Board { get; private set; }
+    private AIModule AIModule;
     // GAME MODE NOT USED YET.
     public GameMode GameMode { get; private set; }
     public GameStatus GameStatus { get; private set; }
