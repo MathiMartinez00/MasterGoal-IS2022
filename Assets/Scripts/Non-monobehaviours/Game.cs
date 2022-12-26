@@ -89,7 +89,8 @@ public class Game
             this.selectedPiece.X = selectedTile.X;
             this.selectedPiece.Y = selectedTile.Y;
 
-            // Update the origin and destination tile's player piece fields.
+            // Update the origin and destination tiles' PlayerPiece fields,
+            // create and return a new Move instance.
             Move move = UpdateTilesPieceFieldsAndStoreMove(
                 this.selectedPiece, originTile, selectedTile);
 
@@ -117,6 +118,8 @@ public class Game
                 SwitchCurrentTurn();
             }
 
+            // Store the move.
+            this.allMoves.Add(move);
             // Return the move (to do a reactive board update).
             return move;
         }
@@ -131,7 +134,8 @@ public class Game
             Board.Ball.X = selectedTile.X;
             Board.Ball.Y = selectedTile.Y;
 
-            // Update both the origin and destination tile's ball fields.
+            // Update the origin and destination tiles' Ball fields,
+            // create and return a new Move instance.
             Move move = UpdateTilesPieceFieldsAndStoreMove(
                 Board.Ball, originTile, selectedTile);
 
@@ -174,6 +178,10 @@ public class Game
                 // Check if the player passed the ball.
                 if (IsBallInPossessionOfCurrentTurn())
                 {
+                    // Modify the Move object default move type field
+                    // to signal that the move was a ball pass.
+                    move.MoveType = MoveType.BallPass;
+                    // Increase the pass count counter.
                     this.passCount++;
                     // Update the ball possession field. The other piece of
                     // the team that is in possession of the ball is now in
@@ -195,6 +203,8 @@ public class Game
                 }
             }
 
+            // Store the move.
+            this.allMoves.Add(move);
             // Return the move (to do a reactive board update).
             return move;
         }
@@ -221,9 +231,8 @@ public class Game
 
     // Overloaded method that updates the origin and destination tile's
     // PlayerPiece and Ball fields according to the type of Piece that
-    // is moved, creates a new Move instance, stores the move and then
-    // returns it. This method is used then the piece is an instance of
-    // Player Piece.
+    // is moved, creates a new Move instance and returns it. This method
+    // is used when the moved piece is an instance of PlayerPiece.
     private Move UpdateTilesPieceFieldsAndStoreMove(
         PlayerPiece playerPiece, AbstractTile originTile,
         AbstractTile destinationTile)
@@ -233,10 +242,9 @@ public class Game
         // Set the destination tile's field to the correct reference.
         destinationTile.PlayerPiece = playerPiece;
 
-        // Store the move.
+        // Instantiate the Move.
         Move move = new Move(
             this.currentTurn, originTile, destinationTile, playerPiece);
-        this.allMoves.Add(move);
 
         // Return the move (for the reactive board update).
         return move;
@@ -244,9 +252,8 @@ public class Game
 
     // Overloaded method that updates the origin and destination tile's
     // PlayerPiece and Ball fields according to the type of Piece that
-    // is moved, creates a new Move instance, stores the move and then
-    // returns it. This method is used then the piece is an instance of
-    // Ball.
+    // is moved, creates a new Move instance and returns it. This method
+    // is used then the piece is an instance of Ball.
     private Move UpdateTilesPieceFieldsAndStoreMove(
         Ball ballPiece, AbstractTile originTile,
         AbstractTile destinationTile)
@@ -256,10 +263,9 @@ public class Game
         // Set the destination tile's field to the correct reference.
         destinationTile.Ball = ballPiece;
 
-        // Store the move.
+        // Instantiate the Move.
         Move move = new Move(
             this.currentTurn, originTile, destinationTile, ballPiece);
-        this.allMoves.Add(move);
 
         // Return the move (for the reactive board update).
         return move;

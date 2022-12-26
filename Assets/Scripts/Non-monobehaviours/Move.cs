@@ -9,6 +9,8 @@ public class Move
     public AbstractTile Destination { get; private set; }
     public PlayerPiece? PlayerPiece { get; private set; }
     public Ball? BallMoved { get; private set; }
+    // Player move, ball pass or ball move.
+    public MoveType MoveType { get; set; }
     // Field that tells you if the move resulted in a goal.
     public bool IsGoal { get; set; }
 
@@ -27,6 +29,9 @@ public class Move
     {
         PlayerPiece = playerPieceMoved;
         BallMoved = null;
+        // If the parameter is a PlayerPiece, a move type of type PlayerMove
+        // is the only option.
+        MoveType = MoveType.PlayerMove;
     }
 
     public Move(
@@ -35,5 +40,9 @@ public class Move
     {
         BallMoved = ball;
         PlayerPiece = null;
+        // When the piece parameter is of type Ball, then the default
+        // move type is a BallMove. This should be modifier later with
+        // the setter, if necessary.
+        MoveType = MoveType.BallMove;
     }
 }

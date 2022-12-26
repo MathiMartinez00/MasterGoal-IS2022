@@ -91,6 +91,7 @@ public class AIModule
 
     private Game[] GetChildrenStates(Game game)
     {
+
     }
 
     // Heuristic evaluation function. Given a board, it returns an integer
