@@ -9,31 +9,45 @@ public class AIModule
 
     public AIModule(Game game)
     {
-
     }
 
+    // Standard Minimax function. Takes a game state, a recursion depth
+    // and a bool (that defines the current turn).
     public int Minimax(Game game, int depth, bool maximizingPlayer)
     {
-        if ((depth == 0) || IsGameOver())
+        // If we have reached maximum depth in the game tree, return
+        // the static evaluation of the current state of the game.
+        if (depth == 0 || IsGameOver(game))
         {
-            this.EvalScore = EvaluateBoard();
+            return EvaluateBoard(game);
         }
 
-        (int,int)[] positions = GetChildrenPositions();
+        // Get all of the children states of the current game state.
+        Game[] childrenStates = GetChildrenStates(game);
 
         if (maximizingPlayer)
         {
-            int maxEval = int.MaxValue;
-            this.EvalScore = maxEval;
+            int maxEval = int.MinValue;
+            foreach (Game childState in childrenStates)
+            {
+                int currentEval = Minimax(childState, depth-1, false)
+                maxEval = Math.Max(maxEval, currentEval);
+            }
+            return maxEval;
         }
         else
         {
-            int minEval = int.MinValue;
-            this.EvalScore = minEval;
+            int minEval = int.MaxValue;
+            foreach (Game childState in childrenStates)
+            {
+                int currentEval = Minimax(childState, depth-1, true)
+                minEval = Math.Min(minEval, currentEval);
+            }
+            return minEval;
         }
     }
 
-    private Game[] GetChildrenPositions(Game game)
+    private Game[] GetChildrenStates(Game game)
     {
     }
 
@@ -69,6 +83,7 @@ public class AIModule
         return utilityScore;
     }
 
+    // Checks if the game is over.
     public bool IsGameOver(Game game)
     {
         return (game.GameStatus == GameStatus.GameOver);
