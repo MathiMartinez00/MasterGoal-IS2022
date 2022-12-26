@@ -1,19 +1,61 @@
 
+// This is a class that encapsulates the functionality for the IA.
+// For every computer move a new instance of this class should be
+// instantiated.
 public class AIModule
 {
     // We need a list of moves because this game allows passes between
     // players, and a single pass is represented as a single move.
-    public Move[] moves { get; private set; }
+    public Move[] Moves { get; private set; }
 
+    //////////////////////////////////////////////////
+    public Game BestChildGame { get; private set; }
+    //////////////////////////////////////////////////
+
+    // The recursion depth to be used by the Minimax algorithm.
+    private readonly int recursionDepth = 4;
+    // Maximum possible score. This score should be used when a move
+    // results in a goal.
     private readonly int maxScore = 9999;
 
     public AIModule(Game game)
     {
+        // Get all of the children states of the current game state.
+        Game[] childrenStates = GetChildrenStates(game);
+        // Get the current turn in the form of a bool.
+        bool isMaximizingPlayer = game.CurrentTurn == Team.White;
+
+        if (isMaximizingPlayer)
+        {
+            int maxEval = int.MinValue;
+            foreach (Game childState in childrenStates)
+            {
+                int currentEval = Minimax(childState, recursionDepth, false);
+                if (currentEval > maxEval)
+                {
+                    BestChildState = childState;
+                    maxEval = currentEval;
+                }
+            }
+        }
+        else
+        {
+            int minEval = int.MaxValue;
+            foreach (Game childState in childrenStates)
+            {
+                int currentEval = Minimax(childState, recursionDepth, true);
+                if (currentEval < minEval)
+                {
+                    BestChildState = childState;
+                    minEval = currentEval;
+                }
+            }
+        }
     }
 
     // Standard Minimax function. Takes a game state, a recursion depth
     // and a bool (that defines the current turn).
-    public int Minimax(Game game, int depth, bool maximizingPlayer)
+    public int Minimax(Game game, int depth, bool isMaximizingPlayer)
     {
         // If we have reached maximum depth in the game tree, return
         // the static evaluation of the current state of the game.
@@ -25,7 +67,7 @@ public class AIModule
         // Get all of the children states of the current game state.
         Game[] childrenStates = GetChildrenStates(game);
 
-        if (maximizingPlayer)
+        if (isMaximizingPlayer)
         {
             int maxEval = int.MinValue;
             foreach (Game childState in childrenStates)
