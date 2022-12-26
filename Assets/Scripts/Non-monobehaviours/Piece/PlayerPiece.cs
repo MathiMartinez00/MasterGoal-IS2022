@@ -14,12 +14,4 @@ public class PlayerPiece : Piece
         this.TeamColor = teamColor;
         this.PieceNumber = number;
     }
-
-    /*
-    // Getter for the team color field.
-    public Team GetTeamColor()
-    {
-        return this.teamColor;
-    }
-    */
 }

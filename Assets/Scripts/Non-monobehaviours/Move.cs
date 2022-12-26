@@ -1,4 +1,3 @@
-
 #nullable enable
 
 // The instances of this class is useful to store all of the moves that
@@ -37,36 +36,4 @@ public class Move
         BallMoved = ball;
         PlayerPiece = null;
     }
-
-    /*
-    // Origin tile getter.
-    public AbstractTile GetOriginTile()
-    {
-        return this.origin;
-    }
-
-    // Destination tile getter.
-    public AbstractTile GetDestinationTile()
-    {
-        return this.destination;
-    }
-
-    // Setter for the isGoal field.
-    public void SetIsGoal(bool isGoal)
-    {
-        this.isGoal = isGoal;
-    }
-
-    // Getter for the isGoal field.
-    public bool GetIsGoal()
-    {
-        return this.isGoal;
-    }
-
-    // Getter for the piece that has been moved.
-    public Piece GetPieceMoved()
-    {
-        return this.pieceMoved;
-    }
-    */
 }

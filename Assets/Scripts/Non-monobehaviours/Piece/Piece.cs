@@ -12,26 +12,4 @@ public abstract class Piece
         X = x;
         Y = y;
     }
-
-    /*
-    public int GetX()
-    {
-        return this.x;
-    }
-
-    public int GetY()
-    {
-        return this.y;
-    }
-
-    public void SetX(int x)
-    {
-        this.x = x;
-    }
-
-    public void SetY(int y)
-    {
-        this.y = y;
-    }
-    */
 }
