@@ -27,10 +27,6 @@ public class ScriptController : MonoBehaviour
     public GameObject BlackPiece1 = default!;
     public GameObject BlackPiece2 = default!;
     public GameObject Ball = default!;
-    
-    // Movement settings
-    //public float smoothDampTime = .02f;
-    //public float distanceToSnap = .05f;
 
     // UI variables
     public TextMeshProUGUI whiteScoreText = default!;

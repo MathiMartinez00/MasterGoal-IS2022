@@ -316,22 +316,14 @@ public class Game
         bool notOwnCorner = !IsItsOwnCorner(x2, y2, teamColor); // 1
         bool notPieceInTheWay = !IsAnotherPieceInTheWay(
             x1, y1, x2, y2); // 2
-        bool destinationTileFree = DoesTileContainAPiece(x2,y2); // 3
+        bool destinationTileFree = !DoesTileContainAPiece(x2,y2); // 3
         bool validDirection = CheckForValidMovementDirections(
             x2-x1, y2-y1); // 4 & 6
         bool validTile = Board.GetTile(x2, y2).IsValid; // 5
 
         return (
-            notOwnCorner && notPieceInTheWay && validDirection && validTile);
-
-        /*
-        return (
-            !IsItsOwnCorner(x2, y2, teamColor) && // 1
-            !IsAnotherPieceInTheWay(x1, y1, x2, y2) && // 2
-            CheckForValidMovementDirections(x2-x1, y2-y1) && // 3 & 5
-            Board.GetTile(x2, y2).IsValid // 4
-        );
-        */
+            notOwnCorner && notPieceInTheWay && destinationTileFree &&
+            validDirection && validTile);
     }
 
     // Takes the coordinates of two tiles, origin and destination, and
@@ -548,6 +540,10 @@ public class Game
         }
     }
 
+    // Checks if the opponent is in control or "possession" of a tile
+    // defined by the given coordinates. This is useful because the player
+    // can't make a pass to its opponent, and at the end of the turn
+    // neither one of the teams has to be in the possession of the ball.
     private bool CheckForOpponentPass(int x, int y)
     {
         Team oppositeTeam = GetOppositeTeam(currentTurn);
@@ -636,12 +632,12 @@ public class Game
         // Look for the ball on the white team's goal.
         if (ball.Y == 0)
         {
-            return Team.White;
+            return Team.Black;
         }
         // Look for the ball on the black team's goal.
         else if (ball.Y == 14)
         {
-            return Team.Black;
+            return Team.White;
         }
 
         // If no goal has been scored, return null.
