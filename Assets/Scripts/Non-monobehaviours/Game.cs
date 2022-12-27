@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 
 #nullable enable
 
@@ -13,18 +11,15 @@ using System.Runtime.Serialization.Formatters.Binary;
 public class Game
 {
     public Board Board { get; private set; }
-    //private AIModule AIModule;
-    // GAME MODE NOT USED YET.
-    //public GameMode GameMode { get; private set; }
     public GameStatus GameStatus { get; private set; }
     public Team CurrentTurn { get; private set; }
     public List<Move> AllMoves { get; private set; }
     private PlayerPiece selectedPiece;
     // A player has to be in possession of the ball in order to move it.
     private PlayerPiece ballPossesion;
-    private int passCount;
-    private int whiteScore;
-    private int blackScore;
+    private int passCount = 0;
+    public int WhiteScore { get; private set; } = 0;
+    public int BlackScore { get; private set; } = 0;
 
     // The number of tiles that each type of piece can move per action.
     private readonly int playerPieceReach = 2;
@@ -36,29 +31,15 @@ public class Game
         Board = new Board();
         //GameMode = gameMode;
         GameStatus = GameStatus.WaitingPlayerPieceSelection;
-        this.currentTurn = Team.White;
+        CurrentTurn = Team.White;
         // Assign a piece just placeholder, for now.
         this.selectedPiece = Board.WhitePiece1;
         // Assign a piece just placeholder, for now.
         this.ballPossesion= Board.WhitePiece1;
-        this.allMoves = new List<Move>();
-        this.passCount = 0;
-        this.whiteScore = 0;
-        this.blackScore = 0;
-    }
-
-    // Static method used to make a deep clone of this object. This
-    // is useful in to get the child states for the Minimax algorithm.
-    public static T DeepClone<T>(this T obj)
-    {
-        using (var ms = new MemoryStream())
-        {
-        var formatter = new BinaryFormatter();
-        formatter.Serialize(ms, obj);
-        ms.Position = 0;
-
-        return (T) formatter.Deserialize(ms);
-        }
+        AllMoves = new List<Move>();
+        //this.passCount = 0;
+        //WhiteScore = 0;
+        //BlackScore = 0;
     }
 
     // This method should be called when the user taps on the screen.
@@ -136,7 +117,7 @@ public class Game
             }
 
             // Store the move.
-            this.allMoves.Add(move);
+            AllMoves.Add(move);
             // Return the move (to do a reactive board update).
             return move;
         }
@@ -169,21 +150,21 @@ public class Game
                 // Update the scores.
                 if (goalScored == Team.White)
                 {
-                    whiteScore++;
+                    WhiteScore++;
                 }
                 else
                 {
-                    blackScore++;
+                    BlackScore++;
                 }
                 // The game is over when someone scores two goals.
-                if (this.whiteScore >= 2 || this.blackScore >= 2)
+                if (WhiteScore >= 2 || BlackScore >= 2)
                 {
                     GameStatus = GameStatus.GameOver;
                 }
                 else
                 {
                     // After a goal, it's the opposite team's turn.
-                    this.currentTurn = GetOppositeTeam(goalScored.Value);
+                    CurrentTurn = GetOppositeTeam(goalScored.Value);
                     // Change the status of the game.
                     GameStatus = GameStatus.WaitingPlayerPieceSelection;
                     // Reset the pieces to their initial position.
@@ -221,7 +202,7 @@ public class Game
             }
 
             // Store the move.
-            this.allMoves.Add(move);
+            AllMoves.Add(move);
             // Return the move (to do a reactive board update).
             return move;
         }
@@ -235,7 +216,7 @@ public class Game
     private void SelectPlayerPiece(PlayerPiece piece, AbstractTile tile)
     {
         // Check if the current turn matches with the piece's color.
-        if (piece.TeamColor == currentTurn)
+        if (piece.TeamColor == CurrentTurn)
         {
             // Highlight and store the tiles that indicate valid destinations.
             CalculatePlayerMovesAndHighlightTiles(tile, piece);
@@ -261,7 +242,7 @@ public class Game
 
         // Instantiate the Move.
         Move move = new Move(
-            this.currentTurn, originTile, destinationTile, playerPiece);
+            CurrentTurn, originTile, destinationTile, playerPiece);
 
         // Return the move (for the reactive board update).
         return move;
@@ -282,7 +263,7 @@ public class Game
 
         // Instantiate the Move.
         Move move = new Move(
-            this.currentTurn, originTile, destinationTile, ballPiece);
+            CurrentTurn, originTile, destinationTile, ballPiece);
 
         // Return the move (for the reactive board update).
         return move;
@@ -516,7 +497,7 @@ public class Game
     private bool CheckForValidBallMove(int x1, int y1, int x2, int y2)
     {
         // Get the team whose turn it is.
-        Team teamColor = this.currentTurn;
+        Team teamColor = CurrentTurn;
 
         // Check all of the aforementioned conditions.
         //
@@ -570,7 +551,7 @@ public class Game
     // neither one of the teams has to be in the possession of the ball.
     private bool CheckForOpponentPass(int x, int y)
     {
-        Team oppositeTeam = GetOppositeTeam(currentTurn);
+        Team oppositeTeam = GetOppositeTeam(CurrentTurn);
         return IsTileInPossessionOfTeam(x, y, oppositeTeam);
     }
 
@@ -679,7 +660,7 @@ public class Game
         Team? ballPossesion = GetBallPossession(Board.Ball);
         return (
             ballPossesion != null &&
-            ballPossesion == this.currentTurn);
+            ballPossesion == CurrentTurn);
     }
 
     // Takes the ball piece and returns the team that is currently in
@@ -746,13 +727,13 @@ public class Game
     // Switches the current turn from "White" to "Black", or viceversa.
     private void SwitchCurrentTurn()
     {
-        if (this.currentTurn == Team.White)
+        if (CurrentTurn == Team.White)
         {
-            this.currentTurn = Team.Black;
+            CurrentTurn = Team.Black;
         }
         else
         {
-            this.currentTurn = Team.White;
+            CurrentTurn = Team.White;
         }
     }
 }

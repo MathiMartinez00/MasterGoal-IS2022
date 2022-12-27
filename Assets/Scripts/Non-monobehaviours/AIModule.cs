@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using ExtensionMethods;
 
 // This is a class that encapsulates the functionality for the IA.
 // For every computer move a new instance of this class should be
@@ -66,7 +69,7 @@ public class AIModule
     // descendants (or children).
     private List<Game> GetChildrenStates(Game game)
     {
-        List<Game> childGameStates;
+        List<Game> childGameStates = new List<Game>();
 
         // Get the two player piece of the current team.
         foreach (PlayerPiece piece in GetPlayerPiecesOfCurrentTurn(game))
@@ -93,7 +96,7 @@ public class AIModule
     // all of the possible direct descendant game states of it.
     private List<Game> GetAllGamesOnPlayerSelected(Game game)
     {
-        List<Game> childGameStates;
+        List<Game> childGameStates = new List<Game>();
 
         // Iterate through the highlighted tiles.
         foreach(AbstractTile tile in game.Board.GetHighlightedTilesIterative())
@@ -126,7 +129,7 @@ public class AIModule
     // further.
     private List<Game> GetAllGamesOnPlayerMoved(Game game)
     {
-        List<Game> childGameStates;
+        List<Game> childGameStates = new List<Game>();
 
         // Base case. The last move ended the turn and the ball can't
         // be moved further.
@@ -163,7 +166,7 @@ public class AIModule
     // the team whose turn it is.
     private List<PlayerPiece> GetPlayerPiecesOfCurrentTurn(Game game)
     {
-        List<PlayerPiece> playerPieces;
+        List<PlayerPiece> playerPieces = new List<PlayerPiece>();
 
         if (game.CurrentTurn == Team.White)
         {
@@ -198,7 +201,7 @@ public class AIModule
             int maxEval = int.MinValue;
             foreach (Game childState in childrenStates)
             {
-                int currentEval = Minimax(childState, depth-1, false)
+                int currentEval = Minimax(childState, depth-1, false);
                 maxEval = Math.Max(maxEval, currentEval);
             }
             return maxEval;
@@ -208,7 +211,7 @@ public class AIModule
             int minEval = int.MaxValue;
             foreach (Game childState in childrenStates)
             {
-                int currentEval = Minimax(childState, depth-1, true)
+                int currentEval = Minimax(childState, depth-1, true);
                 minEval = Math.Min(minEval, currentEval);
             }
             return minEval;
@@ -226,27 +229,28 @@ public class AIModule
     {
         int utilityScore = 0;
         // Part of the evalution will be made based on the "y" coordinate.
-        int ballY = game.Board.BallY;
+        int ballY = game.Board.Ball.Y;
 
         // If the game is over, return the maximum (or minimum) possible
         // score. This factor has the highest weight on the utility score.
         if (IsGameOver(game))
         {
-            utilityScore = whiteScore > blackScore ? maxScore : -maxScore;
+            utilityScore =
+            (game.WhiteScore > game.BlackScore) ? maxScore : -maxScore;
         }
         else
         {
             // This is the score derived from the amount of goals that each
             // team made. This score has a high weight.
-            int goalScore =
-            (game.whiteScore * goalScore) - (game.blackScore * goalScore);
+            int numberOfGoalsScore =
+            (game.WhiteScore * goalScore) - (game.BlackScore * goalScore);
 
             // This is the score derived from the current position of the
             // ball in the game board. This score has a low weight.
             int ballPositionScore = (ballY - 7) * positionScore;
 
             // Add the two scores to get the total utility score.
-            utilityScore = goalScore + ballPositionScore;
+            utilityScore = numberOfGoalsScore + ballPositionScore;
         }
 
         return utilityScore;
@@ -266,7 +270,7 @@ public class AIModule
         List<Move> parentList = parentState.AllMoves;
         List<Move> childList = childState.AllMoves;
 
-        List<Move> newMoves;
+        List<Move> newMoves = new List<Move>();
 
         for (int i = parentList.Count; i < childList.Count; i++)
         {
