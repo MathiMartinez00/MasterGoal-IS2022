@@ -10,9 +10,13 @@ public class AIModule
 
     // The recursion depth to be used by the Minimax algorithm.
     private readonly int recursionDepth = 4;
-    // Maximum possible score. This score should be used when a move
-    // results in a goal.
-    private readonly int maxScore = 9999;
+    // Maximum possible score. This is the utility score of a move
+    // that ends the game.
+    private readonly int maxScore = 100000;
+    // This is the utility score of a single goal.
+    private readonly int goalScore = 10000;
+    // Utility score of every increment in the "y" coordinate of the ball.
+    private readonly int positionScore = 100;
 
     // This class constructor takes a game, calculates the recommended
     // moves and saves them on the "Moves" instance attribute.
@@ -147,7 +151,7 @@ public class AIModule
                 Game gameCopy = game;
                 ////////////////////
 
-                // Move the ball in the game copy. This is move doesn't
+                // Move the ball in the game copy. This move doesn't
                 // necessarily end the turn.
                 Position position = new Position(tile.X, tile.Y);
                 gameCopy.Input(position);
@@ -189,7 +193,7 @@ public class AIModule
         // the static evaluation of the current state of the game.
         if (depth == 0 || IsGameOver(game))
         {
-            return EvaluateBoard(game);
+            return EvaluateGame(game);
         }
 
         // Get all of the children states of the current game state.
@@ -217,33 +221,38 @@ public class AIModule
         }
     }
 
-    // Heuristic evaluation function. Given a board, it returns an integer
-    // representing the utility score of the given state of the board.
-    // The heuristic evaluation is made based on just the "y" coordinate
-    // of the ball. If the ball is close to the black team's goal, the
-    // utility score will be positive and high.
+    // Heuristic evaluation function. Given a game, it returns an integer
+    // representing the utility score of the given state of the game.
+    // The heuristic evaluation is made based on the game state (whether
+    // the game is still going), the number of goals and the current position
+    // of the ball.
     // A state that favors the white team will get a positive score and a
     // state that favor the black team will get a negative score.
-    private int EvaluateBoard(Game game)
+    private int EvaluateGame(Game game)
     {
         int utilityScore = 0;
-        // The evalution will be made based on the ball's "y" coordinate.
+        // Part of the evalution will be made based on the "y" coordinate.
         int ballY = game.Board.BallY;
 
-        // If a goal is scored, assign the maximum (or minimum) score.
-        if (game.CheckForGoalScored() == Team.White)
+        // If the game is over, return the maximum (or minimum) possible
+        // score. This factor has the highest weight on the utility score.
+        if (IsGameOver(game))
         {
-            // White is positive.
-            utilityScore = maxScore;
-        }
-        else if (game.CheckForGoalScored() == Team.Black)
-        {
-            // Black is negative.
-            utilityScore = -maxScore;
+            utilityScore = whiteScore > blackScore ? maxScore : -maxScore;
         }
         else
         {
-            utilityScore = (ballY - 7) * 100;
+            // This is the score derived from the amount of goals that each
+            // team made. This score has a high weight.
+            int goalScore =
+            (game.whiteScore * goalScore) - (game.blackScore * goalScore);
+
+            // This is the score derived from the current position of the
+            // ball in the game board. This score has a low weight.
+            int ballPositionScore = (ballY - 7) * positionScore;
+
+            // Add the two scores to get the total utility score.
+            utilityScore = goalScore + ballPositionScore;
         }
 
         return utilityScore;
