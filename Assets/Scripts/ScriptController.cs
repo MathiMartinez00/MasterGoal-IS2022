@@ -13,6 +13,7 @@ public class ScriptController : MonoBehaviour
 {
     // Used to get information to and from the AI algorithm.
     public Game Game { get; set; } = default!;
+    public GameMode GameMode { get; private set; }
 
     // GameObjects for game control.
     //
@@ -50,7 +51,7 @@ public class ScriptController : MonoBehaviour
         this.redScoreName.text = RedName;
         BoardBoxCollider = TilemapBoard.gameObject.GetComponent<BoxCollider2D>();
         // Create a new abstract game instance.
-        Game = new Game(GameMode.TwoPlayers, Team.White);
+        Game = new Game(Team.White);
     }
 
     // This method is called whenever the user taps on the screen.
@@ -58,22 +59,48 @@ public class ScriptController : MonoBehaviour
     {
         // Updates board based on player input given by the
         // IPointerHandlerEvent on the tilemap board GameObject.
-        Vector2 worldPoint = Camera.main.ScreenToWorldPoint(eventData.position);
+        Vector2 worldPoint = Camera.main.ScreenToWorldPoint(
+            eventData.position);
+        // Get the position of the screen tap in the Vector3Int type.
         Vector3Int point = TilemapBoard.WorldToCell(worldPoint);
 
         // Convert the Vector3Int to matrix coordinates using
         // the Position object.
         Position position = new Position(point);
 
+        // Pass the input to the Game instance and get the Move instance
+        // that resulted from the input.
         Move? move = Game.Input(position);
 
         // Render the changes that resulted from this interaction with
         // the user.
         RenderChanges(move);
+
+        // If the game mode is single player, then the computer has
+        // to make a move now.
+        if (GameMode == GameMode.OnePlayer)
+        {
+            // Create a new AIModule instance. This class encapsulates
+            // the recommended moves in an instance field.
+            AIModule aiModule = new AIModule(Game);
+            // Get the recommended moves (the moves with the highest
+            // utility score) and render them.
+            RenderChanges(aiModule.Moves);
+        }
     }
 
-    // Takes the last move that was made on the game and moves the
-    // corresponding concrete piece.
+    // Takes a series of moves (or just one move, or no move) that were
+    // made on the game and moves the corresponding concrete piece.
+    private void RenderChanges(List<Move> moves)
+    {
+        foreach (Move move in moves)
+        {
+            RenderChanges(move);
+        }
+    }
+
+    // Takes a move (or no move) that was made on the abstract game
+    // representation and moves the corresponding concrete piece.
     private void RenderChanges(Move? move)
     {
         if (move != null)

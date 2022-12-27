@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 #nullable enable
 
@@ -7,12 +9,13 @@ using System;
 // state of the game.
 // This is a standalone C# class and doesn't inherit from Monobehavior,
 // so it will not be attached to any Unity GameObject.
+[Serializable]
 public class Game
 {
     public Board Board { get; private set; }
-    private AIModule AIModule;
+    //private AIModule AIModule;
     // GAME MODE NOT USED YET.
-    public GameMode GameMode { get; private set; }
+    //public GameMode GameMode { get; private set; }
     public GameStatus GameStatus { get; private set; }
     public Team CurrentTurn { get; private set; }
     public List<Move> AllMoves { get; private set; }
@@ -28,10 +31,10 @@ public class Game
     private readonly int ballPieceReach   = 4;
 
     // C# class constructor.
-    public Game(GameMode gameMode, Team firstTurn)
+    public Game(Team firstTurn)
     {
         Board = new Board();
-        GameMode = gameMode;
+        //GameMode = gameMode;
         GameStatus = GameStatus.WaitingPlayerPieceSelection;
         this.currentTurn = Team.White;
         // Assign a piece just placeholder, for now.
@@ -42,6 +45,20 @@ public class Game
         this.passCount = 0;
         this.whiteScore = 0;
         this.blackScore = 0;
+    }
+
+    // Static method used to make a deep clone of this object. This
+    // is useful in to get the child states for the Minimax algorithm.
+    public static T DeepClone<T>(this T obj)
+    {
+        using (var ms = new MemoryStream())
+        {
+        var formatter = new BinaryFormatter();
+        formatter.Serialize(ms, obj);
+        ms.Position = 0;
+
+        return (T) formatter.Deserialize(ms);
+        }
     }
 
     // This method should be called when the user taps on the screen.

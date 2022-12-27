@@ -71,10 +71,8 @@ public class AIModule
         // Get the two player piece of the current team.
         foreach (PlayerPiece piece in GetPlayerPiecesOfCurrentTurn(game))
         {
-            // Make a game copy.
-            ////////////////////
-            Game gameCopy = game;
-            ////////////////////
+            // Make a deep game copy.
+            Game gameCopy = Game.DeepClone(game);
 
             // Select a piece in the game copy. Player piece selection
             // is always the first action in a turn.
@@ -100,10 +98,8 @@ public class AIModule
         // Iterate through the highlighted tiles.
         foreach(AbstractTile tile in game.Board.GetHighlightedTilesIterative())
         {
-            // Make a game copy.
-            ////////////////////
-            Game gameCopy = game;
-            ////////////////////
+            // Make a deep game copy.
+            Game gameCopy = Game.DeepClone(game);
 
             // Move the piece in the game copy. This is always the second
             // action in a turn (and can be the last action of a turn).
@@ -146,10 +142,8 @@ public class AIModule
             foreach(
                 AbstractTile tile in game.Board.GetHighlightedTilesIterative())
             {
-                // Make a game copy.
-                ////////////////////
-                Game gameCopy = game;
-                ////////////////////
+                // Make a deep game copy.
+                Game gameCopy = Game.DeepClone(game);
 
                 // Move the ball in the game copy. This move doesn't
                 // necessarily end the turn.
