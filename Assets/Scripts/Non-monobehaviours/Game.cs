@@ -52,7 +52,7 @@ public class Game
     // call. This is useful to do a reactive update on the board. If no
     // moves were made (just a selection of a piece, for example), it
     // returns null.
-    public Move? UserInput(Position position)
+    public Move? Input(Position position)
     {
         // Conver the coordinates to x and y.
         int x = position.X;

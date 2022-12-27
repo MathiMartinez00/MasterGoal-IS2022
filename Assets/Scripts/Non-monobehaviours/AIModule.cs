@@ -6,7 +6,7 @@ public class AIModule
 {
     // We need a list of moves because this game allows passes between
     // players, and a single pass is represented as a single move.
-    public Move[] Moves { get; private set; }
+    public List<Move> Moves { get; private set; }
 
     // The recursion depth to be used by the Minimax algorithm.
     private readonly int recursionDepth = 4;
@@ -19,7 +19,7 @@ public class AIModule
     public AIModule(Game game)
     {
         // Get all of the children states of the current game state.
-        Game[] childrenStates = GetChildrenStates(game);
+        List<Game> childrenStates = GetChildrenStates(game);
         // Get the current turn in the form of a bool.
         bool isMaximizingPlayer = game.CurrentTurn == Team.White;
         // To store the child state with the highest calculated utility.
@@ -58,9 +58,127 @@ public class AIModule
         Moves = GetMovesFromTheLatestTurn(game, bestChildState);
     }
 
-    private Game[] GetChildrenStates(Game game)
+    // Given a parent game state it returns all of its direct
+    // descendants (or children).
+    private List<Game> GetChildrenStates(Game game)
     {
+        List<Game> childGameStates;
 
+        // Get the two player piece of the current team.
+        foreach (PlayerPiece piece in GetPlayerPiecesOfCurrentTurn(game))
+        {
+            // Make a game copy.
+            ////////////////////
+            Game gameCopy = game;
+            ////////////////////
+
+            // Select a piece in the game copy. Player piece selection
+            // is always the first action in a turn.
+            Position position = new Position(piece.X, piece.Y);
+            gameCopy.Input(position);
+
+            // Get all of the possible games starting from a game state
+            // where a player piece is selected and store them.
+            childGameStates.AddRange(GetAllGamesOnPlayerSelected(gameCopy));
+        }
+
+        // Return all the children of the game states where each one of
+        // the two player pieces of the current team gets selected.
+        return childGameStates;
+    }
+
+    // Takes a game state where a player is already selected and returns
+    // all of the possible direct descendant game states of it.
+    private List<Game> GetAllGamesOnPlayerSelected(Game game)
+    {
+        List<Game> childGameStates;
+
+        // Iterate through the highlighted tiles.
+        foreach(AbstractTile tile in game.Board.GetHighlightedTilesIterative())
+        {
+            // Make a game copy.
+            ////////////////////
+            Game gameCopy = game;
+            ////////////////////
+
+            // Move the piece in the game copy. This is always the second
+            // action in a turn (and can be the last action of a turn).
+            Position position = new Position(tile.X, tile.Y);
+            gameCopy.Input(position);
+
+            // Get all of the possible games starting from a game state
+            // where a player piece is moved to a highlighted tile.
+            childGameStates.AddRange(GetAllGamesOnPlayerMoved(gameCopy));
+        }
+
+        // Return all the children of the game states in which the player
+        // is moved to each one of the highlighted tiles.
+        return childGameStates;
+    }
+
+    // Recursive method that takes a game state where a player piece or the
+    // ball was recently moved and returns all of the possible direct
+    // descendant game states of it. This function is recursive because a
+    // turn can end with a player move or with a ball move (and maybe after
+    // up to three ball passses). The base case of the recursion is when
+    // the ball can't be moved further and the turn ends. The recursive case
+    // is when the last move didn't end the turn and the ball can be moved
+    // further.
+    private List<Game> GetAllGamesOnPlayerMoved(Game game)
+    {
+        List<Game> childGameStates;
+
+        // Base case. The last move ended the turn and the ball can't
+        // be moved further.
+        if (game.GameStatus != GameStatus.WaitingBallMovement)
+        {
+            return childGameStates;
+        }
+        // Recursive case. The last move that was made didn't end the turn
+        // and the ball can still be moved.
+        else
+        {
+            // Iterate through the highlighted tiles.
+            foreach(
+                AbstractTile tile in game.Board.GetHighlightedTilesIterative())
+            {
+                // Make a game copy.
+                ////////////////////
+                Game gameCopy = game;
+                ////////////////////
+
+                // Move the ball in the game copy. This is move doesn't
+                // necessarily end the turn.
+                Position position = new Position(tile.X, tile.Y);
+                gameCopy.Input(position);
+
+                // Get all of the possible games that result from moving the
+                // ball to each one of the highlighted tiles.
+                childGameStates.AddRange(GetAllGamesOnPlayerMoved(gameCopy));
+            }
+        }
+
+        return childGameStates;
+    }
+
+    // Takes a game and a returns a list with the two player pieces of
+    // the team whose turn it is.
+    private List<PlayerPiece> GetPlayerPiecesOfCurrentTurn(Game game)
+    {
+        List<PlayerPiece> playerPieces;
+
+        if (game.CurrentTurn == Team.White)
+        {
+            playerPieces.Add(game.Board.WhitePiece1);
+            playerPieces.Add(game.Board.WhitePiece2);
+        }
+        else
+        {
+            playerPieces.Add(game.Board.BlackPiece1);
+            playerPieces.Add(game.Board.BlackPiece2);
+        }
+
+        return playerPieces;
     }
 
     // Standard Minimax function. Takes a game state, a recursion depth
@@ -75,7 +193,7 @@ public class AIModule
         }
 
         // Get all of the children states of the current game state.
-        Game[] childrenStates = GetChildrenStates(game);
+        List<Game> childrenStates = GetChildrenStates(game);
 
         if (isMaximizingPlayer)
         {
@@ -140,7 +258,7 @@ public class AIModule
     // Takes a parent game state and a child game state —a game state that
     // is a direct descendant of the first— and returns the latest moves
     // that were made in order to get from the parent game to the child game.
-    private Move[] GetMovesFromTheLatestTurn(Game parentState, Game childState)
+    private List<Move> GetMovesFromTheLatestTurn(Game parentState, Game childState)
     {
         List<Move> parentList = parentState.AllMoves;
         List<Move> childList = childState.AllMoves;

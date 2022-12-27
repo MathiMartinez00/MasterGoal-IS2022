@@ -65,7 +65,7 @@ public class ScriptController : MonoBehaviour
         // the Position object.
         Position position = new Position(point);
 
-        Move? move = Game.UserInput(position);
+        Move? move = Game.Input(position);
 
         // Render the changes that resulted from this interaction with
         // the user.

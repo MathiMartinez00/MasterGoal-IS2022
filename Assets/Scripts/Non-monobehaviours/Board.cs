@@ -126,7 +126,7 @@ public class Board
         return GetTile(piece.X, piece.Y);
     }
 
-    // Returns an iterator with the tiles of the board.
+    // Returns an iterator with the valid tiles of the board.
     public IEnumerable<AbstractTile> GetIterativeTiles()
     {
         for (int i = 0; i < boardYLength; i++)
@@ -140,6 +140,20 @@ public class Board
                     // Return the tile iteratively.
                     yield return tile;
                 }
+            }
+        }
+    }
+
+    // Returns an iterator with the highlighted tiles of the board.
+    public IEnumerable<AbstractTile> GetHighlightedTilesIterative()
+    {
+        // Iterate through the abstract tiles and return the highlighted ones.
+        foreach(AbstractTile tile in GetIterativeTiles())
+        {
+            if (tile.IsHighlighted)
+            {
+                // Return the tile iteratively.
+                yield return tile;
             }
         }
     }
