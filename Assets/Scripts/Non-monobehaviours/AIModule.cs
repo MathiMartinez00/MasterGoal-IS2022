@@ -8,23 +8,24 @@ public class AIModule
     // players, and a single pass is represented as a single move.
     public Move[] Moves { get; private set; }
 
-    //////////////////////////////////////////////////
-    public Game BestChildGame { get; private set; }
-    //////////////////////////////////////////////////
-
     // The recursion depth to be used by the Minimax algorithm.
     private readonly int recursionDepth = 4;
     // Maximum possible score. This score should be used when a move
     // results in a goal.
     private readonly int maxScore = 9999;
 
+    // This class constructor takes a game, calculates the recommended
+    // moves and saves them on the "Moves" instance attribute.
     public AIModule(Game game)
     {
         // Get all of the children states of the current game state.
         Game[] childrenStates = GetChildrenStates(game);
         // Get the current turn in the form of a bool.
         bool isMaximizingPlayer = game.CurrentTurn == Team.White;
+        // To store the child state with the highest calculated utility.
+        Game bestChildState;
 
+        // Find the child state with the highest utility score.
         if (isMaximizingPlayer)
         {
             int maxEval = int.MinValue;
@@ -33,7 +34,7 @@ public class AIModule
                 int currentEval = Minimax(childState, recursionDepth, false);
                 if (currentEval > maxEval)
                 {
-                    BestChildState = childState;
+                    bestChildState = childState;
                     maxEval = currentEval;
                 }
             }
@@ -46,11 +47,20 @@ public class AIModule
                 int currentEval = Minimax(childState, recursionDepth, true);
                 if (currentEval < minEval)
                 {
-                    BestChildState = childState;
+                    bestChildState = childState;
                     minEval = currentEval;
                 }
             }
         }
+        
+        // Store the moves that were made in order to get from the parent
+        // state to the child state.
+        Moves = GetMovesFromTheLatestTurn(game, bestChildState);
+    }
+
+    private Game[] GetChildrenStates(Game game)
+    {
+
     }
 
     // Standard Minimax function. Takes a game state, a recursion depth
@@ -89,11 +99,6 @@ public class AIModule
         }
     }
 
-    private Game[] GetChildrenStates(Game game)
-    {
-
-    }
-
     // Heuristic evaluation function. Given a board, it returns an integer
     // representing the utility score of the given state of the board.
     // The heuristic evaluation is made based on just the "y" coordinate
@@ -130,5 +135,23 @@ public class AIModule
     public bool IsGameOver(Game game)
     {
         return (game.GameStatus == GameStatus.GameOver);
+    }
+
+    // Takes a parent game state and a child game state —a game state that
+    // is a direct descendant of the first— and returns the latest moves
+    // that were made in order to get from the parent game to the child game.
+    private Move[] GetMovesFromTheLatestTurn(Game parentState, Game childState)
+    {
+        List<Move> parentList = parentState.AllMoves;
+        List<Move> childList = childState.AllMoves;
+
+        List<Move> newMoves;
+
+        for (int i = parentList.Count; i < childList.Count; i++)
+        {
+            newMoves.Add(childList[i]);
+        }
+
+        return newMoves;
     }
 }

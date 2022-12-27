@@ -14,8 +14,8 @@ public class Game
     // GAME MODE NOT USED YET.
     public GameMode GameMode { get; private set; }
     public GameStatus GameStatus { get; private set; }
-    private Team CurrentTurn { get; private set; }
-    private List<Move> allMoves;
+    public Team CurrentTurn { get; private set; }
+    public List<Move> AllMoves { get; private set; }
     private PlayerPiece selectedPiece;
     // A player has to be in possession of the ball in order to move it.
     private PlayerPiece ballPossesion;
