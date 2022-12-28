@@ -314,6 +314,9 @@ public class Game
     // the very last row of the board. That is to say, the player piece
     // can't enter into the goals or be placed to the side of the goals.
     // 6) The piece cannot stay on its original tile.
+    // 7) If a player is participating in a neutral tile in which the ball
+    // is located, then the player can't move to a position that would
+    // concede possession of the ball to the other team.
     //
     // If all of those conditions are met, returns "true"; false otherwise.
     private bool CheckForValidPlayerMove(
@@ -327,10 +330,65 @@ public class Game
         bool validDirection = CheckForValidMovementDirections(
             x2-x1, y2-y1); // 4 & 6
         bool notFirstOrLastRow = y2 != 0 && y2 != 14; // 5
+        bool notAbandoningNeutralTile = CheckValidMoveOnNeutralTile(
+            x1, y1, x2, y2); // 7
 
         return (
             notOwnCorner && notPieceInTheWay && destinationTileFree &&
-            validDirection && notFirstOrLastRow);
+            validDirection && notFirstOrLastRow && notAbandoningNeutralTile);
+    }
+
+    // This method checks if a rule related to neutral tiles is being
+    // followed. The rule says that if the ball is in a neutral tile then
+    // the players next to that neutral tile can't move in ways that would
+    // concede the possession of the ball to the other team.
+    private bool CheckValidMoveOnNeutralTile(int x1, int y1, int x2, int y2)
+    {
+        // Condition for the origin tile (in x1,y1) to be next to the ball.
+        bool IsOriginTileNextToBall =
+        Math.Abs(Board.Ball.X - x1) <= 1 && Math.Abs(Board.Ball.Y - y1) <= 1;
+
+        // Check if the ball is in a neutral tile and if the origin tile is
+        // next to the ball. These two conditions indicate that the rule
+        // applies and that we must restrict the movement of the player
+        // pieces that are next to the ball.
+        if (IsOriginTileNextToBall && IsBallInNeutralTile())
+        {
+            // If the rule applies, the player can move only to tiles that
+            // are also next to the ball.
+            bool IsDestinationTileNextToBall =
+            Math.Abs(Board.Ball.X - x2) <= 1 && Math.Abs(Board.Ball.Y - y2) <= 1;
+
+            return IsDestinationTileNextToBall;
+        }
+
+        // If the previous conditions don't apply, then the rule doesn't
+        // apply and we return true because this rule is not being violated.
+        return true;
+    }
+
+    // Checks if the ball is in a neutral tile. A neutral tile is defined
+    // as a tile that is contiguous to the same number of players from each
+    // team (at least one per team). When the ball is in a neutral tile no
+    // team is in possession of it. In this implementation of the game, a
+    // ball cannot be moved to a neutral tile that is contiguous to both
+    // players of each team (four players in total), so the only option is
+    // that a neutral tile is surrounded by one player from each team.
+    // However, this method checks for any equal non-zero number of players
+    // from each team next to the ball.
+    private bool IsBallInNeutralTile()
+    {
+        int x = Board.Ball.X;
+        int y = Board.Ball.Y;
+
+        // Count the number of white player pieces next to the ball.
+        int whiteContiguous = CountContiguousPieces(x, y, Team.White);
+        // Count the number of black player pieces next to the ball.
+        int blackContiguous = CountContiguousPieces(x, y, Team.Black);
+
+        // Check that the number of players contiguous to the tile in which
+        // the ball is located is equal for both teams and non-zero.
+        return whiteContiguous > 0 && whiteContiguous == blackContiguous;
     }
 
     // Takes the coordinates of two tiles, origin and destination, and
@@ -483,8 +541,8 @@ public class Game
     // 2) The piece cannot stay on its original tile.
     // 3) The ball must be moved to an unoccupied tile.
     // 4) The tile is valid (is not next to either one of the goals).
-    // 5) The ball cannot be moved to a tile contiguous to all of the
-    // player pieces. This is VERY a rare case.
+    // 5) The ball cannot be moved to a neutral tile that is contiguous to
+    // all of the player pieces. This is VERY a rare case.
     // 6) A player can't pass the ball to themself.
     // 7) A player can't pass the ball to their opponent (because then the
     // turn will end and the ball will be in possession of a team).
