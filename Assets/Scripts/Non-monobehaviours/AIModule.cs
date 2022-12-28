@@ -135,6 +135,8 @@ public class AIModule
         // be moved further.
         if (game.GameStatus != GameStatus.WaitingBallMovement)
         {
+            // Just return a list with the current game state.
+            childGameStates.Add(game);
             return childGameStates;
         }
         // Recursive case. The last move that was made didn't end the turn
