@@ -149,13 +149,9 @@ public class Game
 
                 // Update the scores.
                 if (goalScored == Team.White)
-                {
                     WhiteScore++;
-                }
                 else
-                {
                     BlackScore++;
-                }
                 // The game is over when someone scores two goals.
                 if (WhiteScore >= 2 || BlackScore >= 2)
                 {
@@ -296,10 +292,8 @@ public class Game
                 // restrict the movement to up-down, right-left and diagonal.
                 if (CheckForValidPlayerMove(
                     tileX, tileY, j, i, selectedPiece.TeamColor))
-                {
                     // Highlight the tile.
                     Board.GetTile(j, i).IsHighlighted = true;
-                }
             }
         }
     }
@@ -411,9 +405,7 @@ public class Game
                 // Check if another piece is on the path from the origin
                 // tile to the destination tile.
                 if (DoesTileContainAPiece(x1,i))
-                {
                     return true;
-                }
             }
         }
         else if (y1 == y2)
@@ -422,9 +414,7 @@ public class Game
             for (int j = minX+1; j < maxX; j++)
             {
                 if (DoesTileContainAPiece(j, y1))
-                {
                     return true;
-                }
             }
         }
         else
@@ -433,9 +423,7 @@ public class Game
             for (int k = minX+1; k < maxX; k++)
             {
                 if (DoesTileContainAPiece(k,k))
-                {
                     return true;
-                }
             }
         }
         
@@ -525,10 +513,8 @@ public class Game
                 // in the team's own area, restrict the movement to
                 // up-down, right-left and diagonal, etc.
                 if (CheckForValidBallMove(ball.X, ball.Y, j, i))
-                {
                     // Highlight the tile.
                     Board.GetTile(j, i).IsHighlighted = true;
-                }
             }
         }
     }
@@ -594,15 +580,11 @@ public class Game
         // If it is not the end of the current turn, only the general
         // conditions must be met.
         if (!isEndOfTurn)
-        {
             return generalConditions;
-        }
         // If it is the end of the current turn, both the general
         // conditions and the end-of-turn conditions must be met.
         else
-        {
             return generalConditions && endOfTurnConditions;
-        }
     }
 
     // Checks if the opponent is in control or "possession" of a tile
@@ -644,9 +626,7 @@ public class Game
                 if (
                     (j != x || i != y) &&
                     piece != null && piece == player)
-                {
                     return true;
-                }
             }
         }
 
@@ -696,14 +676,10 @@ public class Game
 
         // Look for the ball on the white team's goal.
         if (ball.Y == 0)
-        {
             return Team.Black;
-        }
         // Look for the ball on the black team's goal.
         else if (ball.Y == 14)
-        {
             return Team.White;
-        }
 
         // If no goal has been scored, return null.
         return null;
@@ -736,17 +712,11 @@ public class Game
 
         // Return the team color that is in possession of the ball.
         if (whiteCount > blackCount)
-        {
             return Team.White;
-        }
         else if (blackCount > whiteCount)
-        {
             return Team.Black;
-        }
         else
-        {
             return null;
-        }
     }
 
     // Takes the coordinates of a tile and a team color as argument and
@@ -788,12 +758,8 @@ public class Game
     private void SwitchCurrentTurn()
     {
         if (CurrentTurn == Team.White)
-        {
             CurrentTurn = Team.Black;
-        }
         else
-        {
             CurrentTurn = Team.White;
-        }
     }
 }

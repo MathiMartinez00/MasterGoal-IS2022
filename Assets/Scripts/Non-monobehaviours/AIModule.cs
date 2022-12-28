@@ -41,7 +41,8 @@ public class AIModule
             int maxEval = int.MinValue;
             foreach (Game childState in childrenStates)
             {
-                int currentEval = Minimax(childState, recursionDepth, false);
+                int currentEval = Minimax(
+                    childState, recursionDepth, int.MinValue, int.MaxValue, false);
                 if (currentEval > maxEval)
                 {
                     bestChildState = childState;
@@ -54,7 +55,8 @@ public class AIModule
             int minEval = int.MaxValue;
             foreach (Game childState in childrenStates)
             {
-                int currentEval = Minimax(childState, recursionDepth, true);
+                int currentEval = Minimax(
+                    childState, recursionDepth, int.MinValue, int.MaxValue, true);
                 if (currentEval < minEval)
                 {
                     bestChildState = childState;
@@ -189,16 +191,16 @@ public class AIModule
         return playerPieces;
     }
 
-    // Standard Minimax function. Takes a game state, a recursion depth
-    // and a bool (that defines the current turn).
-    public int Minimax(Game game, int depth, bool isMaximizingPlayer)
+    // Standard Minimax function with alpha-beta pruning. Takes a game state,
+    // a recursion depth, the alpha and beta parameters and a bool (that
+    // defines the current turn).
+    public int Minimax(
+        Game game, int depth, int alpha, int beta, bool isMaximizingPlayer)
     {
         // If we have reached maximum depth in the game tree, return
         // the static evaluation of the current state of the game.
         if (depth == 0 || IsGameOver(game))
-        {
             return EvaluateGame(game);
-        }
 
         // Get all of the children states of the current game state.
         List<Game> childrenStates = GetChildrenStates(game);
@@ -208,8 +210,13 @@ public class AIModule
             int maxEval = int.MinValue;
             foreach (Game childState in childrenStates)
             {
-                int currentEval = Minimax(childState, depth-1, false);
+                int currentEval = Minimax(
+                    childState, depth-1, alpha, beta, false);
                 maxEval = Math.Max(maxEval, currentEval);
+                // Check for the pruning condition.
+                alpha = Math.Max(alpha, currentEval);
+                if (beta <= alpha)
+                    break;
             }
             return maxEval;
         }
@@ -218,8 +225,13 @@ public class AIModule
             int minEval = int.MaxValue;
             foreach (Game childState in childrenStates)
             {
-                int currentEval = Minimax(childState, depth-1, true);
+                int currentEval = Minimax(
+                    childState, depth-1, alpha, beta, true);
                 minEval = Math.Min(minEval, currentEval);
+                // Check for the pruning condition.
+                beta = Math.Min(beta, currentEval);
+                if (beta <= alpha)
+                    break;
             }
             return minEval;
         }
@@ -280,9 +292,7 @@ public class AIModule
         List<Move> newMoves = new List<Move>();
 
         for (int i = parentList.Count; i < childList.Count; i++)
-        {
             newMoves.Add(childList[i]);
-        }
 
         return newMoves;
     }
