@@ -57,25 +57,15 @@ public class Board
                 if (j == piecesX)
                 {
                     if (i == white1Y)
-                    {
                         tiles[i,j].PlayerPiece = WhitePiece1;
-                    }
                     else if (i == white2Y)
-                    {
                         tiles[i,j].PlayerPiece = WhitePiece2;
-                    }
                     else if (i == black1Y)
-                    {
                         tiles[i,j].PlayerPiece = BlackPiece1;
-                    }
                     else if (i == black2Y)
-                    {
                         tiles[i,j].PlayerPiece = BlackPiece2;
-                    }
                     else if (i == ballY)
-                    {
                         tiles[i,j].Ball = Ball;
-                    }
                 }
             }
         }
@@ -138,10 +128,8 @@ public class Board
                 // Get the tile and check if it's valid.
                 AbstractTile tile = GetTile(j, i);
                 if (tile.IsValid)
-                {
                     // Return the tile iteratively.
                     yield return tile;
-                }
             }
         }
     }
@@ -153,10 +141,8 @@ public class Board
         foreach(AbstractTile tile in GetIterativeTiles())
         {
             if (tile.IsHighlighted)
-            {
                 // Return the tile iteratively.
                 yield return tile;
-            }
         }
     }
 
@@ -166,9 +152,7 @@ public class Board
         for (int i = 0; i < boardYLength; i++)
         {
             for (int j = 0; j < boardXLength; j++)
-            {
                 GetTile(j,i).IsHighlighted = false;
-            }
         }
     }
 
@@ -189,20 +173,12 @@ public class Board
     public PlayerPiece GetTheOtherPieceOfTheSameTeam(PlayerPiece piece)
     {
         if (piece == WhitePiece1)
-        {
             return WhitePiece2;
-        }
         else if (piece == WhitePiece2)
-        {
             return WhitePiece1;
-        }
         else if (piece == BlackPiece1)
-        {
             return BlackPiece2;
-        }
         else
-        {
             return BlackPiece1;
-        }
     }
 }
