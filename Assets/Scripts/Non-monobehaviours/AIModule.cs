@@ -12,7 +12,7 @@ public class AIModule
     public List<Move> Moves { get; private set; }
 
     // The recursion depth to be used by the Minimax algorithm.
-    private readonly int recursionDepth = 4;
+    private readonly int recursionDepth = 0;
     // Maximum possible score. This is the utility score of a move
     // that ends the game.
     private readonly int maxScore = 100000;

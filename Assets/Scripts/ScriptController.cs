@@ -79,7 +79,7 @@ public class ScriptController : MonoBehaviour
 
         // If the game mode is single player, then the computer has
         // to make a move now.
-        if (GameMode == GameMode.OnePlayer)
+        if (GameMode == GameMode.OnePlayer && Game.CurrentTurn == Team.Black)
         {
             // Create a new AIModule instance. This class encapsulates
             // the recommended moves in an instance field.
