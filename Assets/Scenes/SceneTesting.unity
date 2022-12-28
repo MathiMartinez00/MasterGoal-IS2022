@@ -155,10 +155,10 @@ Transform:
   - {fileID: 1465392852}
   - {fileID: 1398135954}
   - {fileID: 1142989027}
+  - {fileID: 863969267}
+  - {fileID: 870302200}
   - {fileID: 1821952875}
   - {fileID: 570439593}
-  - {fileID: 870302200}
-  - {fileID: 863969267}
   - {fileID: 721146564}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -641,7 +641,7 @@ GameObject:
   - component: {fileID: 570439593}
   - component: {fileID: 570439594}
   m_Layer: 0
-  m_Name: ChipRed1
+  m_Name: BlackPiece2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1020,7 +1020,7 @@ GameObject:
   - component: {fileID: 863969267}
   - component: {fileID: 863969268}
   m_Layer: 0
-  m_Name: ChipWhite1
+  m_Name: WhitePiece1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1180,7 +1180,7 @@ GameObject:
   - component: {fileID: 870302200}
   - component: {fileID: 870302199}
   m_Layer: 0
-  m_Name: ChipWhite0
+  m_Name: WhitePiece2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1301,8 +1301,8 @@ MonoBehaviour:
   TilemapHighlight: {fileID: 1398135956}
   TileHighlight: {fileID: 11400000, guid: 370fe24df9fa5c348b30e16c3a10d28d, type: 2}
   BoardBoxCollider: {fileID: 0}
-  WhitePiece1: {fileID: 870302198}
-  WhitePiece2: {fileID: 863969266}
+  WhitePiece1: {fileID: 863969266}
+  WhitePiece2: {fileID: 870302198}
   BlackPiece1: {fileID: 1821952873}
   BlackPiece2: {fileID: 570439592}
   Ball: {fileID: 721146561}
@@ -4310,7 +4310,7 @@ GameObject:
   - component: {fileID: 1821952875}
   - component: {fileID: 1821952874}
   m_Layer: 0
-  m_Name: ChipRed0
+  m_Name: BlackPiece1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

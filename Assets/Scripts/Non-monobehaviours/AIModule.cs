@@ -10,6 +10,9 @@ public class AIModule
     // We need a list of moves because this game allows passes between
     // players, and a single pass is represented as a single move.
     public List<Move> Moves { get; private set; }
+    // The child game state with the best utility score will be
+    // stored here.
+    public Game ChildGame { get; private set; }
 
     // The recursion depth to be used by the Minimax algorithm.
     private readonly int recursionDepth = 0;
@@ -60,8 +63,10 @@ public class AIModule
             }
         }
         
+        // Store the child game state with the best utility score.
+        ChildGame = bestChildState;
         // Store the moves that were made in order to get from the parent
-        // state to the child state.
+        // state to the child game state.
         Moves = GetMovesFromTheLatestTurn(game, bestChildState);
     }
 

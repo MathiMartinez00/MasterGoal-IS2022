@@ -52,7 +52,7 @@ public class ScriptController : MonoBehaviour
         BoardBoxCollider = TilemapBoard.gameObject.GetComponent<BoxCollider2D>();
         // Create a new abstract game instance.
         Game = new Game(Team.White);
-        GameMode = GameMode.OnePlayer;
+        GameMode = GameMode.TwoPlayers;
     }
 
     // This method is called whenever the user taps on the screen.
@@ -87,6 +87,8 @@ public class ScriptController : MonoBehaviour
             // Get the recommended moves (the moves with the highest
             // utility score) and render them.
             RenderChanges(aiModule.Moves);
+            // Get the child game state and replace the old one.
+            Game = aiModule.ChildGame;
         }
     }
 
