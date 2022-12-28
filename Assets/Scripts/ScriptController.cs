@@ -52,7 +52,7 @@ public class ScriptController : MonoBehaviour
         BoardBoxCollider = TilemapBoard.gameObject.GetComponent<BoxCollider2D>();
         // Create a new abstract game instance.
         Game = new Game(Team.White);
-        GameMode = GameMode.OnePlayer;
+        GameMode = GameMode.TwoPlayers;
     }
 
     // This method is called whenever the user taps on the screen.

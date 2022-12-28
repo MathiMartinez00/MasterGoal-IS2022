@@ -62,8 +62,23 @@ public class Game
         // Get the player piece, if there is any.
         PlayerPiece? selectedPlayerPiece = selectedTile.PlayerPiece;
 
-        // If there are no player pieces selected yet, go to this branch.
+        // This condition adds the feature to deselect a player piece.
         if (
+            GameStatus == GameStatus.WaitingPlayerPieceMovement &&
+            selectedPlayerPiece == this.selectedPiece)
+        {
+            // Revert the status of the game.
+            GameStatus = GameStatus.WaitingPlayerPieceSelection;
+            // Clear all of the highlighted tiles, because the player
+            // piece is being deselected.
+            Board.ClearAllHighlights();
+
+            // Because no moves were made on this conditional branch.
+            return null;
+        }
+
+        // If there are no player pieces selected yet, go to this branch.
+        else if (
             GameStatus == GameStatus.WaitingPlayerPieceSelection &&
             selectedPlayerPiece != null)
         {
@@ -75,6 +90,8 @@ public class Game
             // Because no moves were made on this conditional branch.
             return null;
         }
+
+        // This branch performs a player piece move.
         else if (
             GameStatus == GameStatus.WaitingPlayerPieceMovement &&
             selectedTile.IsHighlighted)
@@ -121,6 +138,8 @@ public class Game
             // Return the move (to do a reactive board update).
             return move;
         }
+
+        // This branch performs a ball move, either a pass or a final move.
         else if (
             GameStatus == GameStatus.WaitingBallMovement &&
             selectedTile.IsHighlighted)
