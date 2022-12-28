@@ -310,7 +310,9 @@ public class Game
     // 3) The destination tile is free (only one piece per tile allowed).
     // 4) Allow movement to just be over a single row, a single column or
     // diagonally.
-    // 5) The tile is valid (is not next to either one of the goals).
+    // 5) The player piece can't be moved to a tile from the very first or
+    // the very last row of the board. That is to say, the player piece
+    // can't enter into the goals or be placed to the side of the goals.
     // 6) The piece cannot stay on its original tile.
     //
     // If all of those conditions are met, returns "true"; false otherwise.
@@ -324,11 +326,11 @@ public class Game
         bool destinationTileFree = !DoesTileContainAPiece(x2,y2); // 3
         bool validDirection = CheckForValidMovementDirections(
             x2-x1, y2-y1); // 4 & 6
-        bool validTile = Board.GetTile(x2, y2).IsValid; // 5
+        bool notFirstOrLastRow = y2 != 0 && y2 != 14; // 5
 
         return (
             notOwnCorner && notPieceInTheWay && destinationTileFree &&
-            validDirection && validTile);
+            validDirection && notFirstOrLastRow);
     }
 
     // Takes the coordinates of two tiles, origin and destination, and

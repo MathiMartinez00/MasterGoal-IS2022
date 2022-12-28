@@ -85,8 +85,8 @@ public class ScriptController : MonoBehaviour
             // the recommended moves in an instance field.
             AIModule aiModule = new AIModule(Game);
             // Get the recommended moves (the moves with the highest
-            // utility score) and render them.
-            RenderChanges(aiModule.Moves);
+            // utility score) and render them in a coroutine.
+            StartCoroutine(RenderChanges(aiModule.Moves));
             // Get the child game state and replace the old one.
             Game = aiModule.ChildGame;
         }
@@ -94,10 +94,12 @@ public class ScriptController : MonoBehaviour
 
     // Takes a series of moves (or just one move, or no move) that were
     // made on the game and moves the corresponding concrete piece.
-    private void RenderChanges(List<Move> moves)
+    private IEnumerator RenderChanges(List<Move> moves)
     {
         foreach (Move move in moves)
         {
+            // Wait a little bit before rendering the next action.
+            yield return new WaitForSeconds(1.9f);
             RenderChanges(move);
         }
     }
