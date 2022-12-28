@@ -1,6 +1,9 @@
+using System;
+
 #nullable enable
 
 // The instances of this class represent tiles in the game board.
+[Serializable]
 public class AbstractTile
 {
     // A tile can have a piece or no pieces.

@@ -1,7 +1,10 @@
+using System;
+
 #nullable enable
 
 // The instances of this class is useful to store all of the moves that
 // players make.
+[Serializable]
 public class Move
 {
     public Team TeamColor { get; private set; }

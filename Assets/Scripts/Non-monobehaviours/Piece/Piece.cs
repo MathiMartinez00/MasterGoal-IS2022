@@ -1,6 +1,8 @@
+using System;
 
 // Abstract class that represents a game piece. On this game, a
 // piece can be either a ball or a player piece.
+[Serializable]
 public abstract class Piece
 {
     // The position of the piece.

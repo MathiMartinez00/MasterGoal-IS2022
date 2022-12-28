@@ -1,6 +1,8 @@
+using System;
 
 // An instance of this class represents an abstract player piece.
 // This piece can be white or black and numbered one or two.
+[Serializable]
 public class PlayerPiece : Piece
 {
     public Team TeamColor { get; private set; }

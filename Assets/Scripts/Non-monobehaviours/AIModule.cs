@@ -30,7 +30,7 @@ public class AIModule
         // Get the current turn in the form of a bool.
         bool isMaximizingPlayer = game.CurrentTurn == Team.White;
         // To store the child state with the highest calculated utility.
-        Game bestChildState;
+        Game bestChildState = default;
 
         // Find the child state with the highest utility score.
         if (isMaximizingPlayer)
@@ -75,7 +75,7 @@ public class AIModule
         foreach (PlayerPiece piece in GetPlayerPiecesOfCurrentTurn(game))
         {
             // Make a deep game copy.
-            Game gameCopy = Game.DeepClone(game);
+            Game gameCopy = game.DeepClone();
 
             // Select a piece in the game copy. Player piece selection
             // is always the first action in a turn.
@@ -102,7 +102,7 @@ public class AIModule
         foreach(AbstractTile tile in game.Board.GetHighlightedTilesIterative())
         {
             // Make a deep game copy.
-            Game gameCopy = Game.DeepClone(game);
+            Game gameCopy = game.DeepClone();
 
             // Move the piece in the game copy. This is always the second
             // action in a turn (and can be the last action of a turn).
@@ -146,7 +146,7 @@ public class AIModule
                 AbstractTile tile in game.Board.GetHighlightedTilesIterative())
             {
                 // Make a deep game copy.
-                Game gameCopy = Game.DeepClone(game);
+                Game gameCopy = game.DeepClone();
 
                 // Move the ball in the game copy. This move doesn't
                 // necessarily end the turn.

@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System;
 
 // An instance of this class represents a game board. It is composed of
 // tiles (stored in a matrix), player pieces and a ball.
+[Serializable]
 public class Board
 {
     // The game board stored in a matrix. Declare the matrix.
