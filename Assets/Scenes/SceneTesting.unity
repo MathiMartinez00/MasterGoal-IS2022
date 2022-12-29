@@ -1307,9 +1307,9 @@ MonoBehaviour:
   BlackPiece2: {fileID: 570439592}
   Ball: {fileID: 721146561}
   whiteScoreText: {fileID: 1627969480}
-  redScoreText: {fileID: 1184850327}
+  blackScoreText: {fileID: 1184850327}
   whiteScoreName: {fileID: 1838547762}
-  redScoreName: {fileID: 1328258735}
+  blackScoreName: {fileID: 1328258735}
   winnerName: {fileID: 425312825}
 --- !u!1 &1142989026
 GameObject:

@@ -31,9 +31,9 @@ public class ScriptController : MonoBehaviour
 
     // UI variables
     public TextMeshProUGUI whiteScoreText = default!;
-    public TextMeshProUGUI redScoreText = default!;
+    public TextMeshProUGUI blackScoreText = default!;
     public TextMeshProUGUI whiteScoreName = default!;
-    public TextMeshProUGUI redScoreName = default!;
+    public TextMeshProUGUI blackScoreName = default!;
     public TextMeshProUGUI winnerName = default!;
     public string WhiteName { get; private set; } = default!;
     public string BlackName { get; private set; } = default!;
@@ -48,7 +48,7 @@ public class ScriptController : MonoBehaviour
         WhiteName = PlayerPrefs.GetString("player1");
         BlackName = PlayerPrefs.GetString("player2");
         this.whiteScoreName.text = WhiteName;
-        this.redScoreName.text = RedName;
+        this.blackScoreName.text = BlackName;
         BoardBoxCollider =
         TilemapBoard.gameObject.GetComponent<BoxCollider2D>();
         // Create a new abstract game instance.
@@ -104,12 +104,6 @@ public class ScriptController : MonoBehaviour
         // Check if a goal has been scored.
         if (move != null && move.GetGoal() != null)
         {
-            // Render a pop-up with a message announcing the goal.
-            if (move.GetGoal() == Team.White)
-                yield return MakePopup("Gol de " + WhiteName);
-            else
-                yield return MakePopup("Gol de " + BlackName);
-
             // Update the scores.
             UpdateScores();
             // Wait for the player to see the goal before resetting the game.
@@ -249,17 +243,5 @@ public class ScriptController : MonoBehaviour
         // Set the new coordinates for the ball.
         Ball.transform.position = TilemapBoard.GetCellCenterWorld(
             position.Vector3Int);
-    }
-
-    // Creates a pop-up.
-    // While the popup is active, players can't pick chips in board.
-    private IEnumerator MakePopup(string text)
-    {
-        BoardBoxCollider.enabled = false;
-        PopUpBanner.GetComponentInChildren<TextMeshProUGUI>().text = text;
-        PopUpBanner.SetActive(true);
-        yield return new WaitForSeconds(1.5f);
-        PopUpBanner.SetActive(false);
-        BoardBoxCollider.enabled = true;
     }
 }
