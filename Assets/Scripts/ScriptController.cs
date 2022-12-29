@@ -75,7 +75,7 @@ public class ScriptController : MonoBehaviour
 
         // Render the changes that resulted from this interaction with
         // the user.
-        RenderChanges(move);
+        StartCoroutine(RenderChanges(move));
 
         // If the game mode is single player, then the computer has
         // to make a move now.
@@ -92,51 +92,66 @@ public class ScriptController : MonoBehaviour
         }
     }
 
-    // Takes a series of moves (or just one move, or no move) that were
-    // made on the game and moves the corresponding concrete piece.
+    // Coroutine that takes a single move and changes the position of the
+    // GameObjects accordingly. If the move resulted in a goal, first it
+    // waits little bit, and then resets the game board.
+    private IEnumerator RenderChanges(Move? move)
+    {
+        // Move the piece (not a coroutine).
+        MakeMove(move);
+
+        // Check if a goal has been scored.
+        if (move != null && move.IsGoal)
+        {
+            // Wait for the player to see the goal before resetting the game.
+            yield return new WaitForSeconds(3.2f);
+            // Give the signal to reset the abstract game representation.
+            Game.ResetGame();
+            // Reset the real board, after the abstract board has been reset.
+            ResetConcreteBoard();
+        }
+    }
+
+    // Coroutine that takes a series of moves (or just one move, or no move)
+    // that were made on the game and moves the corresponding concrete piece.
     private IEnumerator RenderChanges(List<Move> moves)
     {
         foreach (Move move in moves)
         {
             // Wait a little bit before rendering the next action.
-            yield return new WaitForSeconds(1.9f);
+            yield return new WaitForSeconds(1.0f);
             RenderChanges(move);
         }
     }
 
     // Takes a move (or no move) that was made on the abstract game
     // representation and moves the corresponding concrete piece.
-    private void RenderChanges(Move? move)
+    private void MakeMove(Move? move)
     {
         if (move != null)
         {
-            // Check for any piece movement that didn't result in a goal.
-            if (!move.IsGoal)
-            {
-                // Check what kind of piece was recently moved and move
-                // it on the concrete board.
-                if (move.PlayerPiece != null)
-                {
-                    MoveConcretePlayer(move.PlayerPiece);
-                }
-                else if (move.BallMoved != null)
-                {
-                    MoveConcreteBall(move.BallMoved);
-                }
-            }
-            // If a goal has been made, all of the pieces need to be reset.
-            else if (move.IsGoal)
-            {
-                MoveConcretePlayer(Game.Board.WhitePiece1);
-                MoveConcretePlayer(Game.Board.WhitePiece2);
-                MoveConcretePlayer(Game.Board.BlackPiece1);
-                MoveConcretePlayer(Game.Board.BlackPiece2);
-                MoveConcreteBall(Game.Board.Ball);
-            }
+            // Check what kind of piece was recently moved and move
+            // it on the concrete board.
+            if (move.PlayerPiece != null)
+                MoveConcretePlayer(move.PlayerPiece);
+            else if (move.BallMoved != null)
+                MoveConcreteBall(move.BallMoved);
         }
 
         // Render the new highlights, if there are any.
         RenderHighlights(Game.Board);
+    }
+
+    // Resets the real game board by moving the GameObjects to the same
+    // position in which their abstract counterparts are, which should
+    // be their initial positions.
+    private void ResetConcreteBoard()
+    {
+        MoveConcretePlayer(Game.Board.WhitePiece1);
+        MoveConcretePlayer(Game.Board.WhitePiece2);
+        MoveConcretePlayer(Game.Board.BlackPiece1);
+        MoveConcretePlayer(Game.Board.BlackPiece2);
+        MoveConcreteBall(Game.Board.Ball);
     }
 
     // Takes the abstract board as argument and checks for the tiles that

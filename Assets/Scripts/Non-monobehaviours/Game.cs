@@ -173,18 +173,9 @@ public class Game
                     BlackScore++;
                 // The game is over when someone scores two goals.
                 if (WhiteScore >= 2 || BlackScore >= 2)
-                {
                     GameStatus = GameStatus.GameOver;
-                }
-                else
-                {
-                    // After a goal, it's the opposite team's turn.
-                    CurrentTurn = GetOppositeTeam(goalScored.Value);
-                    // Change the status of the game.
-                    GameStatus = GameStatus.WaitingPlayerPieceSelection;
-                    // Reset the pieces to their initial position.
-                    Board.ResetPieces();
-                }
+                // An external call to ResetGame() should be made now in
+                // order for the pieces to return to their initial positions.
             }
             else
             {
@@ -224,6 +215,18 @@ public class Game
 
         // If an invalid selection is made (no branches apply), return null.
         return null;
+    }
+
+    public void ResetGame()
+    {
+        Team? goalScored = CheckForGoalScored();
+
+        // After a goal, it's the opposite team's turn.
+        CurrentTurn = GetOppositeTeam(goalScored.Value);
+        // Change the status of the game.
+        GameStatus = GameStatus.WaitingPlayerPieceSelection;
+        // Reset the pieces to their initial position.
+        Board.ResetPieces();
     }
 
     // Check if the player piece is of the right team, highlight the
