@@ -38,10 +38,11 @@ public class ScriptController : MonoBehaviour
     public TextMeshProUGUI winnerName = default!;
     public string WhiteName { get; private set; } = default!;
     public string BlackName { get; private set; } = default!;
-    public int WhiteScore { get; set; } = default!;
-    public int BlackScore { get; set; } = default!;
-    public GameObject whiteBanner, redBanner;
-    public GameObject popupBanner;
+    //public int WhiteScore { get; set; } = default!;
+    //public int BlackScore { get; set; } = default!;
+    public GameObject whiteBanner = default!;
+    public GameObject blackBanner = default!;
+    public GameObject popUpBanner;
     public Color defaultBannerColor;
     public GameObject spriteChip1Player1, spriteChip2Player1, spriteChip1Player2, spriteChip2Player2;
     public Image imageChipInScoreOfPlayer1, imageChipInScoreOfPlayer2;
@@ -57,21 +58,27 @@ public class ScriptController : MonoBehaviour
         BlackScore = 0;
         WhiteName = PlayerPrefs.GetString("player1");
         BlackName = PlayerPrefs.GetString("player2");
-        putChipImage();
-        this.whiteScoreName.text = WhiteName;
-        this.redScoreName.text = RedName;
 
-        whiteBanner.GetComponent<Image>().color = currentTurn == Team.White ? Color.white : defaultBannerColor;
-        redBanner.GetComponent<Image>().color = currentTurn == Team.Red ? Color.white : defaultBannerColor;
+        PutChipImage();
+
+        this.whiteScoreName.text = WhiteName;
+        this.blackScoreName.text = BlackName;
+
         BoardBoxCollider =
         TilemapBoard.gameObject.GetComponent<BoxCollider2D>();
+
         isHighlightModeOn = PlayerPrefs.GetInt("ayuda") == 1;
+
         // Create a new abstract game instance.
         Game = new Game(Team.White);
-        GameMode = GameMode.OnePlayer;
+        GameMode = GameMode.TwoPlayers;
+
+        whiteBanner.GetComponent<Image>().color = Game.CurrentTurn == Team.White ? Color.white : Color.black;
+
+        blackBanner.GetComponent<Image>().color = Game.CurrentTurn == Team.Black ? Color.black : Color.white;
     }
 
-    public void putChipImage()
+    public void PutChipImage()
     {
         for (int i = 0; i < chipSprites.Length; i++)
         {
@@ -90,11 +97,17 @@ public class ScriptController : MonoBehaviour
         }
     }
 
+    // Disables the visual highlighting when a player piece is selected
+    // and when the ball needs to be moved. The highlighting on the
+    // abstract game will always occur.
     public void SetHighlightMode(bool highlightMode)
     {
         isHighlightModeOn = highlightMode;
     }
 
+    // This method is called whenever the user taps on the screen.
+    public void UpdateBoard(PointerEventData eventData)
+    {
         // Updates board based on player input given by the
         // IPointerHandlerEvent on the tilemap board GameObject.
         Vector2 worldPoint = Camera.main.ScreenToWorldPoint(
