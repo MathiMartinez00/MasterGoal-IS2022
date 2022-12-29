@@ -32,17 +32,16 @@ public class ScriptController : MonoBehaviour
 
     // UI variables
     public TextMeshProUGUI whiteScoreText = default!;
-    public TextMeshProUGUI blackScoreText = default!;
+    public TextMeshProUGUI redScoreText = default!;
     public TextMeshProUGUI whiteScoreName = default!;
-    public TextMeshProUGUI blackScoreName = default!;
+    public TextMeshProUGUI redScoreName = default!;
     public TextMeshProUGUI winnerName = default!;
     public string WhiteName { get; private set; } = default!;
     public string BlackName { get; private set; } = default!;
-    //public int WhiteScore { get; set; } = default!;
-    //public int BlackScore { get; set; } = default!;
-    public GameObject whiteBanner = default!;
-    public GameObject blackBanner = default!;
-    public GameObject popUpBanner;
+    public int WhiteScore { get; set; } = default!;
+    public int BlackScore { get; set; } = default!;
+    public GameObject whiteBanner, redBanner;
+    public GameObject popupBanner;
     public Color defaultBannerColor;
     public GameObject spriteChip1Player1, spriteChip2Player1, spriteChip1Player2, spriteChip2Player2;
     public Image imageChipInScoreOfPlayer1, imageChipInScoreOfPlayer2;
@@ -54,31 +53,25 @@ public class ScriptController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //WhiteScore = 0;
-        //BlackScore = 0;
+        WhiteScore = 0;
+        BlackScore = 0;
         WhiteName = PlayerPrefs.GetString("player1");
         BlackName = PlayerPrefs.GetString("player2");
-
-        PutChipImage();
-
+        putChipImage();
         this.whiteScoreName.text = WhiteName;
-        this.blackScoreName.text = BlackName;
+        this.redScoreName.text = RedName;
 
+        whiteBanner.GetComponent<Image>().color = currentTurn == Team.White ? Color.white : defaultBannerColor;
+        redBanner.GetComponent<Image>().color = currentTurn == Team.Red ? Color.white : defaultBannerColor;
         BoardBoxCollider =
         TilemapBoard.gameObject.GetComponent<BoxCollider2D>();
-
         isHighlightModeOn = PlayerPrefs.GetInt("ayuda") == 1;
-
         // Create a new abstract game instance.
         Game = new Game(Team.White);
-        GameMode = GameMode.TwoPlayers;
-
-        whiteBanner.GetComponent<Image>().color = Game.CurrentTurn == Team.White ? Color.white : Color.black;
-
-        blackBanner.GetComponent<Image>().color = Game.CurrentTurn == Team.Black ? Color.black : Color.white;
+        GameMode = GameMode.OnePlayer;
     }
 
-    public void PutChipImage()
+    public void putChipImage()
     {
         for (int i = 0; i < chipSprites.Length; i++)
         {
@@ -97,17 +90,11 @@ public class ScriptController : MonoBehaviour
         }
     }
 
-    // Disables the visual highlighting when a player piece is selected
-    // and when the ball needs to be moved. The highlighting on the
-    // abstract game will always occur.
     public void SetHighlightMode(bool highlightMode)
     {
         isHighlightModeOn = highlightMode;
     }
 
-    // This method is called whenever the user taps on the screen.
-    public void UpdateBoard(PointerEventData eventData)
-    {
         // Updates board based on player input given by the
         // IPointerHandlerEvent on the tilemap board GameObject.
         Vector2 worldPoint = Camera.main.ScreenToWorldPoint(
@@ -153,15 +140,14 @@ public class ScriptController : MonoBehaviour
         // Check if a goal has been scored.
         if (move != null && move.GetGoal() != null)
         {
-            // Update the scores.
-            UpdateScores();
-
             // Render a pop-up with a message announcing the goal.
             if (move.GetGoal() == Team.White)
                 yield return MakePopup("Gol de " + WhiteName);
             else
                 yield return MakePopup("Gol de " + BlackName);
 
+            // Update the scores.
+            UpdateScores();
             // Wait for the player to see the goal before resetting the game.
             yield return new WaitForSeconds(3.0f);
             // Give the signal to reset the abstract game representation.
@@ -174,8 +160,8 @@ public class ScriptController : MonoBehaviour
     // Update the real scores in relation to the scores in the abstract game.
     private void UpdateScores()
     {
-        whiteScoreText.text = Game.WhiteScore.ToString();
-        blackScoreText.text = Game.BlackScore.ToString();
+        WhiteScore = Game.WhiteScore;
+        BlackScore = Game.BlackScore;
     }
 
     // Coroutine that takes a series of moves (or just one move, or no move)
@@ -306,10 +292,10 @@ public class ScriptController : MonoBehaviour
     private IEnumerator MakePopup(string text)
     {
         BoardBoxCollider.enabled = false;
-        popUpBanner.GetComponentInChildren<TextMeshProUGUI>().text = text;
-        popUpBanner.SetActive(true);
+        PopUpBanner.GetComponentInChildren<TextMeshProUGUI>().text = text;
+        PopUpBanner.SetActive(true);
         yield return new WaitForSeconds(1.5f);
-        popUpBanner.SetActive(false);
+        PopUpBanner.SetActive(false);
         BoardBoxCollider.enabled = true;
     }
 }
