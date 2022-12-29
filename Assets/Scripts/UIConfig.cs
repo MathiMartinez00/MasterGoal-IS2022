@@ -25,13 +25,13 @@ public class UIConfig : MonoBehaviour
     public void CloseConfigMenu()
     {
         this.gameObject.SetActive(false);
-        gameController.GetComponent<ScriptController>().boardBoxCollider.enabled = true;
+        gameController.GetComponent<ScriptController>().BoardBoxCollider.enabled = true;
     }
 
     public void OpenConfigMenu()
     {
         this.gameObject.SetActive(true);
-        gameController.GetComponent<ScriptController>().boardBoxCollider.enabled = false;
+        gameController.GetComponent<ScriptController>().BoardBoxCollider.enabled = false;
         toggle.isOn = gameController.GetComponent<ScriptController>().isHighlightModeOn;
     }
 }

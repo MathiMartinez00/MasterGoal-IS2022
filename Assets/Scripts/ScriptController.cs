@@ -32,16 +32,17 @@ public class ScriptController : MonoBehaviour
 
     // UI variables
     public TextMeshProUGUI whiteScoreText = default!;
-    public TextMeshProUGUI redScoreText = default!;
+    public TextMeshProUGUI blackScoreText = default!;
     public TextMeshProUGUI whiteScoreName = default!;
-    public TextMeshProUGUI redScoreName = default!;
+    public TextMeshProUGUI blackScoreName = default!;
     public TextMeshProUGUI winnerName = default!;
     public string WhiteName { get; private set; } = default!;
     public string BlackName { get; private set; } = default!;
     public int WhiteScore { get; set; } = default!;
     public int BlackScore { get; set; } = default!;
-    public GameObject whiteBanner, redBanner;
-    public GameObject popupBanner;
+    public GameObject whiteBanner;
+    public GameObject blackBanner;
+    public GameObject popUpBanner;
     public Color defaultBannerColor;
     public GameObject spriteChip1Player1, spriteChip2Player1, spriteChip1Player2, spriteChip2Player2;
     public Image imageChipInScoreOfPlayer1, imageChipInScoreOfPlayer2;
@@ -59,16 +60,19 @@ public class ScriptController : MonoBehaviour
         BlackName = PlayerPrefs.GetString("player2");
         putChipImage();
         this.whiteScoreName.text = WhiteName;
-        this.redScoreName.text = RedName;
+        this.blackScoreName.text = BlackName;
 
-        whiteBanner.GetComponent<Image>().color = currentTurn == Team.White ? Color.white : defaultBannerColor;
-        redBanner.GetComponent<Image>().color = currentTurn == Team.Red ? Color.white : defaultBannerColor;
         BoardBoxCollider =
         TilemapBoard.gameObject.GetComponent<BoxCollider2D>();
         isHighlightModeOn = PlayerPrefs.GetInt("ayuda") == 1;
         // Create a new abstract game instance.
         Game = new Game(Team.White);
         GameMode = GameMode.OnePlayer;
+
+        whiteBanner.GetComponent<Image>().color =
+        Game.CurrentTurn == Team.White ? Color.white : defaultBannerColor;
+        blackBanner.GetComponent<Image>().color =
+        Game.CurrentTurn == Team.Black ? Color.white : defaultBannerColor;
     }
 
     public void putChipImage()
@@ -95,6 +99,9 @@ public class ScriptController : MonoBehaviour
         isHighlightModeOn = highlightMode;
     }
 
+    // This method is called whenever the user taps on the screen.
+    public void UpdateBoard(PointerEventData eventData)
+    {
         // Updates board based on player input given by the
         // IPointerHandlerEvent on the tilemap board GameObject.
         Vector2 worldPoint = Camera.main.ScreenToWorldPoint(
@@ -292,10 +299,10 @@ public class ScriptController : MonoBehaviour
     private IEnumerator MakePopup(string text)
     {
         BoardBoxCollider.enabled = false;
-        PopUpBanner.GetComponentInChildren<TextMeshProUGUI>().text = text;
-        PopUpBanner.SetActive(true);
+        popUpBanner.GetComponentInChildren<TextMeshProUGUI>().text = text;
+        popUpBanner.SetActive(true);
         yield return new WaitForSeconds(1.5f);
-        PopUpBanner.SetActive(false);
+        popUpBanner.SetActive(false);
         BoardBoxCollider.enabled = true;
     }
 }
