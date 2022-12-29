@@ -1366,7 +1366,7 @@ GameObject:
   - component: {fileID: 721146564}
   - component: {fileID: 721146563}
   m_Layer: 0
-  m_Name: ChipBall
+  m_Name: Ball
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1439,19 +1439,6 @@ Transform:
   m_Father: {fileID: 174100779}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &721146565
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 721146561}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66f30b487ca68684e998615f985e2f63, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  teamPossession: 0
 --- !u!1 &745555467
 GameObject:
   m_ObjectHideFlags: 0
@@ -1760,7 +1747,7 @@ GameObject:
   - component: {fileID: 865292543}
   - component: {fileID: 865292542}
   m_Layer: 5
-  m_Name: Red Score
+  m_Name: Black Score
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1911,19 +1898,6 @@ Transform:
   m_Father: {fileID: 174100779}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &870302201
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 870302198}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c4ddd266448db843a1c087b736a0acb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  team: 0
 --- !u!1 &928689175
 GameObject:
   m_ObjectHideFlags: 0
@@ -2200,39 +2174,14 @@ MonoBehaviour:
   BlackPiece2: {fileID: 570439592}
   Ball: {fileID: 721146561}
   whiteScoreText: {fileID: 1627969480}
-  redScoreText: {fileID: 1184850327}
+  blackScoreText: {fileID: 1184850327}
   whiteScoreName: {fileID: 1838547762}
-  redScoreName: {fileID: 1328258735}
+  blackScoreName: {fileID: 1328258735}
   winnerName: {fileID: 425312825}
   whiteBanner: {fileID: 547110321}
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
   blackBanner: {fileID: 865292540}
   popUpBanner: {fileID: 409632833}
   defaultBannerColor: {r: 0.5411765, g: 0.8784314, b: 1, a: 1}
-=======
-  redBanner: {fileID: 865292540}
-  popupBanner: {fileID: 409632833}
-  defaultBannerColor: {r: 0.5411765, g: 0.8784314, b: 1, a: 1}
-=======
-  redBanner: {fileID: 865292540}
-  popupBanner: {fileID: 409632833}
-  defaultBannerColor: {r: 0.5411765, g: 0.8784314, b: 1, a: 1}
->>>>>>> parent of e2a1e47 (Fixed some errors.)
-  whiteName: 
-  redName: 
-  whiteScore: 0
-  redScore: 0
-<<<<<<< HEAD
->>>>>>> a79abc05739dc0b8a020d117a71b2274c279f6ff
-=======
->>>>>>> parent of e2a1e47 (Fixed some errors.)
-=======
-  blackBanner: {fileID: 865292540}
-  popUpBanner: {fileID: 409632833}
-  defaultBannerColor: {r: 0.5411765, g: 0.8784314, b: 1, a: 1}
->>>>>>> parent of dd58b69 (Merge branch 'main' of https://github.com/MathiMartinez00/MasterGoal-IS2022)
   spriteChip1Player1: {fileID: 1821952873}
   spriteChip2Player1: {fileID: 570439592}
   spriteChip1Player2: {fileID: 870302198}
@@ -4216,7 +4165,7 @@ GameObject:
   - component: {fileID: 1184850328}
   - component: {fileID: 1184850327}
   m_Layer: 5
-  m_Name: ScoreRedText
+  m_Name: ScoreBlackText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4435,7 +4384,7 @@ GameObject:
   - component: {fileID: 1328258736}
   - component: {fileID: 1328258735}
   m_Layer: 5
-  m_Name: ScoreRedName
+  m_Name: ScoreBlackName
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
