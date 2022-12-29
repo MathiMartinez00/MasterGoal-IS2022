@@ -36,23 +36,24 @@ public class ScriptController : MonoBehaviour
     public TextMeshProUGUI redScoreName = default!;
     public TextMeshProUGUI winnerName = default!;
     public string WhiteName { get; private set; } = default!;
-    public string RedName { get; private set; } = default!;
+    public string BlackName { get; private set; } = default!;
     public int WhiteScore { get; set; } = default!;
-    public int RedScore { get; set; } = default!;
+    public int BlackScore { get; set; } = default!;
 
     // Start is called before the first frame update.
     void Start()
     {
         WhiteScore = 0;
-        RedScore = 0;
+        BlackScore = 0;
         WhiteName = PlayerPrefs.GetString("player1");
-        RedName = PlayerPrefs.GetString("player2");
+        BlackName = PlayerPrefs.GetString("player2");
         this.whiteScoreName.text = WhiteName;
         this.redScoreName.text = RedName;
-        BoardBoxCollider = TilemapBoard.gameObject.GetComponent<BoxCollider2D>();
+        BoardBoxCollider =
+        TilemapBoard.gameObject.GetComponent<BoxCollider2D>();
         // Create a new abstract game instance.
         Game = new Game(Team.White);
-        GameMode = GameMode.TwoPlayers;
+        GameMode = GameMode.OnePlayer;
     }
 
     // This method is called whenever the user taps on the screen.
@@ -101,15 +102,30 @@ public class ScriptController : MonoBehaviour
         MakeMove(move);
 
         // Check if a goal has been scored.
-        if (move != null && move.IsGoal)
+        if (move != null && move.GetGoal() != null)
         {
+            // Render a pop-up with a message announcing the goal.
+            if (move.GetGoal() == Team.White)
+                yield return MakePopup("Gol de " + WhiteName);
+            else
+                yield return MakePopup("Gol de " + BlackName);
+
+            // Update the scores.
+            UpdateScores();
             // Wait for the player to see the goal before resetting the game.
-            yield return new WaitForSeconds(3.2f);
+            yield return new WaitForSeconds(3.0f);
             // Give the signal to reset the abstract game representation.
             Game.ResetGame();
             // Reset the real board, after the abstract board has been reset.
             ResetConcreteBoard();
         }
+    }
+
+    // Update the real scores in relation to the scores in the abstract game.
+    private void UpdateScores()
+    {
+        WhiteScore = Game.WhiteScore;
+        BlackScore = Game.BlackScore;
     }
 
     // Coroutine that takes a series of moves (or just one move, or no move)
@@ -233,5 +249,17 @@ public class ScriptController : MonoBehaviour
         // Set the new coordinates for the ball.
         Ball.transform.position = TilemapBoard.GetCellCenterWorld(
             position.Vector3Int);
+    }
+
+    // Creates a pop-up.
+    // While the popup is active, players can't pick chips in board.
+    private IEnumerator MakePopup(string text)
+    {
+        BoardBoxCollider.enabled = false;
+        PopUpBanner.GetComponentInChildren<TextMeshProUGUI>().text = text;
+        PopUpBanner.SetActive(true);
+        yield return new WaitForSeconds(1.5f);
+        PopUpBanner.SetActive(false);
+        BoardBoxCollider.enabled = true;
     }
 }

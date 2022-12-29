@@ -48,4 +48,18 @@ public class Move
         // the setter, if necessary.
         MoveType = MoveType.BallMove;
     }
+
+    // Returns the team that scored a goal in this move.
+    public Team? GetGoal()
+    {
+        if (IsGoal)
+        {
+            if (Destination.Y == 0)
+                return Team.Black;
+            else if (Destination.Y == 14)
+                return Team.White;
+        }
+
+        return null;
+    }
 }

@@ -37,9 +37,6 @@ public class Game
         // Assign a piece just placeholder, for now.
         this.ballPossesion= Board.WhitePiece1;
         AllMoves = new List<Move>();
-        //this.passCount = 0;
-        //WhiteScore = 0;
-        //BlackScore = 0;
     }
 
     // This method should be called when the user taps on the screen.
@@ -217,16 +214,24 @@ public class Game
         return null;
     }
 
+    // This method should be called after a goal has been scored and it can
+    // be called from outside of the class.
     public void ResetGame()
     {
+        // Get the team that scored the goal. We know for sure that a goal
+        // has been scored in this case.
         Team? goalScored = CheckForGoalScored();
 
-        // After a goal, it's the opposite team's turn.
-        CurrentTurn = GetOppositeTeam(goalScored.Value);
-        // Change the status of the game.
-        GameStatus = GameStatus.WaitingPlayerPieceSelection;
-        // Reset the pieces to their initial position.
-        Board.ResetPieces();
+        // We just check if a goal has been scored to supress a warning.
+        if (goalScored != null)
+        {
+            // After a goal, it's the opposite team's turn.
+            CurrentTurn = GetOppositeTeam(goalScored.Value);
+            // Change the status of the game.
+            GameStatus = GameStatus.WaitingPlayerPieceSelection;
+            // Reset the pieces to their initial position.
+            Board.ResetPieces();
+        }
     }
 
     // Check if the player piece is of the right team, highlight the
