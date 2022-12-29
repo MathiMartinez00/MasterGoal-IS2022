@@ -1490,6 +1490,61 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
+=======
+  teamPossession: 0
+--- !u!1 &745555467
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 745555468}
+  - component: {fileID: 745555470}
+  - component: {fileID: 745555469}
+  m_Layer: 5
+  m_Name: Background
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &745555468
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 745555467}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1406126170}
+  m_Father: {fileID: 928689176}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 20.400002, y: -18}
+  m_SizeDelta: {x: 37.62, y: 30.58}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &745555469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 745555467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+>>>>>>> a79abc05739dc0b8a020d117a71b2274c279f6ff
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
@@ -1949,6 +2004,61 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
+=======
+  team: 0
+--- !u!1 &928689175
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 928689176}
+  - component: {fileID: 928689177}
+  m_Layer: 5
+  m_Name: Toggle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &928689176
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 928689175}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 745555468}
+  - {fileID: 698631858}
+  m_Father: {fileID: 299921235}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -11.699997}
+  m_SizeDelta: {x: 269.2, y: 39.1}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &928689177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 928689175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+>>>>>>> a79abc05739dc0b8a020d117a71b2274c279f6ff
   m_Navigation:
     m_Mode: 3
     m_WrapAround: 0
@@ -2164,6 +2274,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcedacc7f1f00a44bb7f05b0fd4c06b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
   TilemapBoard: {fileID: 1142989029}
   TilemapHighlight: {fileID: 1398135956}
   TileHighlight: {fileID: 11400000, guid: 370fe24df9fa5c348b30e16c3a10d28d, type: 2}
@@ -2173,15 +2284,44 @@ MonoBehaviour:
   BlackPiece1: {fileID: 1821952873}
   BlackPiece2: {fileID: 570439592}
   Ball: {fileID: 721146561}
+=======
+  tilemapBoard: {fileID: 1142989029}
+  tilemapHighlight: {fileID: 1398135956}
+  tileHighlight: {fileID: 11400000, guid: 370fe24df9fa5c348b30e16c3a10d28d, type: 2}
+  boardBoxCollider: {fileID: 0}
+  playerChips:
+  - {fileID: 1821952873}
+  - {fileID: 570439592}
+  - {fileID: 870302198}
+  - {fileID: 863969266}
+  ballChip: {fileID: 721146561}
+  smoothDampTime: 0.01
+  distanceToSnap: 0.05
+  passCount: 0
+  selectedChip: {fileID: 0}
+  ballChipPasser: {fileID: 0}
+  currentTurn: 0
+  currentState: 0
+>>>>>>> a79abc05739dc0b8a020d117a71b2274c279f6ff
   whiteScoreText: {fileID: 1627969480}
   blackScoreText: {fileID: 1184850327}
   whiteScoreName: {fileID: 1838547762}
   blackScoreName: {fileID: 1328258735}
   winnerName: {fileID: 425312825}
   whiteBanner: {fileID: 547110321}
+<<<<<<< HEAD
   blackBanner: {fileID: 865292540}
   popUpBanner: {fileID: 409632833}
   defaultBannerColor: {r: 0.5411765, g: 0.8784314, b: 1, a: 1}
+=======
+  redBanner: {fileID: 865292540}
+  popupBanner: {fileID: 409632833}
+  defaultBannerColor: {r: 0.5411765, g: 0.8784314, b: 1, a: 1}
+  whiteName: 
+  redName: 
+  whiteScore: 0
+  redScore: 0
+>>>>>>> a79abc05739dc0b8a020d117a71b2274c279f6ff
   spriteChip1Player1: {fileID: 1821952873}
   spriteChip2Player1: {fileID: 570439592}
   spriteChip1Player2: {fileID: 870302198}
