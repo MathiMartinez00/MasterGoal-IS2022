@@ -297,7 +297,7 @@ GameObject:
   - component: {fileID: 343499150}
   - component: {fileID: 343499149}
   m_Layer: 5
-  m_Name: Image
+  m_Name: WhiteImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1051,7 +1051,7 @@ GameObject:
   - component: {fileID: 581318475}
   - component: {fileID: 581318474}
   m_Layer: 5
-  m_Name: Image
+  m_Name: BlackImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2182,12 +2182,12 @@ MonoBehaviour:
   blackBanner: {fileID: 865292540}
   popUpBanner: {fileID: 409632833}
   defaultBannerColor: {r: 0.5411765, g: 0.8784314, b: 1, a: 1}
-  spriteChip1Player1: {fileID: 1821952873}
-  spriteChip2Player1: {fileID: 570439592}
-  spriteChip1Player2: {fileID: 870302198}
-  spriteChip2Player2: {fileID: 863969266}
-  imageChipInScoreOfPlayer1: {fileID: 581318474}
-  imageChipInScoreOfPlayer2: {fileID: 343499149}
+  spriteChip1Player1: {fileID: 863969266}
+  spriteChip2Player1: {fileID: 870302198}
+  spriteChip1Player2: {fileID: 1821952873}
+  spriteChip2Player2: {fileID: 570439592}
+  imageChipInScoreOfPlayer1: {fileID: 343499149}
+  imageChipInScoreOfPlayer2: {fileID: 581318474}
   chipSprites:
   - {fileID: 21300000, guid: 6ed084b16b62cc842913a53e5f193f4e, type: 3}
   - {fileID: 21300000, guid: 387493cf67ffbc049906adccc1abef1d, type: 3}
