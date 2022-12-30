@@ -182,11 +182,13 @@ public class ScriptController : MonoBehaviour
         // Create a new AIModule instance. This class encapsulates
         // the recommended moves in an instance field.
         AIModule aiModule = new AIModule(Game, Difficulty);
+
+        // Get the child game state and replace the old one.
+        Game = aiModule.ChildGame;
+
         // Get the recommended moves (the moves with the highest
         // utility score) and render them in a coroutine.
         yield return StartCoroutine(RenderChanges(aiModule.Moves));
-        // Get the child game state and replace the old one.
-        Game = aiModule.ChildGame;
 
         // If the computer scored a goal and it's not game over, then
         // reset the board.
