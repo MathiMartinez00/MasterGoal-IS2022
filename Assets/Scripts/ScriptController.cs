@@ -245,14 +245,14 @@ public class ScriptController : MonoBehaviour
             // it on the concrete board.
             if (move.PlayerPiece != null)
             {
-                MoveConcretePlayer(move.PlayerPiece);
+                MoveConcretePlayer(move.PlayerPiece, move.Destination);
 
                 // Play the player move sound.
                 FindObjectOfType<AudioManager>().PlaySound("Player move");
             }
             else if (move.BallMoved != null)
             {
-                MoveConcreteBall(move.BallMoved);
+                MoveConcreteBall(move.Destination);
 
                 // Play the ball move sound.
                 FindObjectOfType<AudioManager>().PlaySound("Ball move");
@@ -269,11 +269,16 @@ public class ScriptController : MonoBehaviour
     // be their initial positions.
     private void ResetConcreteBoard()
     {
-        MoveConcretePlayer(Game.Board.WhitePiece1);
-        MoveConcretePlayer(Game.Board.WhitePiece2);
-        MoveConcretePlayer(Game.Board.BlackPiece1);
-        MoveConcretePlayer(Game.Board.BlackPiece2);
-        MoveConcreteBall(Game.Board.Ball);
+        PlayerPiece white1 = Game.Board.WhitePiece1;
+        PlayerPiece white2 = Game.Board.WhitePiece2;
+        PlayerPiece black1 = Game.Board.BlackPiece1;
+        PlayerPiece black2 = Game.Board.BlackPiece2;
+
+        MoveConcretePlayer(white1, Game.Board.GetTile(white1));
+        MoveConcretePlayer(white2, Game.Board.GetTile(white2));
+        MoveConcretePlayer(black1, Game.Board.GetTile(black1));
+        MoveConcretePlayer(black2, Game.Board.GetTile(black2));
+        MoveConcreteBall(Game.Board.GetTile(Game.Board.Ball));
     }
 
     // Takes the abstract board as argument and checks for the tiles that
@@ -334,24 +339,29 @@ public class ScriptController : MonoBehaviour
     }
 
     // Takes an abstract Player Piece (that was moved), finds the real
-    // piece that it represents and updates its position (of the real one).
-    private void MoveConcretePlayer(PlayerPiece playerPiece)
+    // piece that it represents and updates its position based on the
+    // position of the tile passed as argument.
+    private void MoveConcretePlayer(
+        PlayerPiece playerPiece, AbstractTile tile)
     {
         // Translate from the abstract player piece to the concrete one.
         GameObject realPiece = AbstractPlayerToConcrete(playerPiece);
+
         // Create a new position object (to make a unit conversion).
-        Position position = new Position(playerPiece.X, playerPiece.Y);
+        Position position = new Position(tile.X, tile.Y);
+
         // Set the new coordinates for the piece.
         realPiece.transform.position = TilemapBoard.GetCellCenterWorld(
             position.Vector3Int);
     }
 
-    // Takes an abstract Ball and based on its current position, updates
-    // the position of the real one.
-    private void MoveConcreteBall(Ball ball)
+    // Moves the GameObject ball to the position of the tile that is
+    // passed as the argument.
+    private void MoveConcreteBall(AbstractTile tile)
     {
         // Create a new position object (to make a unit conversion).
-        Position position = new Position(ball.X, ball.Y);
+        Position position = new Position(tile.X, tile.Y);
+
         // Set the new coordinates for the ball.
         Ball.transform.position = TilemapBoard.GetCellCenterWorld(
             position.Vector3Int);
