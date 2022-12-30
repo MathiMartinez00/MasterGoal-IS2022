@@ -17,12 +17,13 @@ public class AIModule
     // The recursion depth to be used by the Minimax algorithm.
     private readonly int recursionDepth = 0;
     // Maximum possible score. This is the utility score of a move
-    // that ends the game.
-    private readonly int maxScore = 100000;
-    // This is the utility score of a single goal.
-    private readonly int goalScore = 10000;
+    // that results in a goal.
+    private readonly int maxScore = 10000000;
     // Utility score of every increment in the "y" coordinate of the ball.
-    private readonly int positionScore = 100;
+    private readonly int positionScore = 10000;
+    // Utility score for every increment in the distance between the ball
+    // and the players.
+    private readonly int distanceScore = 100;
 
     // This class constructor takes a game, calculates the recommended
     // moves and saves them on the "Moves" instance attribute.
@@ -140,7 +141,9 @@ public class AIModule
 
         // Base case. The last move ended the turn and the ball can't
         // be moved further.
-        if (game.GameStatus != GameStatus.WaitingBallMovement)
+        if (
+            game.GameStatus != GameStatus.WaitingBallMovement ||
+            game.CheckForGoalScored() != null)
         {
             // Just return a list with the current game state.
             childGameStates.Add(game);
@@ -199,7 +202,7 @@ public class AIModule
     {
         // If we have reached maximum depth in the game tree, return
         // the static evaluation of the current state of the game.
-        if (depth == 0 || IsGameOver(game))
+        if (depth == 0 || game.CheckForGoalScored() != null)
             return EvaluateGame(game);
 
         // Get all of the children states of the current game state.
@@ -239,9 +242,9 @@ public class AIModule
 
     // Heuristic evaluation function. Given a game, it returns an integer
     // representing the utility score of the given state of the game.
-    // The heuristic evaluation is made based on the game state (whether
-    // the game is still going), the number of goals and the current position
-    // of the ball.
+    // The heuristic evaluation is made based on whether the move resulted
+    // in a goal, the current position of the ball and the distance of the
+    // players to the ball.
     // A state that favors the white team will get a positive score and a
     // state that favor the black team will get a negative score.
     private int EvaluateGame(Game game)
@@ -250,35 +253,60 @@ public class AIModule
         // Part of the evalution will be made based on the "y" coordinate.
         int ballY = game.Board.Ball.Y;
 
+        // Check if a goal has been scored and get the team.
+        Team? goalScored = game.CheckForGoalScored();
+
         // If the game is over, return the maximum (or minimum) possible
         // score. This factor has the highest weight on the utility score.
-        if (IsGameOver(game))
+        if (goalScored != null)
         {
-            utilityScore =
-            (game.WhiteScore > game.BlackScore) ? maxScore : -maxScore;
+            utilityScore = (goalScored == Team.White) ? maxScore : -maxScore;
         }
         else
         {
-            // This is the score derived from the amount of goals that each
-            // team made. This score has a high weight.
-            int numberOfGoalsScore =
-            (game.WhiteScore * goalScore) - (game.BlackScore * goalScore);
-
             // This is the score derived from the current position of the
             // ball in the game board. This score has a low weight.
             int ballPositionScore = (ballY - 7) * positionScore;
 
+            // Weighs the distance of the players to the ball. This score
+            // has a very low weight.
+            int ballDistanceScore = GetPlayerBallDistanceScore(game);
+
             // Add the two scores to get the total utility score.
-            utilityScore = numberOfGoalsScore + ballPositionScore;
+            utilityScore = ballPositionScore + ballDistanceScore;
         }
 
         return utilityScore;
     }
 
-    // Checks if the game is over.
-    public bool IsGameOver(Game game)
+    // Weighs the distance of the player pieces to the ball.
+    private int GetPlayerBallDistanceScore(Game game)
     {
-        return (game.GameStatus == GameStatus.GameOver);
+        // Calculate the distance of every piece to the ball.
+        int white1Distance = GetPlayerDistanceToBall(
+            game.Board.WhitePiece1, game.Board.Ball);
+        int white2Distance = GetPlayerDistanceToBall(
+            game.Board.WhitePiece2, game.Board.Ball);
+        int black1Distance = GetPlayerDistanceToBall(
+            game.Board.BlackPiece1, game.Board.Ball);
+        int black2Distance = GetPlayerDistanceToBall(
+            game.Board.BlackPiece2, game.Board.Ball);
+
+        int maximumDistance = 16;
+        
+        int whiteScore = (maximumDistance * 2 - white1Distance - white2Distance) * distanceScore;
+        int blackScore = (maximumDistance * 2 - black1Distance - black2Distance) * distanceScore;
+
+        return whiteScore - blackScore;
+    }
+
+    // Returns the distance of a player from the ball in board units.
+    private int GetPlayerDistanceToBall(PlayerPiece player, Ball ball)
+    {
+        int xDiff = (int)Math.Pow(player.X - ball.X, 2);
+        int yDiff = (int)Math.Pow(player.Y - ball.Y, 2);
+
+        return (int)Math.Sqrt(xDiff + yDiff);
     }
 
     // Takes a parent game state and a child game state —a game state that

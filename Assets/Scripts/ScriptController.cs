@@ -178,8 +178,11 @@ public class ScriptController : MonoBehaviour
         foreach (Move move in moves)
         {
             // Wait a little bit before rendering the next action.
-            yield return new WaitForSeconds(1.0f);
-            RenderChanges(move);
+            yield return new WaitForSeconds(1.2f);
+
+            // Move the piece (not a coroutine).
+            //MakeMove(move);
+            yield return RenderChanges(move);
         }
     }
 

@@ -215,7 +215,8 @@ public class Game
     }
 
     // This method should be called after a goal has been scored and it can
-    // be called from outside of the class.
+    // be called from outside of the class. This method will not and should
+    // not restart the game after it is over.
     public void ResetGame()
     {
         // Get the team that scored the goal. We know for sure that a goal
@@ -223,7 +224,7 @@ public class Game
         Team? goalScored = CheckForGoalScored();
 
         // We just check if a goal has been scored to supress a warning.
-        if (goalScored != null)
+        if (goalScored != null && GameStatus != GameStatus.GameOver)
         {
             // After a goal, it's the opposite team's turn.
             CurrentTurn = GetOppositeTeam(goalScored.Value);
@@ -697,7 +698,7 @@ public class Game
     // of the ball.
     //
     // Returns the scoring team if a goal has been scored; null otherwise.
-    private Team? CheckForGoalScored()
+    public Team? CheckForGoalScored()
     {
         Ball ball = Board.Ball;
 
