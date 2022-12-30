@@ -166,6 +166,9 @@ public class ScriptController : MonoBehaviour
     // waits little bit, and then resets the game board.
     private IEnumerator RenderChanges(Move? move)
     {
+        // Disable user input while the pieces are moving.
+        BoardBoxCollider.enabled = false;
+
         // Move the piece (not a coroutine).
         MakeMove(move);
 
@@ -200,6 +203,9 @@ public class ScriptController : MonoBehaviour
                 ResetConcreteBoard();
             }
         }
+
+        // Enable user input.
+        BoardBoxCollider.enabled = true;
     }
 
     // Update the real scores in relation to the scores in the abstract game.
@@ -215,11 +221,18 @@ public class ScriptController : MonoBehaviour
     {
         foreach (Move move in moves)
         {
+            // Disable user input while the pieces are moving.
+            BoardBoxCollider.enabled = false;
+
             // Wait a little bit before rendering the next action.
             yield return new WaitForSeconds(1.2f);
 
+            // Render this single move (overloaded method).
             yield return RenderChanges(move);
         }
+
+        // Enable user input.
+        BoardBoxCollider.enabled = true;
     }
 
     // Takes a move (or no move) that was made on the abstract game
@@ -338,11 +351,15 @@ public class ScriptController : MonoBehaviour
     // pieces in the board.
     private IEnumerator MakePopup(string text, float time)
     {
+        // Disable user input while the pop-up is active.
         BoardBoxCollider.enabled = false;
+
         popUpBanner.GetComponentInChildren<TextMeshProUGUI>().text = text;
         popUpBanner.SetActive(true);
         yield return new WaitForSeconds(time);
         popUpBanner.SetActive(false);
+
+        // Enable user input.
         BoardBoxCollider.enabled = true;
     }
 }
