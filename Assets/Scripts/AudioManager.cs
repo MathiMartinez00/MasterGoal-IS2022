@@ -129,4 +129,26 @@ public class AudioManager : MonoBehaviour
         if (sfxOn)
             PlaySound("Button press");
     }
+
+    public void ToggleMusic()
+    {
+        if (musicOn)
+        {
+            music[currentMusicTrack].source.Stop();
+            musicOn = false;
+        }
+        else
+        {
+            music[currentMusicTrack].source.Play();
+            musicOn = true;
+        }
+    }
+
+    public void ToggleSfx()
+    {
+        if (sfxOn)
+            sfxOn = false;
+        else
+            sfxOn = true;
+    }
 }

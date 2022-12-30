@@ -49,7 +49,7 @@ public class ScriptController : MonoBehaviour
     public GameObject spriteChip2Player2 = default!;
     public Image imageChipInScoreOfPlayer1 = default!;
     public Image imageChipInScoreOfPlayer2 = default!;
-    public Sprite[] chipSprites;
+    public Sprite[] chipSprites = default!;
 
     // Configuration variables
     public bool isHighlightModeOn = true;
