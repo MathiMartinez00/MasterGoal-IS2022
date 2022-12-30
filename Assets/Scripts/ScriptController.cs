@@ -38,8 +38,6 @@ public class ScriptController : MonoBehaviour
     public TextMeshProUGUI winnerName = default!;
     public string WhiteName { get; private set; } = default!;
     public string BlackName { get; private set; } = default!;
-    public int WhiteScore { get; set; } = default!;
-    public int BlackScore { get; set; } = default!;
     public GameObject whiteBanner;
     public GameObject blackBanner;
     public GameObject popUpBanner;
@@ -54,8 +52,10 @@ public class ScriptController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        WhiteScore = 0;
-        BlackScore = 0;
+
+        //whiteScoreText.text = Game.WhiteScore;
+        //blackScoreText.text = Game.BlackScore;
+
         WhiteName = PlayerPrefs.GetString("player1");
         BlackName = PlayerPrefs.GetString("player2");
         putChipImage();
@@ -123,7 +123,11 @@ public class ScriptController : MonoBehaviour
 
         // If the game mode is single player, then the computer has
         // to make a move now.
-        if (GameMode == GameMode.OnePlayer && Game.CurrentTurn == Team.Black)
+        if (
+            GameMode == GameMode.OnePlayer &&
+            Game.CurrentTurn == Team.Black &&
+            Game.GameStatus != GameStatus.GameOver &&
+            Game.CheckForGoalScored() == null)
         {
             // Create a new AIModule instance. This class encapsulates
             // the recommended moves in an instance field.
@@ -167,8 +171,8 @@ public class ScriptController : MonoBehaviour
     // Update the real scores in relation to the scores in the abstract game.
     private void UpdateScores()
     {
-        WhiteScore = Game.WhiteScore;
-        BlackScore = Game.BlackScore;
+        whiteScoreText.text = Game.WhiteScore.ToString();
+        blackScoreText.text = Game.BlackScore.ToString();
     }
 
     // Coroutine that takes a series of moves (or just one move, or no move)
@@ -180,8 +184,6 @@ public class ScriptController : MonoBehaviour
             // Wait a little bit before rendering the next action.
             yield return new WaitForSeconds(1.2f);
 
-            // Move the piece (not a coroutine).
-            //MakeMove(move);
             yield return RenderChanges(move);
         }
     }
