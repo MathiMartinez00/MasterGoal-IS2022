@@ -23,12 +23,12 @@ public class Board
     private const int boardYLength = 15;
 
     // Constants for the starting coordinates of each piece.
-    private const int piecesX = 5;
-    private const int white1Y = 2;
-    private const int white2Y = 4;
-    private const int black1Y = 10;
-    private const int black2Y = 12;
-    private const int ballY = 7;
+    public readonly int piecesX = 5;
+    public readonly int white1Y = 2;
+    public readonly int white2Y = 4;
+    public readonly int black1Y = 10;
+    public readonly int black2Y = 12;
+    public readonly int ballY = 7;
 
     // Board's constructor method. Creates a new board for a new game.
     public Board()

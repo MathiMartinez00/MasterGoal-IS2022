@@ -39,12 +39,16 @@ public class ScriptController : MonoBehaviour
     public TextMeshProUGUI winnerText = default!;
     public string WhiteName { get; private set; } = default!;
     public string BlackName { get; private set; } = default!;
-    public GameObject whiteBanner;
-    public GameObject blackBanner;
-    public GameObject popUpBanner;
-    public Color defaultBannerColor;
-    public GameObject spriteChip1Player1, spriteChip2Player1, spriteChip1Player2, spriteChip2Player2;
-    public Image imageChipInScoreOfPlayer1, imageChipInScoreOfPlayer2;
+    public GameObject whiteBanner = default!;
+    public GameObject blackBanner = default!;
+    public GameObject popUpBanner = default!;
+    public Color defaultBannerColor = default!;
+    public GameObject spriteChip1Player1 = default!;
+    public GameObject spriteChip2Player1 = default!;
+    public GameObject spriteChip1Player2 = default!;
+    public GameObject spriteChip2Player2 = default!;
+    public Image imageChipInScoreOfPlayer1 = default!;
+    public Image imageChipInScoreOfPlayer2 = default!;
     public Sprite[] chipSprites;
 
     // Configuration variables
@@ -73,6 +77,7 @@ public class ScriptController : MonoBehaviour
         GameMode = PlayerPrefs.GetInt("gameMode") == 0 ?
         GameMode.OnePlayer : GameMode.TwoPlayers;
 
+        // There is no way to change the difficulty yet.
         Difficulty = Difficulty.Easy;
 
         // Create a new abstract game instance.
@@ -131,33 +136,65 @@ public class ScriptController : MonoBehaviour
 
         // If the game is over, no more input is accepted.
         if (Game.GameStatus != GameStatus.GameOver)
+            // Do the user's move and the computer's moves, if necessary.
+            StartCoroutine(MakeHumanAndComputerMove(position));
+    }
+
+    // Concatenates the coroutines of the user and the computer's move.
+    private IEnumerator MakeHumanAndComputerMove(Position position)
+    {
+        // User input.
+        Move? move = Game.Input(position);
+
+        yield return StartCoroutine(RenderChanges(move));
+
+        // Check if a goal has been scored.
+        if (move != null && move.IsGoal)
         {
-            // Pass the input to the Game instance and get the Move instance
-            // that resulted from the input.
-            Move? move = Game.Input(position);
+            yield return StartCoroutine(ResetAbstractAndRealGame());
+        }
+        // Computer's turn, if relevant.
+        else if (
+            GameMode == GameMode.OnePlayer &&
+            // The computer is always black.
+            Game.CurrentTurn == Team.Black &&
+            // If the ball is inside of the goal, don't take input.
+            Game.CheckForGoalScored() == null)
+        {
+            yield return StartCoroutine(MakeComputerMove());
+        }
+    }
 
-            // Render the changes that resulted from this interaction with
-            // the user.
-            StartCoroutine(RenderChanges(move));
+    // Resets the real game board and the abstract game board.
+    private IEnumerator ResetAbstractAndRealGame()
+    {
+        // Give the signal to reset to the abstract game representation.
+        Game.ResetGame();
+        // Reset the real board, after the abstract board has been reset.
+        ResetConcreteBoard();
 
-            // If the game mode is single player, then the computer has
-            // to make a move now.
-            if (
-                GameMode == GameMode.OnePlayer &&
-                // The computer is always black.
-                Game.CurrentTurn == Team.Black &&
-                // If the ball is inside of the goal, don't take input.
-                Game.CheckForGoalScored() == null)
-            {
-                // Create a new AIModule instance. This class encapsulates
-                // the recommended moves in an instance field.
-                AIModule aiModule = new AIModule(Game, Difficulty);
-                // Get the recommended moves (the moves with the highest
-                // utility score) and render them in a coroutine.
-                StartCoroutine(RenderChanges(aiModule.Moves));
-                // Get the child game state and replace the old one.
-                Game = aiModule.ChildGame;
-            }
+        yield return null;
+    }
+
+    // Performs the moves of the computer.
+    private IEnumerator MakeComputerMove()
+    {
+        // Create a new AIModule instance. This class encapsulates
+        // the recommended moves in an instance field.
+        AIModule aiModule = new AIModule(Game, Difficulty);
+        // Get the recommended moves (the moves with the highest
+        // utility score) and render them in a coroutine.
+        yield return StartCoroutine(RenderChanges(aiModule.Moves));
+        // Get the child game state and replace the old one.
+        Game = aiModule.ChildGame;
+
+        // If the computer scored a goal and it's not game over, then
+        // reset the board.
+        if (
+            Game.CheckForGoalScored() != null &&
+            Game.GameStatus != GameStatus.GameOver)
+        {
+            yield return StartCoroutine(ResetAbstractAndRealGame());
         }
     }
 
@@ -197,10 +234,6 @@ public class ScriptController : MonoBehaviour
 
                 // Wait for the player to see the goal before resetting the game.
                 yield return new WaitForSeconds(3.0f);
-                // Give the signal to reset to the abstract game representation.
-                Game.ResetGame();
-                // Reset the real board, after the abstract board has been reset.
-                ResetConcreteBoard();
             }
         }
 
@@ -269,16 +302,26 @@ public class ScriptController : MonoBehaviour
     // be their initial positions.
     private void ResetConcreteBoard()
     {
+        // Get the abstract pieces.
         PlayerPiece white1 = Game.Board.WhitePiece1;
         PlayerPiece white2 = Game.Board.WhitePiece2;
         PlayerPiece black1 = Game.Board.BlackPiece1;
         PlayerPiece black2 = Game.Board.BlackPiece2;
 
-        MoveConcretePlayer(white1, Game.Board.GetTile(white1));
-        MoveConcretePlayer(white2, Game.Board.GetTile(white2));
-        MoveConcretePlayer(black1, Game.Board.GetTile(black1));
-        MoveConcretePlayer(black2, Game.Board.GetTile(black2));
-        MoveConcreteBall(Game.Board.GetTile(Game.Board.Ball));
+        // Get the coordinates of the initial position of every piece.
+        int white1Y = Game.Board.white1Y;
+        int white2Y = Game.Board.white2Y;
+        int black1Y = Game.Board.black1Y;
+        int black2Y = Game.Board.black2Y;
+        int ballY = Game.Board.ballY;
+        int piecesX = Game.Board.piecesX;
+
+        // Move the real pieces (the GameObjects).
+        MoveConcretePlayer(white1, Game.Board.GetTile(piecesX, white1Y));
+        MoveConcretePlayer(white2, Game.Board.GetTile(piecesX, white2Y));
+        MoveConcretePlayer(black1, Game.Board.GetTile(piecesX, black1Y));
+        MoveConcretePlayer(black2, Game.Board.GetTile(piecesX, black2Y));
+        MoveConcreteBall(Game.Board.GetTile(piecesX, ballY));
     }
 
     // Takes the abstract board as argument and checks for the tiles that
