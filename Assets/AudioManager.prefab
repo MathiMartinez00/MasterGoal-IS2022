@@ -72,61 +72,61 @@ MonoBehaviour:
   music:
   - name: Monkey drama
     clip: {fileID: 8300000, guid: f3058f4de2e590a4d8f18c505fd5730b, type: 3}
-    volume: 0.6
+    volume: 0.2
     pitch: 1
     loop: 1
     source: {fileID: 0}
   - name: Quirky puzzle game
     clip: {fileID: 8300000, guid: c42486e61bca3ca42a251781f2ebdf6a, type: 3}
-    volume: 0.6
+    volume: 0.2
     pitch: 1
     loop: 1
     source: {fileID: 0}
   - name: Mystical ocean puzzle
     clip: {fileID: 8300000, guid: ff0d4b694b44070418669a590a4dcd62, type: 3}
-    volume: 0.6
+    volume: 0.2
     pitch: 1
     loop: 1
     source: {fileID: 0}
   - name: Hypnotic puzzle 4
     clip: {fileID: 8300000, guid: 859e48edd54a37d47b459c7ffb556ea1, type: 3}
-    volume: 0.6
+    volume: 0.2
     pitch: 1
     loop: 1
     source: {fileID: 0}
   - name: Hypnotic puzzle 3
     clip: {fileID: 8300000, guid: 4ca5982b39b3684488a80fa9fd644cf2, type: 3}
-    volume: 0.6
+    volume: 0.2
     pitch: 1
     loop: 1
     source: {fileID: 0}
   - name: Hypnotic puzzle
     clip: {fileID: 8300000, guid: 0e24f9c0e7945b84784581af40e7aafc, type: 3}
-    volume: 0.6
+    volume: 0.2
     pitch: 1
     loop: 1
     source: {fileID: 0}
   - name: Guitar mayhem
     clip: {fileID: 8300000, guid: fb660aaa5738f0a4e81e6ee45c62577b, type: 3}
-    volume: 0.6
+    volume: 0.2
     pitch: 1
     loop: 1
     source: {fileID: 0}
   - name: Guitar mayhem 3
     clip: {fileID: 8300000, guid: c1eb3700731796240baec2e91ff902a9, type: 3}
-    volume: 0.6
+    volume: 0.2
     pitch: 1
     loop: 1
     source: {fileID: 0}
   - name: Good morning doctor weird
     clip: {fileID: 8300000, guid: b77c239aa026ad042bb07b88ea51fcb7, type: 3}
-    volume: 0.6
+    volume: 0.2
     pitch: 1
     loop: 1
     source: {fileID: 0}
   - name: Game menu looping
     clip: {fileID: 8300000, guid: 782761c2ebceebd4b8e017f99cdb3932, type: 3}
-    volume: 0.6
+    volume: 0.2
     pitch: 1
     loop: 1
     source: {fileID: 0}
