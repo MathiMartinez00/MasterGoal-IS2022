@@ -48,7 +48,7 @@ public class ScriptController : MonoBehaviour
     public Sprite[] chipSprites;
 
     // Configuration variables
-    public bool isHighlightModeOn;
+    public bool isHighlightModeOn = true;
 
     // Start is called before the first frame update
     void Start()

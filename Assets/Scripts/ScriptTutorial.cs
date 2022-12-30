@@ -111,51 +111,102 @@ public class ScriptTutorial : MonoBehaviour
         {
             case 0:
                 titleText.text = "Jugadores";
-                descriptionText.text = "El juego est� conformado por 2 equipos representados por las fichas rojas y blancas.";
+
+                descriptionText.text =
+                "El juego está conformado por 2 equipos con 2 jugadores " +
+                "por equipo.";
+
                 break;
             case 1:
                 titleText.text = "Movimiento del jugador";
-                descriptionText.text = "Los jugadores se pueden mover hasta 2 casillas.";
+
+                descriptionText.text =
+                "Los jugadores se pueden mover hasta 2 casillas en una " +
+                "sola acción. Los jugadores no pueden saltar sobre otros" +
+                " jugadores o sobre la pelota.";
+
                 break;
             case 2:
                 titleText.text = "Movimiento de la pelota";
-                descriptionText.text = "La pelota es representada por la ficha gris y se puede mover hasta 4 casillas.";
+
+                descriptionText.text =
+                "La pelota es representada por la ficha amarilla y se puede" +
+                " mover hasta 4 casillas por acción.";
+
                 break;
             case 3:
                 titleText.text = "Movimiento de la pelota";
-                descriptionText.text = "La pelota debe estar en un espacio adyacente a un jugador para moverla.";
+
+                descriptionText.text =
+                "La pelota debe estar en una casilla adyacente al jugador" +
+                " para que se pueda mover.";
+
                 break;
             case 4:
                 titleText.text = "Goles";
-                descriptionText.text = "Los arcos son los espacios blancos. Los goles se pueden meter en todas las direcciones.\r\nEl juego termina al meter 2 goles.";
+
+                descriptionText.text =
+                "Los arcos se representan con las casillas en blanco. Los" +
+                " goles se pueden meter en todas las direcciones.\r\nEl " +
+                "juego termina cuando un jugador haya anotado 2 goles.";
+
                 break;
             case 5:
                 titleText.text = "Pases";
-                descriptionText.text = "La pelota se puede mover hasta 4 veces seguidas en un turno.\r\nLos pases son entre jugadores del mismo equipo.";
+
+                descriptionText.text =
+                "La pelota se puede mover hasta 4 veces seguidas en un " +
+                "turno, 3 pases y 1 movimiento definitivo.\r\nLos pases" +
+                " siempre son entre jugadores del mismo equipo.";
+
                 break;
             case 6:
-                titleText.text = "Pases";
-                descriptionText.text = "La pelota puede pasar por casillas ocupadas por jugadores.";
+                titleText.text = "Movimiento de la pelota";
+
+                descriptionText.text =
+                "La pelota puede saltar sobre los jugadores.";
+
                 break;
             case 7:
                 titleText.text = "Casilla neutra";
-                descriptionText.text = "Cuando la pelota es compartida por un n�mero igual de jugadores esta no pertenece a ninguno.";
+
+                descriptionText.text =
+                "Cuando la pelota está rodeada de un número igual de " +
+                "jugadores, se dice que está en una casilla neutra, y " +
+                "ningún jugador puede moverla.";
+
                 break;
             case 8:
                 titleText.text = "Casilla neutra";
-                descriptionText.text = "La neutralidad se rompe si se obtiene mayor�a por parte de un equpo.";
+
+                descriptionText.text =
+                "La casilla deja de ser neutra si un equipo obtiene una " +
+                "mayoría de jugadores alrededor de ella.";
+
                 break;
             case 9:
                 titleText.text = "Movimientos prohibidos";
-                descriptionText.text = "La pelota no puede terminar en el corner propio.";
+
+                descriptionText.text =
+                "La pelota no puede terminar en el corner del equipo de " +
+                "turno al final del turno.";
+
                 break;
             case 10:
                 titleText.text = "Movimientos prohibidos";
-                descriptionText.text = "Tampoco puede terminar en posesi�n de un equipo al final del turno.";
+
+                descriptionText.text =
+                "La pelota no puede terminar en posesión de ningún equipo" +
+                " al final del turno.";
+
                 break;
             case 11:
                 titleText.text = "Movimientos prohibidos";
-                descriptionText.text = "Ni puede dejar la pelota dentro de su propia �rea al final del turno.";
+
+                descriptionText.text =
+                "La pelota no puede terminar dentro del área del equipo " +
+                "de turno al final del turno.";
+
                 break;
         }
     }
