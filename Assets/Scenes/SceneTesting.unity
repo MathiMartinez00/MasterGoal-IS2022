@@ -2177,7 +2177,7 @@ MonoBehaviour:
   blackScoreText: {fileID: 1184850327}
   whiteScoreName: {fileID: 1838547762}
   blackScoreName: {fileID: 1328258735}
-  winnerName: {fileID: 425312825}
+  winnerText: {fileID: 425312825}
   whiteBanner: {fileID: 547110321}
   blackBanner: {fileID: 865292540}
   popUpBanner: {fileID: 409632833}

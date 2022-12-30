@@ -35,7 +35,7 @@ public class ScriptController : MonoBehaviour
     public TextMeshProUGUI blackScoreText = default!;
     public TextMeshProUGUI whiteScoreName = default!;
     public TextMeshProUGUI blackScoreName = default!;
-    public TextMeshProUGUI winnerName = default!;
+    public TextMeshProUGUI winnerText = default!;
     public string WhiteName { get; private set; } = default!;
     public string BlackName { get; private set; } = default!;
     public GameObject whiteBanner;
@@ -52,13 +52,10 @@ public class ScriptController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
-        //whiteScoreText.text = Game.WhiteScore;
-        //blackScoreText.text = Game.BlackScore;
-
         WhiteName = PlayerPrefs.GetString("player1");
         BlackName = PlayerPrefs.GetString("player2");
-        putChipImage();
+        // Assign the images to the pieces.
+        PutChipImage();
         this.whiteScoreName.text = WhiteName;
         this.blackScoreName.text = BlackName;
 
@@ -75,25 +72,32 @@ public class ScriptController : MonoBehaviour
         Game.CurrentTurn == Team.Black ? Color.white : defaultBannerColor;
     }
 
-    public void putChipImage()
+    // Assign the correct image to the player pieces, according to the
+    // selection of the user in the previous menu.
+    public void PutChipImage()
     {
         for (int i = 0; i < chipSprites.Length; i++)
         {
             if (PlayerPrefs.GetString("color1") == chipSprites[i].ToString())
             {
-                spriteChip1Player1.GetComponent<SpriteRenderer>().sprite = chipSprites[i];
-                spriteChip2Player1.GetComponent<SpriteRenderer>().sprite = chipSprites[i];
+                spriteChip1Player1.GetComponent<SpriteRenderer>().sprite =
+                chipSprites[i];
+                spriteChip2Player1.GetComponent<SpriteRenderer>().sprite =
+                chipSprites[i];
                 imageChipInScoreOfPlayer1.sprite = chipSprites[i];
             }
             if (PlayerPrefs.GetString("color2") == chipSprites[i].ToString())
             {
-                spriteChip1Player2.GetComponent<SpriteRenderer>().sprite = chipSprites[i];
-                spriteChip2Player2.GetComponent<SpriteRenderer>().sprite = chipSprites[i];
+                spriteChip1Player2.GetComponent<SpriteRenderer>().sprite =
+                chipSprites[i];
+                spriteChip2Player2.GetComponent<SpriteRenderer>().sprite =
+                chipSprites[i];
                 imageChipInScoreOfPlayer2.sprite = chipSprites[i];
             }
         }
     }
 
+    // Turns recommendations on or off.
     public void SetHighlightMode(bool highlightMode)
     {
         isHighlightModeOn = highlightMode;
@@ -113,30 +117,35 @@ public class ScriptController : MonoBehaviour
         // the Position object.
         Position position = new Position(point);
 
-        // Pass the input to the Game instance and get the Move instance
-        // that resulted from the input.
-        Move? move = Game.Input(position);
-
-        // Render the changes that resulted from this interaction with
-        // the user.
-        StartCoroutine(RenderChanges(move));
-
-        // If the game mode is single player, then the computer has
-        // to make a move now.
-        if (
-            GameMode == GameMode.OnePlayer &&
-            Game.CurrentTurn == Team.Black &&
-            Game.GameStatus != GameStatus.GameOver &&
-            Game.CheckForGoalScored() == null)
+        // If the game is over, no more input is accepted.
+        if (Game.GameStatus != GameStatus.GameOver)
         {
-            // Create a new AIModule instance. This class encapsulates
-            // the recommended moves in an instance field.
-            AIModule aiModule = new AIModule(Game);
-            // Get the recommended moves (the moves with the highest
-            // utility score) and render them in a coroutine.
-            StartCoroutine(RenderChanges(aiModule.Moves));
-            // Get the child game state and replace the old one.
-            Game = aiModule.ChildGame;
+            // Pass the input to the Game instance and get the Move instance
+            // that resulted from the input.
+            Move? move = Game.Input(position);
+
+            // Render the changes that resulted from this interaction with
+            // the user.
+            StartCoroutine(RenderChanges(move));
+
+            // If the game mode is single player, then the computer has
+            // to make a move now.
+            if (
+                GameMode == GameMode.OnePlayer &&
+                // The computer is always black.
+                Game.CurrentTurn == Team.Black &&
+                // If the ball is inside of the goal, don't take input.
+                Game.CheckForGoalScored() == null)
+            {
+                // Create a new AIModule instance. This class encapsulates
+                // the recommended moves in an instance field.
+                AIModule aiModule = new AIModule(Game);
+                // Get the recommended moves (the moves with the highest
+                // utility score) and render them in a coroutine.
+                StartCoroutine(RenderChanges(aiModule.Moves));
+                // Get the child game state and replace the old one.
+                Game = aiModule.ChildGame;
+            }
         }
     }
 
@@ -148,23 +157,36 @@ public class ScriptController : MonoBehaviour
         // Move the piece (not a coroutine).
         MakeMove(move);
 
-        // Check if a goal has been scored.
-        if (move != null && move.GetGoal() != null)
-        {
-            // Render a pop-up with a message announcing the goal.
-            if (move.GetGoal() == Team.White)
-                yield return MakePopup("Gol de " + WhiteName);
-            else
-                yield return MakePopup("Gol de " + BlackName);
+        // Update the scores.
+        UpdateScores();
 
-            // Update the scores.
-            UpdateScores();
-            // Wait for the player to see the goal before resetting the game.
-            yield return new WaitForSeconds(3.0f);
-            // Give the signal to reset the abstract game representation.
-            Game.ResetGame();
-            // Reset the real board, after the abstract board has been reset.
-            ResetConcreteBoard();
+        // Check if a goal has been scored.
+        if (move != null && move.IsGoal)
+        {
+            // Checks if the game is over to render to pop-up.
+            if (Game.GameStatus == GameStatus.GameOver)
+            {
+                // Render the pop-up announcing the winner of the match.
+                if (move.GetGoal() == Team.White)
+                    yield return MakePopup("¡Ganó " + WhiteName + "!", 3.5f);
+                else
+                    yield return MakePopup("¡Ganó " + BlackName + "!", 3.5f);
+            }
+            else
+            {
+                // Render a pop-up with a message announcing the goal.
+                if (move.GetGoal() == Team.White)
+                    yield return MakePopup("Gol a favor de " + WhiteName, 2.5f);
+                else
+                    yield return MakePopup("Gol a favor de " + BlackName, 2.5f);
+
+                // Wait for the player to see the goal before resetting the game.
+                yield return new WaitForSeconds(3.0f);
+                // Give the signal to reset to the abstract game representation.
+                Game.ResetGame();
+                // Reset the real board, after the abstract board has been reset.
+                ResetConcreteBoard();
+            }
         }
     }
 
@@ -202,8 +224,9 @@ public class ScriptController : MonoBehaviour
                 MoveConcreteBall(move.BallMoved);
         }
 
-        // Render the new highlights, if there are any.
-        RenderHighlights(Game.Board);
+        // If highlight mode is on, we render the highlights.
+        if (isHighlightModeOn)
+            RenderHighlights(Game.Board);
     }
 
     // Resets the real game board by moving the GameObjects to the same
@@ -299,14 +322,14 @@ public class ScriptController : MonoBehaviour
             position.Vector3Int);
     }
 
-    // Creates a pop-up.
-    // While the popup is active, players can't pick chips in board.
-    private IEnumerator MakePopup(string text)
+    // Creates a pop-up. While the popup is active, players can't select
+    // pieces in the board.
+    private IEnumerator MakePopup(string text, float time)
     {
         BoardBoxCollider.enabled = false;
         popUpBanner.GetComponentInChildren<TextMeshProUGUI>().text = text;
         popUpBanner.SetActive(true);
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(time);
         popUpBanner.SetActive(false);
         BoardBoxCollider.enabled = true;
     }

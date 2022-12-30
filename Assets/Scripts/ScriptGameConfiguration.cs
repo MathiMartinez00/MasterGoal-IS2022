@@ -32,6 +32,7 @@ public class ScriptGameConfiguration : MonoBehaviour
         inputFieldPlayer1.onEndEdit.AddListener(delegate { NameSetted(1); });
         inputFieldPlayer2.onEndEdit.AddListener(delegate { NameSetted(2); });
     }
+
     public void ChangeImageChipPlayer(int player)
     {
         Image imageChip = player == 1 ? imageChipPlayer1 : imageChipPlayer2;
@@ -40,13 +41,9 @@ public class ScriptGameConfiguration : MonoBehaviour
             if (imageChip.sprite == chipSprites[i])
             {
                 if (i < chipSprites.Length - 1)
-                {
                     imageChip.sprite = chipSprites[i + 1];
-                }
                 else
-                {
                     imageChip.sprite = chipSprites[0];
-                }
                 break;
             }
         }
@@ -61,6 +58,7 @@ public class ScriptGameConfiguration : MonoBehaviour
             buttonPlay.interactable = true;
         }
     }
+
     public void SeeToggle()
     {
         if (toggleModePlayerVsPlayer.isOn)
@@ -74,6 +72,7 @@ public class ScriptGameConfiguration : MonoBehaviour
             gameMode = 1;
         }
     }
+
     public void NameSetted(int player)
     {
         TMP_InputField inputField;
@@ -88,22 +87,22 @@ public class ScriptGameConfiguration : MonoBehaviour
             player2Name = inputField.GetComponentInChildren<TMP_InputField>().text;
         }
     }
+
     void OnDisable()
     {
-        //Debug.Log("Hey?");
         PlayerPrefs.SetInt("gameMode", gameMode); // 0 = player1 vs PC. 1 = player1 vs player2
-        player1Name = player1Name == "" ? "usted" : player1Name; 
+        player1Name = player1Name == "" ? "Jugador 1" : player1Name; 
+        player2Name = player2Name == "" ? "Jugador 2" : player2Name; 
         PlayerPrefs.SetString("player1", player1Name);
         PlayerPrefs.SetString("player2", player2Name);
         PlayerPrefs.SetString("color1", imageChipPlayer1.sprite.ToString()); // color 1 for player 1
         PlayerPrefs.SetString("color2", imageChipPlayer2.sprite.ToString());
     }
+
     public bool IsTheSameChipColor()
     {
-        if (imageChipPlayer1.sprite.ToString() == imageChipPlayer2.sprite.ToString())
-        {
-            return true;
-        }
-        return false;
+        return (
+            imageChipPlayer1.sprite.ToString() ==
+            imageChipPlayer2.sprite.ToString());
     }
 }
