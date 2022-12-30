@@ -20,6 +20,9 @@ public class ScriptConfiguration : MonoBehaviour
 
     public void seeToggle()
     {
+        // Play the sound of the menu button.
+        FindObjectOfType<AudioManager>().PlaySound("Menu button");
+
         help = toggleHelp.isOn ? 1 : 0;
         PlayerPrefs.SetInt("ayuda", help);
         PlayerPrefs.Save();

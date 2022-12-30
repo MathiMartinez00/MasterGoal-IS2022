@@ -111,7 +111,7 @@ public class ScriptTutorial : MonoBehaviour
         {
             case 0:
                 titleText.text = "Jugadores";
-                descriptionText.text = "El juego está conformado por 2 equipos representados por las fichas rojas y blancas.";
+                descriptionText.text = "El juego estï¿½ conformado por 2 equipos representados por las fichas rojas y blancas.";
                 break;
             case 1:
                 titleText.text = "Movimiento del jugador";
@@ -139,11 +139,11 @@ public class ScriptTutorial : MonoBehaviour
                 break;
             case 7:
                 titleText.text = "Casilla neutra";
-                descriptionText.text = "Cuando la pelota es compartida por un número igual de jugadores esta no pertenece a ninguno.";
+                descriptionText.text = "Cuando la pelota es compartida por un nï¿½mero igual de jugadores esta no pertenece a ninguno.";
                 break;
             case 8:
                 titleText.text = "Casilla neutra";
-                descriptionText.text = "La neutralidad se rompe si se obtiene mayoría por parte de un equpo.";
+                descriptionText.text = "La neutralidad se rompe si se obtiene mayorï¿½a por parte de un equpo.";
                 break;
             case 9:
                 titleText.text = "Movimientos prohibidos";
@@ -151,11 +151,11 @@ public class ScriptTutorial : MonoBehaviour
                 break;
             case 10:
                 titleText.text = "Movimientos prohibidos";
-                descriptionText.text = "Tampoco puede terminar en posesión de un equipo al final del turno.";
+                descriptionText.text = "Tampoco puede terminar en posesiï¿½n de un equipo al final del turno.";
                 break;
             case 11:
                 titleText.text = "Movimientos prohibidos";
-                descriptionText.text = "Ni puede dejar la pelota dentro de su propia área al final del turno.";
+                descriptionText.text = "Ni puede dejar la pelota dentro de su propia ï¿½rea al final del turno.";
                 break;
         }
     }
@@ -234,12 +234,16 @@ public class ScriptTutorial : MonoBehaviour
 
     void NextStep()
     {
+        // Play the sound of the menu button.
+        FindObjectOfType<AudioManager>().PlaySound("Menu button");
         stepTutorial++;
         ResetState();
     }
 
     void PreviousStep()
     {
+        // Play the sound of the menu button.
+        FindObjectOfType<AudioManager>().PlaySound("Menu button");
         stepTutorial--;
         ResetState();
     }

@@ -244,9 +244,19 @@ public class ScriptController : MonoBehaviour
             // Check what kind of piece was recently moved and move
             // it on the concrete board.
             if (move.PlayerPiece != null)
+            {
                 MoveConcretePlayer(move.PlayerPiece);
+
+                // Play the player move sound.
+                FindObjectOfType<AudioManager>().PlaySound("Player move");
+            }
             else if (move.BallMoved != null)
+            {
                 MoveConcreteBall(move.BallMoved);
+
+                // Play the ball move sound.
+                FindObjectOfType<AudioManager>().PlaySound("Ball move");
+            }
         }
 
         // If highlight mode is on, we render the highlights.

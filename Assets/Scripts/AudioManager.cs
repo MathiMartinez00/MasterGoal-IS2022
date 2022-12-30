@@ -57,6 +57,16 @@ public class AudioManager : MonoBehaviour
         s.source.Play();
     }
 
+    public void PlayMenuButtonSound()
+    {
+        PlaySound("Menu button");
+    }
+
+    public void PlayButtonSound()
+    {
+        PlaySound("Button press");
+    }
+
     public void PlayMusic(string name)
     {
         Sound s = Array.Find(music, s => s.name == name);

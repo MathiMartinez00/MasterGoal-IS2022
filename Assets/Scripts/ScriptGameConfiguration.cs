@@ -35,6 +35,9 @@ public class ScriptGameConfiguration : MonoBehaviour
 
     public void ChangeImageChipPlayer(int player)
     {
+        // Play the sound of the menu button.
+        FindObjectOfType<AudioManager>().PlaySound("Menu button");
+
         Image imageChip = player == 1 ? imageChipPlayer1 : imageChipPlayer2;
         for (int i = 0; i < chipSprites.Length; i++)
         {
@@ -61,6 +64,9 @@ public class ScriptGameConfiguration : MonoBehaviour
 
     public void SeeToggle()
     {
+        // Play the sound of the menu button.
+        FindObjectOfType<AudioManager>().PlaySound("Menu button");
+
         if (toggleModePlayerVsPlayer.isOn)
         {
             inputFieldPlayer2.GameObject().SetActive(false);
