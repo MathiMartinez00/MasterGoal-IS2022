@@ -22,10 +22,13 @@ public class AIModule
     // that results in a goal.
     private readonly int maxScore = 10000000;
     // Utility score of every increment in the "y" coordinate of the ball.
-    private readonly int positionScore = 10000;
+    private readonly int ballPositionWeight = 10000;
     // Utility score for every increment in the distance between the ball
     // and the players.
-    private readonly int distanceScore = 100;
+    private readonly int ballPlayerDistanceWeight = 100;
+    // Utility score for every increment in the distance between the two
+    // players of a team.
+    private readonly int playerDistanceWeight = 2;
 
     // This class constructor takes a game, calculates the recommended
     // moves and saves them on the "Moves" instance attribute.
@@ -252,8 +255,9 @@ public class AIModule
     // Heuristic evaluation function. Given a game, it returns an integer
     // representing the utility score of the given state of the game.
     // The heuristic evaluation is made based on whether the move resulted
-    // in a goal, the current position of the ball and the distance of the
-    // players to the ball.
+    // in a goal, the current position of the ball, the distance of the
+    // players to the ball and the distance between the two players of
+    // each team.
     // A state that favors the white team will get a positive score and a
     // state that favor the black team will get a negative score.
     private int EvaluateGame(Game game)
@@ -274,18 +278,53 @@ public class AIModule
         else
         {
             // This is the score derived from the current position of the
-            // ball in the game board. This score has a low weight.
-            int ballPositionScore = (ballY - 7) * positionScore;
+            // ball in the game board. This score has a high weight.
+            int ballPositionScore = (ballY - 7) * ballPositionWeight;
 
             // Weighs the distance of the players to the ball. This score
-            // has a very low weight.
+            // has a medium weight.
             int ballDistanceScore = GetPlayerBallDistanceScore(game);
 
+            // Weighs the distance between the two players of each team.
+            // This score has a low weight.
+            int playerDistanceScore = GetDistanceBetweenPlayersScore(game);
+
             // Add the two scores to get the total utility score.
-            utilityScore = ballPositionScore + ballDistanceScore;
+            utilityScore =
+                ballPositionScore + ballDistanceScore + playerDistanceScore;
         }
 
         return utilityScore;
+    }
+
+    // Weighs the distance between both pairs of player pieces (of the
+    // same team) on the board.
+    private int GetDistanceBetweenPlayersScore(Game game)
+    {
+        int whitePlayersDistance = GetDistanceBetweenPlayers(
+            game.Board.WhitePiece1, game.Board.WhitePiece2);
+        int blackPlayersDistance = GetDistanceBetweenPlayers(
+            game.Board.BlackPiece1, game.Board.BlackPiece2);
+
+        int maximumDistance = 16;
+        
+        int whitePlayersDistanceScore =
+            (maximumDistance - whitePlayersDistance) * playerDistanceWeight;
+        int blackPlayersDistanceScore =
+            (maximumDistance - blackPlayersDistance) * playerDistanceWeight;
+
+        return (whitePlayersDistanceScore - blackPlayersDistanceScore);
+    }
+
+    // Takes two player pieces and returns their distance from each other.
+    private int GetDistanceBetweenPlayers(
+        PlayerPiece player1, PlayerPiece player2)
+    {
+        // Formula for the distance between two points.
+        int xDiff = (int)Math.Pow(player1.X - player2.X, 2);
+        int yDiff = (int)Math.Pow(player1.Y - player2.Y, 2);
+
+        return (int)Math.Sqrt(xDiff + yDiff);
     }
 
     // Weighs the distance of the player pieces to the ball.
@@ -303,8 +342,12 @@ public class AIModule
 
         int maximumDistance = 16;
         
-        int whiteScore = (maximumDistance * 2 - white1Distance - white2Distance) * distanceScore;
-        int blackScore = (maximumDistance * 2 - black1Distance - black2Distance) * distanceScore;
+        int whiteScore =
+            (maximumDistance * 2 - white1Distance - white2Distance) *
+            ballPlayerDistanceWeight;
+        int blackScore =
+            (maximumDistance * 2 - black1Distance - black2Distance) *
+            ballPlayerDistanceWeight;
 
         return whiteScore - blackScore;
     }
@@ -312,6 +355,7 @@ public class AIModule
     // Returns the distance of a player from the ball in board units.
     private int GetPlayerDistanceToBall(PlayerPiece player, Ball ball)
     {
+        // Formula for the distance between two points.
         int xDiff = (int)Math.Pow(player.X - ball.X, 2);
         int yDiff = (int)Math.Pow(player.Y - ball.Y, 2);
 
