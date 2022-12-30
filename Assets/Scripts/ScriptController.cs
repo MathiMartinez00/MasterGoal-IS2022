@@ -151,7 +151,11 @@ public class ScriptController : MonoBehaviour
         // Check if a goal has been scored.
         if (move != null && move.IsGoal)
         {
+            // Reset the pieces after a goal.
             yield return StartCoroutine(ResetAbstractAndRealGame());
+
+            // If the player scored a goal, the computer has to player next.
+            yield return StartCoroutine(MakeComputerMove());
         }
         // Computer's turn, if relevant.
         else if (
@@ -222,17 +226,19 @@ public class ScriptController : MonoBehaviour
             {
                 // Render the pop-up announcing the winner of the match.
                 if (move.GetGoal() == Team.White)
-                    yield return MakePopup("¡Ganó " + WhiteName + "!", 3.5f);
+                    yield return PopUpGameOver("¡Ganó " + WhiteName + "!");
                 else
-                    yield return MakePopup("¡Ganó " + BlackName + "!", 3.5f);
+                    yield return PopUpGameOver("¡Ganó " + BlackName + "!");
             }
             else
             {
                 // Render a pop-up with a message announcing the goal.
                 if (move.GetGoal() == Team.White)
-                    yield return MakePopup("Gol a favor de " + WhiteName, 2.5f);
+                    yield return PopUpWithTimer(
+                        "¡Gol a favor de " + WhiteName + "!", 2.5f);
                 else
-                    yield return MakePopup("Gol a favor de " + BlackName, 2.5f);
+                    yield return PopUpWithTimer(
+                        "¡Gol a favor de " + BlackName + "!", 2.5f);
 
                 // Wait for the player to see the goal before resetting the game.
                 yield return new WaitForSeconds(3.0f);
@@ -414,7 +420,7 @@ public class ScriptController : MonoBehaviour
 
     // Creates a pop-up. While the popup is active, players can't select
     // pieces in the board.
-    private IEnumerator MakePopup(string text, float time)
+    private IEnumerator PopUpWithTimer(string text, float time)
     {
         // Disable user input while the pop-up is active.
         BoardBoxCollider.enabled = false;
@@ -426,5 +432,15 @@ public class ScriptController : MonoBehaviour
 
         // Enable user input.
         BoardBoxCollider.enabled = true;
+    }
+
+    // Creates a pop-up message for when the game is over. This pop-up
+    // will remain active, but it will let you tap on the screen.
+    private IEnumerator PopUpGameOver(string text)
+    {
+        popUpBanner.GetComponentInChildren<TextMeshProUGUI>().text = text;
+        popUpBanner.SetActive(true);
+        yield return new WaitForSeconds(float.MaxValue);
+        popUpBanner.SetActive(false);
     }
 }
