@@ -14,8 +14,10 @@ public class AIModule
     // stored here.
     public Game ChildGame { get; private set; }
 
-    // The recursion depth to be used by the Minimax algorithm.
-    private readonly int recursionDepth = 0;
+    // The recursion depth to be used by the Minimax algorithm, according
+    // to the difficulty level.
+    private readonly int easyRecursionDepth = 0;
+    private readonly int hardRecursionDepth = 1;
     // Maximum possible score. This is the utility score of a move
     // that results in a goal.
     private readonly int maxScore = 10000000;
@@ -27,8 +29,15 @@ public class AIModule
 
     // This class constructor takes a game, calculates the recommended
     // moves and saves them on the "Moves" instance attribute.
-    public AIModule(Game game)
+    public AIModule(Game game, Difficulty difficulty)
     {
+        // Set the recursion depth according to the difficulty selected.
+        int recursionDepth = 0;
+        if (difficulty == Difficulty.Easy)
+            recursionDepth = easyRecursionDepth;
+        else
+            recursionDepth = hardRecursionDepth;
+
         // Get all of the children states of the current game state.
         List<Game> childrenStates = GetChildrenStates(game);
         // Get the current turn in the form of a bool.

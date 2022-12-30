@@ -15,6 +15,7 @@ public class ScriptController : MonoBehaviour
     // Used to get information to and from the AI algorithm.
     public Game Game { get; set; } = default!;
     public GameMode GameMode { get; private set; }
+    private Difficulty Difficulty { get; set; }
 
     // GameObjects for game control.
     //
@@ -52,19 +53,30 @@ public class ScriptController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // Assign the names to the players.
         WhiteName = PlayerPrefs.GetString("player1");
         BlackName = PlayerPrefs.GetString("player2");
-        // Assign the images to the pieces.
-        PutChipImage();
         this.whiteScoreName.text = WhiteName;
         this.blackScoreName.text = BlackName;
 
+        // Assign the images to the pieces.
+        PutChipImage();
+
         BoardBoxCollider =
         TilemapBoard.gameObject.GetComponent<BoxCollider2D>();
+
+        // Set the tile highlights on or off.
         isHighlightModeOn = PlayerPrefs.GetInt("ayuda") == 1;
+
+        // Set the game mode that was selected by the user.
+        // "modo" == 0 -> PC vs player ; "modo" == 1 -> player vs player.
+        GameMode = PlayerPrefs.GetInt("gameMode") == 0 ?
+        GameMode.OnePlayer : GameMode.TwoPlayers;
+
+        Difficulty = Difficulty.Easy;
+
         // Create a new abstract game instance.
         Game = new Game(Team.White);
-        GameMode = GameMode.OnePlayer;
 
         whiteBanner.GetComponent<Image>().color =
         Game.CurrentTurn == Team.White ? Color.white : defaultBannerColor;
@@ -139,7 +151,7 @@ public class ScriptController : MonoBehaviour
             {
                 // Create a new AIModule instance. This class encapsulates
                 // the recommended moves in an instance field.
-                AIModule aiModule = new AIModule(Game);
+                AIModule aiModule = new AIModule(Game, Difficulty);
                 // Get the recommended moves (the moves with the highest
                 // utility score) and render them in a coroutine.
                 StartCoroutine(RenderChanges(aiModule.Moves));
@@ -157,12 +169,12 @@ public class ScriptController : MonoBehaviour
         // Move the piece (not a coroutine).
         MakeMove(move);
 
-        // Update the scores.
-        UpdateScores();
-
         // Check if a goal has been scored.
         if (move != null && move.IsGoal)
         {
+            // Update the scores.
+            UpdateScores();
+
             // Checks if the game is over to render to pop-up.
             if (Game.GameStatus == GameStatus.GameOver)
             {
