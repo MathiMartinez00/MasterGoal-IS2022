@@ -425,9 +425,9 @@ public class Game
         int maxX = Math.Max(x1,x2);
         int maxY = Math.Max(y1,y2);
 
+        // Traverse the board over a single column.
         if (x1 == x2)
         {
-            // Traverse the board over a single column.
             for (int i = minY+1; i < maxY; i++)
             {
                 // Check if another piece is on the path from the origin
@@ -436,22 +436,43 @@ public class Game
                     return true;
             }
         }
+        // Traverse the board over a single row.
         else if (y1 == y2)
         {
-            // Traverse the board over a single row.
             for (int j = minX+1; j < maxX; j++)
             {
                 if (DoesTileContainAPiece(j, y1))
                     return true;
             }
         }
+        // Traverse the board diagonally.
         else
         {
-            // Traverse the board diagonally.
+            int i = 1;
             for (int k = minX+1; k < maxX; k++)
             {
-                if (DoesTileContainAPiece(k,k))
-                    return true;
+                // There are four ways in which to traverse a diagonally.
+                if (y1 < y2 && x1 < x2)
+                {
+                    if (DoesTileContainAPiece(x1+i, y1+i))
+                        return true;
+                }
+                else if (y1 < y2 && x1 > x2)
+                {
+                    if (DoesTileContainAPiece(x1-i, y1+i))
+                        return true;
+                }
+                else if (y1 > y2 && x1 < x2)
+                {
+                    if (DoesTileContainAPiece(x1+i, y1-i))
+                        return true;
+                }
+                else
+                {
+                    if (DoesTileContainAPiece(x1-i, y1-i))
+                        return true;
+                }
+                i++;
             }
         }
         
